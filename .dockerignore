@@ -1,0 +1,11 @@
+**/.venv
+**/__pycache__
+**/node_modules
+frontend
+.env
+.env.*
+data
+demo/test_clips
+demo/noise
+demo/pitches/*.wav
+.git
