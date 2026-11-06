@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans", "Noto Sans Devanagari", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+}
+
+html { font-size: 18px; }
+body { @apply bg-slate-50 text-slate-900 antialiased; }
+button:focus-visible, a:focus-visible, input:focus-visible { @apply outline-3 outline-offset-2 outline-blue-600; }

@@ -236,7 +236,17 @@ def report(case_id: str) -> dict:
     return build_report(case_id)
 
 
+ANNOUNCE = {
+    "hi": "<slow> नमस्ते। <pauses> यह बातचीत ग्राहक की जानकारी के लिए नोट की जा रही है।",
+    "mr": "<slow> नमस्कार। <pauses> हे संभाषण ग्राहकाच्या माहितीसाठी नोंदवले जात आहे।",
+    "ta": "<slow> வணக்கம். <pauses> இந்த உரையாடல் வாடிக்கையாளரின் தகவலுக்காக பதிவு செய்யப்படுகிறது.",
+    "en": "<slow> Hello. <pauses> This conversation is being noted for the customer's reference.",
+}
+
+
 def _speak_text(rep: dict, target: str) -> str:
+    if target == "announce":
+        return ANNOUNCE[rep["lang"]]
     if target == "summary":
         if not rep.get("summary"):
             raise HTTPException(400, "No summary yet.")
