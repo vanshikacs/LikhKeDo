@@ -1,0 +1,137 @@
+{
+  "id": "demo-hi_hinglish",
+  "lang": "hi",
+  "mode": "recall",
+  "status": "done",
+  "error": null,
+  "product_label": "Suraksha Plus Guaranteed Wealth Plan (Bharosa Life, FICTIONAL)",
+  "summary": "<slow> 6 में से 4 बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: Returns are guaranteed at a minimum of 12% a year। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
+  "counts": {
+    "WRITTEN": 2,
+    "CONTRADICTED": 2,
+    "NOT_IN_WRITING": 2
+  },
+  "clauses": 19,
+  "transcript": [
+    {
+      "idx": 0,
+      "text": "नमस्ते सर, कैसे हैं आप? मैं Bharosa Life से हूँ, इसी branch में बैठता हूँ। सर, आपकी FD अगले हफ़्ते mature हो रही है ना, तो मैंने सोचा आपको एक बहुत अच्छा plan बता दूँ, Suraksha Plus Guaranteed Wealth Plan.\nदेखिए सर, इसमें returns guaranteed हैं, हर साल minimum 12 percent मिलेगा।\nऔर आपको सिर्फ़ 5 साल premium भरना है, उसके बाद कुछ नहीं देना।\nसाथ में 10 लाख का life cover भी मिलता है, family के लिए पूरी security रहेगी।\nअगर कभी पैसों की ज़रूरत पड़े तो आप कभी भी loan ले सकते हैं, वो भी 0 percent interest पर।\nसच बोलूँ तो सर, ये FD से तो पक्का better है, आजकल FD में मिलता ही क्या है।\nऔर कोई tension मत लीजिए, policy मिलने के 30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं।\nबहुत लोग ले चुके हैं सर, आपके पड़ोसी भी। बस यहाँ sign कर दीजिए, बाकी formalities मैं देख लूँगा।\n",
+      "source": "text",
+      "lang": null
+    }
+  ],
+  "claims": [
+    {
+      "id": "hi-1",
+      "quote": "returns guaranteed हैं, हर साल minimum 12 percent",
+      "claim_en": "Returns are guaranteed at a minimum of 12% a year",
+      "category": "other",
+      "numbers": [],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p2-s2",
+      "clause_quote": "Returns are not guaranteed.",
+      "clause_page": 2,
+      "explain_en": "The document states something different.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "hi-2",
+      "quote": "सिर्फ़ 5 साल premium भरना है",
+      "claim_en": "Premium has to be paid for only 5 years",
+      "category": "other",
+      "numbers": [],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p1-s5",
+      "clause_quote": "Premium paying term: 10 years.",
+      "clause_page": 1,
+      "explain_en": "The document states something different.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "hi-3",
+      "quote": "10 लाख का life cover",
+      "claim_en": "Life cover of Rs 10 lakh",
+      "category": "other",
+      "numbers": [],
+      "verdict": "WRITTEN",
+      "clause_id": "p1-s6",
+      "clause_quote": "Sum assured on death: Rs 10,00,000 (Rupees ten lakh).",
+      "clause_page": 1,
+      "explain_en": "The document states this.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "hi-4",
+      "quote": "कभी भी loan ले सकते हैं, वो भी 0 percent interest पर",
+      "claim_en": "A loan can be taken any time at 0% interest",
+      "category": "other",
+      "numbers": [],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "The document does not mention this. Ask for it in writing.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "hi-5",
+      "quote": "ये FD से तो पक्का better है",
+      "claim_en": "The plan is definitely better than a fixed deposit",
+      "category": "other",
+      "numbers": [],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "The document does not mention this. Ask for it in writing.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "hi-6",
+      "quote": "30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं",
+      "claim_en": "The policy can be returned within 30 days of receipt",
+      "category": "other",
+      "numbers": [],
+      "verdict": "WRITTEN",
+      "clause_id": "p3-s3",
+      "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms.",
+      "clause_page": 3,
+      "explain_en": "The document states this.",
+      "explain_local": "",
+      "ask_agent": "Can you give me this in writing?",
+      "grounded": true,
+      "reason": null
+    }
+  ],
+  "trace": {
+    "prisma_model": null,
+    "evon_model": null,
+    "evon_calls": [],
+    "pipeline_ms": null,
+    "timbre": [],
+    "calls": []
+  },
+  "disclaimer": "Not financial or legal advice.",
+  "demo": {
+    "slug": "hi_hinglish",
+    "lang": "hi",
+    "title": "Hindi / Hinglish pitch",
+    "source": "answer_key_preview",
+    "created": "2026-11-06T19:27+00:00"
+  }
+}
