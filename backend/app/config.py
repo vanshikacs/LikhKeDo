@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     demo_only: bool = False
     admin_secret: SecretStr | None = None
     data_dir: Path = Path("./data")
+    # Timbre v3.0 primary combination; on HTTP 400 gnani.py falls back to no speed at 48000 Hz.
+    # Update after scripts/smoke_timbre.py shows which combination works (README "Measured API behaviour").
+    tts_speed: float | None = 0.9
+    tts_sample_rate: int = 24000
+    # Hold GnaniGate for a whole streaming session (set false if concurrency_probe shows streams don't block).
+    stream_holds_lock: bool = True
 
     def require(self, name: str):
         """Return a setting or fail clearly if it hasn't been configured yet."""
