@@ -1,0 +1,3 @@
+# Extra packages for dev scripts only (not needed by the deployed backend).
+-r ../backend/requirements.txt
+reportlab==5.1.0
