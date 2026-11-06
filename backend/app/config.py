@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     tts_sample_rate: int = 24000
     # Hold GnaniGate for a whole streaming session (set false if concurrency_probe shows streams don't block).
     stream_holds_lock: bool = True
+    # Seeded demo cases (demo/cache/<slug>/report.json) and the demo CIS PDF.
+    demo_dir: Path = REPO_ROOT / "demo"
+    analyses_per_hour: int = 3
 
     def require(self, name: str):
         """Return a setting or fail clearly if it hasn't been configured yet."""
