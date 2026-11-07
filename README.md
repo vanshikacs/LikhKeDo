@@ -116,6 +116,8 @@ Live captions, end to end: `scripts/stream_pitch_test.py` streams each pitch thr
 
 ## Recording the demo
 
+Full recording, posting and submission plan: [LAUNCH.md](LAUNCH.md).
+
 1. Backend with `DEBUG_SAVE_AUDIO=true` (dev only), frontend `npm run dev`, Evon up (`/api/health` shows `"evon":"ok"`).
 2. Open `http://localhost:5173/?record=1`: a phone-width column with larger type, and cards that highlight as they appear.
 3. Live pitch: a second person reads `demo/pitches/hi_hinglish.txt` into the mic. Or, on `/dev/listen`, use **Start + play pitch audio**, which plays the Timbre pitch from the speakers with echo cancellation off (otherwise the browser cancels the very audio it is meant to capture).
