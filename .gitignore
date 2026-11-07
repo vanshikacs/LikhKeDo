@@ -23,3 +23,5 @@ demo/test_clips/*.wav
 # demo cache: commit small WAVs only. Git can't filter by size, so list any WAV over 5 MB here.
 # demo/cache/<large-file>.wav
 out_client.wav
+
+demo/noise/*.wav

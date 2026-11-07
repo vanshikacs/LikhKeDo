@@ -283,8 +283,11 @@ class GnaniClient:
 
     async def transcribe_rest(self, audio: bytes, filename: str, lang_hint: str,
                               keyterms: list[str] | None = None, topic: str | None = None,
-                              previous_text: str | None = None, case_id: str | None = None) -> TranscriptResult:
+                              previous_text: str | None = None, case_id: str | None = None,
+                              model: str = PRISMA_MODEL, fmt: str = "codemix") -> TranscriptResult:
         params = {"lang": lang_hint, "keyterms": keyterms, "topic": topic, "prev": previous_text}
+        if (model, fmt) != (PRISMA_MODEL, "codemix"):
+            params.update(model=model, fmt=fmt)
         key = hashlib.sha256(audio + json.dumps(params, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         with db.session() as s:
             hit = s.get(db.PrismaCache, key)
@@ -301,7 +304,7 @@ class GnaniClient:
         prev = previous_text
         for chunk in chunks:
             data = await self._prisma_once(pcm_to_wav(chunk), filename, lang_hint, keyterms, topic, prev,
-                                           case_id, len(chunk) / 32000)
+                                           case_id, len(chunk) / 32000, model, fmt)
             texts.append(data["transcript"])
             rids.append(data["request_id"])
             det = det or data.get("detected_language_code")
@@ -317,9 +320,10 @@ class GnaniClient:
             s.commit()
         return result
 
-    async def _prisma_once(self, wav: bytes, filename, lang, keyterms, topic, prev, case_id, seconds) -> dict:
+    async def _prisma_once(self, wav: bytes, filename, lang, keyterms, topic, prev, case_id, seconds,
+                           model: str = PRISMA_MODEL, fmt: str = "codemix") -> dict:
         def form(with_keyterms: bool) -> dict:
-            d = {"model": PRISMA_MODEL, "language_code": lang, "format": "codemix"}
+            d = {"model": model, "language_code": lang, "format": fmt}
             if with_keyterms and keyterms:
                 d["keyterms"] = json.dumps(keyterms[:200], ensure_ascii=False)
             if topic:
