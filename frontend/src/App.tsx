@@ -34,7 +34,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])
-  useEffect(() => window.scrollTo(0, 0), [screen.name])
+  useEffect(() => {
+    // braces matter: newer Chrome returns a Promise from scrollTo, which React would treat as a cleanup
+    window.scrollTo(0, 0)
+  }, [screen.name])
 
   const home = () => setScreen({ name: 'home' })
   const onDone = useCallback((r: Report) => setScreen({ name: 'report', report: r }), [])
@@ -94,7 +97,9 @@ function Demos({ lang, onOpen }: { lang: Lang; onOpen: (r: Report) => void }) {
       .then((l) => setList([...l].sort((a, b) => Number(b.lang === lang) - Number(a.lang === lang))))
       .catch((e) => setErr(e instanceof Error ? e.message : String(e)))
   }, [lang])
-  useEffect(load, [load])
+  useEffect(() => {
+    load()
+  }, [load])
 
   async function open(slug: string) {
     setOpening(slug)
