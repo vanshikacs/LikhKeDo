@@ -164,7 +164,7 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 7,
+        "pipeline_ms": 2,
         "claims": 8
       }
     },
@@ -333,7 +333,7 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 5,
+        "pipeline_ms": 2,
         "claims": 8
       }
     },
@@ -502,45 +502,216 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 5,
+        "pipeline_ms": 2,
         "claims": 8
+      }
+    },
+    {
+      "slug": "hi_hinglish_2",
+      "correct": 1,
+      "total": 6,
+      "extra_claims": 1,
+      "seconds": 0.0,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "आपके बेटे ने बताया था कि आप कुछ safe investment ढूंढ रही हैं, यह Suraksha Plus प्लान है, इसमें कोई lock-in नहीं है।",
+          "claim_en": "",
+          "category": "lock_in",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 1,
+          "quote": "जब चाहे पैसा निकाल लीजिए, policy सिर्फ पंद्रह साल की है।",
+          "claim_en": "",
+          "category": "liquidity",
+          "numbers": [
+            "15 years"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 2,
+          "quote": "वह अलग से जुड़ता रहेगा, maturity पर जो भी पैसा मिलेगा वह पूरा tax free है।",
+          "claim_en": "",
+          "category": "tax",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 3,
+          "quote": "premium बस एक लाख रुपये साल का है, बहुत आराम से हो जाएगा और पहले साल से कोई charges नहीं कटेंगे।",
+          "claim_en": "",
+          "category": "premium_term",
+          "numbers": [
+            "1 lakh"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        }
+      ],
+      "summary": "<slow> 4 में से 4 बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: lock-in का वादा। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
+      "trace": {
+        "engine": {
+          "provider": "none",
+          "label": "Rules check — no AI model",
+          "quant": null,
+          "model": null,
+          "mode": "B"
+        },
+        "evon_model": null,
+        "evon_calls": [],
+        "pipeline_ms": 4,
+        "claims": 4
+      }
+    },
+    {
+      "slug": "en_english",
+      "correct": 0,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 0.0,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "Your returns are fixed at eight percent every year.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "We could not find this in the document. Ask for it in writing.",
+          "ask_agent": "Can you give me this promise in writing?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 1,
+          "quote": "The sum assured is ten lakh rupees paid to your nominee.",
+          "claim_en": "",
+          "category": "cover",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "We could not find this in the document. Ask for it in writing.",
+          "ask_agent": "Can you give me this promise in writing?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 2,
+          "quote": "The policy term is fifteen years.",
+          "claim_en": "",
+          "category": "other",
+          "numbers": [
+            "3 years"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "We could not find this in the document. Ask for it in writing.",
+          "ask_agent": "Can you give me this promise in writing?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        }
+      ],
+      "summary": "<slow> 3 of 3 promises are different on paper or not written at all. <pauses> Most important: the promise about returns. <pauses> Ask for it in writing before you sign.",
+      "trace": {
+        "engine": {
+          "provider": "none",
+          "label": "Rules check — no AI model",
+          "quant": null,
+          "model": null,
+          "mode": "B"
+        },
+        "evon_model": null,
+        "evon_calls": [],
+        "pipeline_ms": 3,
+        "claims": 3
       }
     }
   ],
-  "created": "2026-11-07 20:35",
+  "created": "2026-11-07 21:24",
   "engine": "Rules check — no AI model",
   "confusion": {
     "WRITTEN": {
       "WRITTEN": 4,
       "CONTRADICTED": 0,
-      "NOT_IN_WRITING": 1,
+      "NOT_IN_WRITING": 5,
       "MISSED": 1
     },
     "CONTRADICTED": {
       "WRITTEN": 0,
       "CONTRADICTED": 5,
-      "NOT_IN_WRITING": 0,
-      "MISSED": 1
+      "NOT_IN_WRITING": 1,
+      "MISSED": 5
     },
     "NOT_IN_WRITING": {
       "WRITTEN": 0,
       "CONTRADICTED": 0,
-      "NOT_IN_WRITING": 6,
-      "MISSED": 0
+      "NOT_IN_WRITING": 7,
+      "MISSED": 2
     }
   },
   "metrics": {
     "WRITTEN": {
       "precision": 1.0,
-      "recall": 0.667
+      "recall": 0.4
     },
     "CONTRADICTED": {
       "precision": 1.0,
-      "recall": 0.833
+      "recall": 0.455
     },
     "NOT_IN_WRITING": {
-      "precision": 0.857,
-      "recall": 1.0
+      "precision": 0.538,
+      "recall": 0.778
     }
   },
   "disagreements": [
@@ -576,6 +747,138 @@
       "quote_expected": "10 லட்சம் life cover இருக்கு",
       "quote_got": null,
       "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-1",
+      "expected": "CONTRADICTED",
+      "got": "MISSED",
+      "quote_expected": "इसमें कोई lock-in नहीं है, जब चाहे पैसा निकाल लीजिए",
+      "quote_got": null,
+      "clause_expected": "p3-s1",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-2",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "Policy सिर्फ़ 15 साल की है",
+      "quote_got": "जब चाहे पैसा निकाल लीजिए, policy सिर्फ पंद्रह साल की है।",
+      "clause_expected": "p1-s4",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-3",
+      "expected": "CONTRADICTED",
+      "got": "MISSED",
+      "quote_expected": "हर साल अच्छा bonus भी मिलेगा",
+      "quote_got": null,
+      "clause_expected": "p2-s4",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-5",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "Premium बस 1 लाख रुपये साल का है",
+      "quote_got": "premium बस एक लाख रुपये साल का है, बहुत आराम से हो जाएगा और पहले साल से कोई charges नहीं कटेंगे।",
+      "clause_expected": "p1-s7",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-6",
+      "expected": "CONTRADICTED",
+      "got": "MISSED",
+      "quote_expected": "पहले साल से कोई charges नहीं कटेंगे",
+      "quote_got": null,
+      "clause_expected": "p4-s1",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-1",
+      "expected": "CONTRADICTED",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "Your returns are fixed at 8 percent every year",
+      "quote_got": "Your returns are fixed at eight percent every year.",
+      "clause_expected": "p2-s2",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-2",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "The sum assured is 10 lakh rupees",
+      "quote_got": "The sum assured is ten lakh rupees paid to your nominee.",
+      "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-3",
+      "expected": "CONTRADICTED",
+      "got": "MISSED",
+      "quote_expected": "you can surrender anytime after 2 years without any penalty",
+      "quote_got": null,
+      "clause_expected": "p3-s1",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-4",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "The policy term is 15 years",
+      "quote_got": "The policy term is fifteen years.",
+      "clause_expected": "p1-s4",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-5",
+      "expected": "NOT_IN_WRITING",
+      "got": "MISSED",
+      "quote_expected": "Our company has never rejected a single claim",
+      "quote_got": null,
+      "clause_expected": null,
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "en_english",
+      "id": "en-6",
+      "expected": "NOT_IN_WRITING",
+      "got": "MISSED",
+      "quote_expected": "You will also get a free health check-up every year",
+      "quote_got": null,
+      "clause_expected": null,
       "clause_got": null,
       "clause_quote": null,
       "reason": null

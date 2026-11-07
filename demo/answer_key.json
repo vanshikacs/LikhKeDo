@@ -7,12 +7,48 @@
       "file": "demo/pitches/hi_hinglish.txt",
       "lang": "hi",
       "promises": [
-        {"id": "hi-1", "quote_hint": "returns guaranteed हैं, हर साल minimum 12 percent", "claim_en": "Returns are guaranteed at a minimum of 12% a year", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p2-s2"},
-        {"id": "hi-2", "quote_hint": "सिर्फ़ 5 साल premium भरना है", "claim_en": "Premium has to be paid for only 5 years", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p1-s5"},
-        {"id": "hi-3", "quote_hint": "10 लाख का life cover", "claim_en": "Life cover of Rs 10 lakh", "expected_verdict": "WRITTEN", "expected_clause_id": "p1-s6"},
-        {"id": "hi-4", "quote_hint": "कभी भी loan ले सकते हैं, वो भी 0 percent interest पर", "claim_en": "A loan can be taken any time at 0% interest", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "hi-5", "quote_hint": "ये FD से तो पक्का better है", "claim_en": "The plan is definitely better than a fixed deposit", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "hi-6", "quote_hint": "30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं", "claim_en": "The policy can be returned within 30 days of receipt", "expected_verdict": "WRITTEN", "expected_clause_id": "p3-s3"}
+        {
+          "id": "hi-1",
+          "quote_hint": "returns guaranteed हैं, हर साल minimum 12 percent",
+          "claim_en": "Returns are guaranteed at a minimum of 12% a year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p2-s2"
+        },
+        {
+          "id": "hi-2",
+          "quote_hint": "सिर्फ़ 5 साल premium भरना है",
+          "claim_en": "Premium has to be paid for only 5 years",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p1-s5"
+        },
+        {
+          "id": "hi-3",
+          "quote_hint": "10 लाख का life cover",
+          "claim_en": "Life cover of Rs 10 lakh",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s6"
+        },
+        {
+          "id": "hi-4",
+          "quote_hint": "कभी भी loan ले सकते हैं, वो भी 0 percent interest पर",
+          "claim_en": "A loan can be taken any time at 0% interest",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "hi-5",
+          "quote_hint": "ये FD से तो पक्का better है",
+          "claim_en": "The plan is definitely better than a fixed deposit",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "hi-6",
+          "quote_hint": "30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं",
+          "claim_en": "The policy can be returned within 30 days of receipt",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p3-s3"
+        }
       ]
     },
     {
@@ -20,12 +56,48 @@
       "file": "demo/pitches/ta_tamil_english.txt",
       "lang": "ta",
       "promises": [
-        {"id": "ta-1", "quote_hint": "returns guaranteed மேடம், ஒவ்வொரு வருஷமும் minimum 12 percent", "claim_en": "Returns are guaranteed at a minimum of 12% a year", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p2-s2"},
-        {"id": "ta-2", "quote_hint": "5 வருஷம் மட்டும் premium கட்டினா போதும்", "claim_en": "Premium has to be paid for only 5 years", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p1-s5"},
-        {"id": "ta-3", "quote_hint": "10 லட்சம் life cover இருக்கு", "claim_en": "Life cover of Rs 10 lakh", "expected_verdict": "WRITTEN", "expected_clause_id": "p1-s6"},
-        {"id": "ta-4", "quote_hint": "loan எடுக்கலாம், அதுவும் 0 percent interest-ல", "claim_en": "A loan can be taken any time at 0% interest", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "ta-5", "quote_hint": "இது FD-ஐ விட கண்டிப்பா better", "claim_en": "The plan is definitely better than a fixed deposit", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "ta-6", "quote_hint": "30 நாளுக்குள்ள பிடிக்கலைன்னா நீங்க திருப்பிக் கொடுக்கலாம்", "claim_en": "The policy can be returned within 30 days of receipt", "expected_verdict": "WRITTEN", "expected_clause_id": "p3-s3"}
+        {
+          "id": "ta-1",
+          "quote_hint": "returns guaranteed மேடம், ஒவ்வொரு வருஷமும் minimum 12 percent",
+          "claim_en": "Returns are guaranteed at a minimum of 12% a year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p2-s2"
+        },
+        {
+          "id": "ta-2",
+          "quote_hint": "5 வருஷம் மட்டும் premium கட்டினா போதும்",
+          "claim_en": "Premium has to be paid for only 5 years",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p1-s5"
+        },
+        {
+          "id": "ta-3",
+          "quote_hint": "10 லட்சம் life cover இருக்கு",
+          "claim_en": "Life cover of Rs 10 lakh",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s6"
+        },
+        {
+          "id": "ta-4",
+          "quote_hint": "loan எடுக்கலாம், அதுவும் 0 percent interest-ல",
+          "claim_en": "A loan can be taken any time at 0% interest",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "ta-5",
+          "quote_hint": "இது FD-ஐ விட கண்டிப்பா better",
+          "claim_en": "The plan is definitely better than a fixed deposit",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "ta-6",
+          "quote_hint": "30 நாளுக்குள்ள பிடிக்கலைன்னா நீங்க திருப்பிக் கொடுக்கலாம்",
+          "claim_en": "The policy can be returned within 30 days of receipt",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p3-s3"
+        }
       ]
     },
     {
@@ -33,12 +105,150 @@
       "file": "demo/pitches/mr_marathi.txt",
       "lang": "mr",
       "promises": [
-        {"id": "mr-1", "quote_hint": "returns guaranteed आहेत, दर वर्षी minimum 12 percent", "claim_en": "Returns are guaranteed at a minimum of 12% a year", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p2-s2"},
-        {"id": "mr-2", "quote_hint": "फक्त 5 वर्षं premium भरायचा आहे", "claim_en": "Premium has to be paid for only 5 years", "expected_verdict": "CONTRADICTED", "expected_clause_id": "p1-s5"},
-        {"id": "mr-3", "quote_hint": "10 लाखांचं life cover", "claim_en": "Life cover of Rs 10 lakh", "expected_verdict": "WRITTEN", "expected_clause_id": "p1-s6"},
-        {"id": "mr-4", "quote_hint": "कधीही loan घेऊ शकता, तेही 0 percent interest वर", "claim_en": "A loan can be taken any time at 0% interest", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "mr-5", "quote_hint": "हे FD पेक्षा नक्कीच better आहे", "claim_en": "The plan is definitely better than a fixed deposit", "expected_verdict": "NOT_IN_WRITING", "expected_clause_id": null},
-        {"id": "mr-6", "quote_hint": "30 दिवसांत आवडली नाही तर तुम्ही परत करू शकता", "claim_en": "The policy can be returned within 30 days of receipt", "expected_verdict": "WRITTEN", "expected_clause_id": "p3-s3"}
+        {
+          "id": "mr-1",
+          "quote_hint": "returns guaranteed आहेत, दर वर्षी minimum 12 percent",
+          "claim_en": "Returns are guaranteed at a minimum of 12% a year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p2-s2"
+        },
+        {
+          "id": "mr-2",
+          "quote_hint": "फक्त 5 वर्षं premium भरायचा आहे",
+          "claim_en": "Premium has to be paid for only 5 years",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p1-s5"
+        },
+        {
+          "id": "mr-3",
+          "quote_hint": "10 लाखांचं life cover",
+          "claim_en": "Life cover of Rs 10 lakh",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s6"
+        },
+        {
+          "id": "mr-4",
+          "quote_hint": "कधीही loan घेऊ शकता, तेही 0 percent interest वर",
+          "claim_en": "A loan can be taken any time at 0% interest",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "mr-5",
+          "quote_hint": "हे FD पेक्षा नक्कीच better आहे",
+          "claim_en": "The plan is definitely better than a fixed deposit",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "mr-6",
+          "quote_hint": "30 दिवसांत आवडली नाही तर तुम्ही परत करू शकता",
+          "claim_en": "The policy can be returned within 30 days of receipt",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p3-s3"
+        }
+      ]
+    },
+    {
+      "slug": "hi_hinglish_2",
+      "file": "demo/pitches/hi_hinglish_2.txt",
+      "lang": "hi",
+      "eval_only": true,
+      "note": "Held-out: written after the rules check, expected verdicts fixed before any run.",
+      "promises": [
+        {
+          "id": "h2-1",
+          "quote_hint": "इसमें कोई lock-in नहीं है, जब चाहे पैसा निकाल लीजिए",
+          "claim_en": "There is no lock-in; money can be withdrawn any time",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p3-s1"
+        },
+        {
+          "id": "h2-2",
+          "quote_hint": "Policy सिर्फ़ 15 साल की है",
+          "claim_en": "The policy term is 15 years",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s4"
+        },
+        {
+          "id": "h2-3",
+          "quote_hint": "हर साल अच्छा bonus भी मिलेगा",
+          "claim_en": "A good bonus is paid every year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p2-s4"
+        },
+        {
+          "id": "h2-4",
+          "quote_hint": "Maturity पर जो भी पैसा मिलेगा, वो पूरा tax-free है",
+          "claim_en": "The entire maturity amount is tax-free",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "h2-5",
+          "quote_hint": "Premium बस 1 लाख रुपये साल का है",
+          "claim_en": "The premium is Rs 1 lakh per year",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s7"
+        },
+        {
+          "id": "h2-6",
+          "quote_hint": "पहले साल से कोई charges नहीं कटेंगे",
+          "claim_en": "No charges are deducted from the first year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p4-s1"
+        }
+      ]
+    },
+    {
+      "slug": "en_english",
+      "file": "demo/pitches/en_english.txt",
+      "lang": "en",
+      "eval_only": true,
+      "note": "Held-out: written after the rules check, expected verdicts fixed before any run.",
+      "promises": [
+        {
+          "id": "en-1",
+          "quote_hint": "Your returns are fixed at 8 percent every year",
+          "claim_en": "Returns are fixed at 8% a year",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p2-s2"
+        },
+        {
+          "id": "en-2",
+          "quote_hint": "The sum assured is 10 lakh rupees",
+          "claim_en": "The sum assured is Rs 10 lakh",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s6"
+        },
+        {
+          "id": "en-3",
+          "quote_hint": "you can surrender anytime after 2 years without any penalty",
+          "claim_en": "The policy can be surrendered after 2 years without penalty",
+          "expected_verdict": "CONTRADICTED",
+          "expected_clause_id": "p3-s1"
+        },
+        {
+          "id": "en-4",
+          "quote_hint": "The policy term is 15 years",
+          "claim_en": "The policy term is 15 years",
+          "expected_verdict": "WRITTEN",
+          "expected_clause_id": "p1-s4"
+        },
+        {
+          "id": "en-5",
+          "quote_hint": "Our company has never rejected a single claim",
+          "claim_en": "The insurer has never rejected a claim",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        },
+        {
+          "id": "en-6",
+          "quote_hint": "You will also get a free health check-up every year",
+          "claim_en": "A free health check-up is included every year",
+          "expected_verdict": "NOT_IN_WRITING",
+          "expected_clause_id": null
+        }
       ]
     }
   ]

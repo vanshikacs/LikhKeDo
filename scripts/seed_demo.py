@@ -95,6 +95,8 @@ async def main() -> None:
     for pitch in key["pitches"]:
         if a.slug and pitch["slug"] != a.slug:
             continue
+        if pitch.get("eval_only"):
+            continue  # held-out accuracy pitches are not shown as demo cases
         out = ROOT / "demo" / "cache" / pitch["slug"]
         out.mkdir(parents=True, exist_ok=True)
         print(f"{pitch['slug']}:")

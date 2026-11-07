@@ -227,3 +227,9 @@ def test_rules_never_contradict_a_bare_rate():
     v = judge("அதுவும் பூஜ்ஜியம் percent interest-இல் கிடைக்கும் சார்.", "returns", CLAUSES)
     assert v.verdict == "NOT_IN_WRITING"
     assert judge("आपको सिर्फ पाँच साल प्रीमियम भरना है", "premium_term", CLAUSES).verdict == "CONTRADICTED"
+
+
+def test_rules_never_write_an_illustrated_rate():
+    """Held-out finding: '8 percent fixed' must not be WRITTEN because 8% appears in the benefit illustration."""
+    from app.rules import judge
+    assert judge("Your returns are fixed at 8 percent every year", "returns", CLAUSES).verdict != "WRITTEN"

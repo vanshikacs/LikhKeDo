@@ -89,7 +89,15 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 
 `scripts/eval_answer_key.py` runs the pipeline on three fictional pitches (Hindi/Hinglish, Tamil+English, Marathi; 6 promises each: 2 written, 2 contradicted, 2 not in writing) against the fictional CIS and writes [demo/eval_results.md](demo/eval_results.md). _Not run yet against the live Evon; numbers will be reported as they come out._
 
-Mode B (rules, no AI model) on real Prisma v3.0 transcripts of the Timbre pitch audio: **15/18**, with no wrong WRITTEN or CONTRADICTED; every miss fell on the cautious side ([demo/eval_rules_stt.md](demo/eval_rules_stt.md)). The rules were written with these pitches in view, so treat this as a sanity check, not an accuracy claim.
+The answer key now has **30 labelled promises** in 5 pitches. Two of them (`hi_hinglish_2`, `en_english`: 12 promises on lock-in, bonus, charges, premium amount, surrender, claims) were written *after* the rules check, with their expected verdicts fixed before any run, so they are a held-out test.
+
+| Mode B (rules, no AI model) | Original 3 pitches (rules written with them in view) | Held-out 2 pitches |
+| --- | --- | --- |
+| On the pitch text | 18/18 | **2/12**; one wrong *Written* ("returns fixed at 8 percent" matched the illustrated 8%) |
+| After one post-hoc safety fix (an illustrated rate is never *Written*) | 18/18 | 2/12, no wrong *Written* or *Different on paper* |
+| On Prisma v3.0 transcripts of the Timbre audio | 15/18 | 1/12 (English numbers come back as words) |
+
+So keyword rules don't generalise: they are a labelled fallback that errs towards "ask for it in writing", not a substitute for Evon. Files: [demo/eval_rules.md](demo/eval_rules.md), [demo/eval_rules_stt.md](demo/eval_rules_stt.md), [demo/eval_rules_heldout_before_fix.md](demo/eval_rules_heldout_before_fix.md). Mode A (Evon) numbers: not run yet (no Evon access).
 
 ## Noise robustness
 

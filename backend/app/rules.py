@@ -146,6 +146,10 @@ def judge(sentence: str, category: str, clauses: list[Clause]) -> Verification:
     if clause is None or not said:
         return Verification(verdict="NOT_IN_WRITING")
     have = doc_values(clause.text)
+    # Illustrated rates are not promises: a spoken rate is never "written" just because the same % appears in the
+    # benefit illustration (held-out test: "returns fixed at 8 percent" vs "illustrated rates of 4% and 8%").
+    if category == "returns" and any(u == "percent" for u, _ in said):
+        return Verification(verdict="NOT_IN_WRITING")
     if all(sv in have for sv in said):
         num = said[0]
         q = _clause_sentence(clause, lambda s: num in doc_values(s))

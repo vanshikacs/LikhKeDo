@@ -55,5 +55,6 @@ Mode B is never called Evon or AI. It never invents an English paraphrase, and i
 |---|---|
 | Mode B on the pitch text (the rules were written with these pitches in view, so this is not a fair accuracy test) | 18/18 — [demo/eval_rules.md](demo/eval_rules.md) |
 | Mode B on real Prisma v3.0 transcripts of the Timbre pitch audio | 15/18; no wrong WRITTEN or CONTRADICTED (precision 1.0 for both), misses fall to NOT_IN_WRITING or MISSED — [demo/eval_rules_stt.md](demo/eval_rules_stt.md) |
+| Mode B on 12 held-out promises (2 new pitches written after the rules) | 2/12; after one post-hoc safety fix, no wrong WRITTEN or CONTRADICTED |
 | Mode A with the 4-bit GGUF | not run — no access yet |
 | Mode A with BF16 on vLLM | not run — no GPU |
