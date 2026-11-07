@@ -1,23 +1,120 @@
-# LikhKeDo
+# LikhKeDo — *Jo bola, kya woh likha hai?*
 
-"Put it in writing": hears an insurance/bank sales pitch, extracts each spoken promise, and checks it
-against the policy's Customer Information Sheet. Synthetic demo data only. Not financial or legal advice.
+**LikhKeDo ("put it in writing") listens to an insurance or bank sales pitch in Hindi, Hinglish, Tamil, Marathi or English, pulls out every spoken promise, checks each one against the policy's Customer Information Sheet, and tells the buyer — out loud, in their language — which promises are written, which the document contradicts, and which they should ask to get in writing.**
+
+Built for the Gnani AI Great Indian AI Internship Challenge on Gnani's stack: Prisma (speech-to-text), Evon (reasoning, self-hosted) and Timbre (text-to-speech). Demo data is fictional. **Not financial or legal advice.**
+
+## The problem
+
+Mis-selling is the single largest category of life-insurance complaints in India. IRDAI recorded **26,667 "unfair business practice" grievances against life insurers in FY25, up about 14%**, or 22% of all life-insurance complaints ([Outlook Money, reporting the IRDAI annual report](https://www.outlookmoney.com/personal-finance/insurance-claims-mis-selling-account-for-most-insurance-complaints-in-fy25-reveals-irdai-annual-report)). The pattern is familiar: "bilkul FD jaisa", "returns guaranteed", "sirf paanch saal premium". The promise is spoken; the 40-page English document says something else; the buyer, often older, signs anyway.
+
+## How it works (30 seconds)
+
+1. **Hear** — *Listen* mode streams the pitch live (Prisma v3.0 streaming, code-mixed, finance keyterms) and lights up red-flag phrases. *Recall* mode lets the buyer say afterwards what they were told (Prisma v3.0 REST) — no recording of the seller needed.
+2. **Read** — the policy PDF becomes numbered clauses with page numbers (pdfplumber + BM25).
+3. **Check** — Evon v3.3 extracts each promise with its exact quote, then compares it with the top clauses and the full CIS (reasoning on) and returns WRITTEN / CONTRADICTED / NOT_IN_WRITING with the exact clause quote.
+4. **Ground** — code, not the model, has the last word: the promise quote must appear in the transcript, the clause quote must appear in the cited clause, and every number in a WRITTEN verdict must be in that clause. Anything that fails becomes *Not in writing — ask*.
+5. **Speak** — Timbre v3.0 (Tarika) reads a slow summary with pauses in the buyer's language. One tap prints a *Likh Ke Do* slip for the seller to sign, and explains the 30-day free look.
+
+```mermaid
+flowchart LR
+  subgraph Browser["React + Vite + Tailwind (Vercel)"]
+    MIC["Mic → AudioWorklet\n16 kHz PCM16, 1024-byte frames"]
+    REC["Recall clip ≤ 30 s / policy PDF"]
+    UI["Captions · red flags · verdict cards · audio · slip"]
+  end
+  subgraph API["FastAPI (Render)"]
+    WSP["WS proxy"]
+    GATE["GnaniGate\none lock · retry 0.5/1/2 s"]
+    ING["PDF → clauses · BM25"]
+    PIPE["extract → retrieve → verify → ground-check"]
+    DB[("SQLite · 24 h TTL")]
+  end
+  subgraph Gnani["Gnani APIs"]
+    PS["Prisma v3.0 streaming"]
+    PR["Prisma v3.0 REST"]
+    TB["Timbre v3.0"]
+  end
+  EV["Evon v3.3 on vLLM\n(rented GPU)"]
+  MIC --> WSP --> GATE --> PS
+  REC --> GATE --> PR
+  REC --> ING --> DB
+  PIPE <--> EV
+  PIPE <--> DB
+  PIPE --> GATE --> TB
+  PS --> WSP --> UI
+  PIPE --> UI
+```
+
+## Gnani models and exactly how we use them
+
+| Model | Where | How |
+| --- | --- | --- |
+| **Prisma v3.0 streaming** | Listen mode | `wss://api.vachana.ai/stt/v3/stream`, `format=codemix`, `language_code="<lang>,en-IN"`, 21 finance keyterms, 1024-byte PCM16 frames every 32 ms, `commit` on stop ([backend/app/stream_proxy.py](backend/app/stream_proxy.py)) |
+| **Prisma v3.0 REST** | Recall mode, demo seeding | `POST /stt/v3`, codemix + keyterms + topic; clips over 28 s split on silence with `previous_text` ([backend/app/gnani.py](backend/app/gnani.py)) |
+| **Evon v3.3 (30B-A3B)** | Extraction + verification | Self-hosted on vLLM (OpenAI-compatible). Extraction with thinking off (2,048 tokens); verification with thinking on (4,096 tokens); only `message.content` is used; language **and script** named in every prompt; Pydantic validation with one repair retry ([backend/app/evon.py](backend/app/evon.py), [prompts.py](backend/app/prompts.py)) |
+| **Timbre v3.0** | Spoken summary, per-promise audio, consent announcement | Voice Tarika with `<slow>` and `<pauses>`; fallback combination on HTTP 400; cached by text hash so each sentence is paid for once |
+
+All Gnani calls pass through one `asyncio.Lock` (the account may allow one active request); 429/500/503/504 retry after 0.5, 1 and 2 s; every call is logged with its request id, status and latency, and the report's **Under the hood** panel shows them. No other LLM is called anywhere.
+
+## Measured API behaviour
+
+_To be filled from the Phase 1 scripts (`scripts/smoke_prisma.py`, `smoke_timbre.py`, `concurrency_probe.py`, `smoke_evon.py`). Until then these are unmeasured._
+
+| Item | Result |
+| --- | --- |
+| Prisma REST, N s clip | _pending_ |
+| Prisma streaming, first transcript after | _pending_ |
+| Timbre v3.0 working combination (speed / sample rate) | _pending_ |
+| Does an open stream block Timbre (429)? | _pending_ |
+| Credits per Prisma call / per Timbre call | _pending_ |
+| Evon latency: extraction / one verification | _pending_ |
+
+## Accuracy
+
+`scripts/eval_answer_key.py` runs the pipeline on three fictional pitches (Hindi/Hinglish, Tamil+English, Marathi; 6 promises each: 2 written, 2 contradicted, 2 not in writing) against the fictional CIS and writes [demo/eval_results.md](demo/eval_results.md). _Not run yet against the live Evon; numbers will be reported as they come out._
+
+## Noise robustness
+
+`scripts/noise_test.py` mixes cafe/traffic/TV noise at 20, 10 and 5 dB SNR plus an 8 kHz telephone band, and compares Prisma v2.5 (verbatim) with v3.0 (codemix + keyterms) on how many of the 6 promises are still extracted. Results go to [demo/noise_results.md](demo/noise_results.md). _Not run yet._
+
+## Honest limitations
+
+- The demo policy, insurer ("Bharosa Life Insurance Ltd (FICTIONAL)") and recordings are synthetic. Real CIS documents vary; scanned PDFs are rejected (no OCR).
+- Evon runs on a rented GPU that is switched off between sessions; the public site then serves cached demo cases and says so (`DEMO_ONLY=true`).
+- Code-mixed speech recognition can mishear numbers ("baarah" vs "barah"); the grounding check prefers *Not in writing — ask* over a wrong red card, so errors fall on the cautious side.
+- The answer key is small (18 promises); it shows the pipeline works, not production accuracy.
+- Hindi, Marathi and Tamil UI strings were drafted by us and need native review.
+- Live Listen mode records nothing to disk, but everyone present should still know the conversation is being noted.
+
+## Prior art and how we differ
+
+- **Saakshi** ([lablab.ai hackathon, Sep 2026](https://lablab.ai/submissions/yq8ij2120upfm8wq4mztpj2x)) — seller-side consent proof for advisors' disclosures, on a non-Gnani stack. Same insight (the mis-sale is in the sentence); LikhKeDo serves the *buyer*, in Indic voice, on Gnani.
+- **Insurer-side call-vs-document checks** (e.g. the [NuSummit case study](https://www.nusummit.com/?p=53048)) and pre-issuance verification calls compare agent conversations with policy terms inside one insurer. LikhKeDo does the same check for the person being sold to, before they sign.
+
+## Privacy and synthetic data
+
+No accounts, no names, phone numbers, account numbers, Aadhaar or PAN are requested. Raw audio is never written to disk (streamed and discarded; recall clips are processed in memory). Case data is deleted after 24 hours or on *Delete my data*. Logs hold request ids, status and latency — never transcript text. Every person, insurer and policy in the demo is fictional; recordings use only our own voices.
 
 ## Run locally
 
-```
+```bash
 python -m venv backend/.venv
-backend/.venv/Scripts/pip install -r backend/requirements.txt   # macOS/Linux: backend/.venv/bin/pip
+backend/.venv/Scripts/pip install -r backend/requirements.txt      # macOS/Linux: backend/.venv/bin/pip
 cd frontend && npm install && cd ..
-cp .env.example .env    # then fill in your keys
+cp .env.example .env                                               # add GNANI_API_KEY etc.
 ```
 
-| Task | With make | Without make (Windows) |
+| Task | With make | Without make (Windows PowerShell) |
 | --- | --- | --- |
 | Backend dev server | `make dev-backend` | `cd backend; .venv\Scripts\python -m uvicorn app.main:app --reload --port 8000` |
 | Frontend dev server | `make dev-frontend` | `cd frontend; npm run dev` |
 | Backend tests | `make test` | `cd backend; .venv\Scripts\python -m pytest -q` |
+| Demo cases (offline preview) | | `backend\.venv\Scripts\python scripts\seed_demo.py --preview` |
+| Demo cases (live run) | | `backend\.venv\Scripts\python scripts\seed_demo.py` |
 
-## Measured API behaviour
+Uploads go as raw request bodies (`audio/wav`, `application/pdf`) rather than multipart, so the backend needs no extra form-parsing dependency. Deployment: see [DEPLOY.md](DEPLOY.md).
 
-_To be filled in Phase 1._
+## Team
+
+_Placeholder: names and contributions._
