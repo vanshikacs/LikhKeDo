@@ -246,3 +246,27 @@ def test_transient_close_reconnects_and_keeps_segment_order(monkeypatch):
         assert len(set(f.frames)) == 1 and len(f.frames) >= 6   # no frame lost across the reconnect
     finally:
         f.stop()
+
+
+def test_handshake_goes_through_gnanigate_without_holding_it(fake, monkeypatch):
+    """CLAUDE.md: all Gnani calls pass GnaniGate. Streams take the slot for the handshake only."""
+    monkeypatch.setattr(get_settings(), "stream_holds_lock", False)
+    gate = gnani.gate
+    used = []
+    real = gate.slot
+
+    def counting_slot():
+        used.append(1)
+        return real()
+
+    monkeypatch.setattr(gate, "slot", counting_slot)
+    cid = make_case()
+    with TestClient(app) as client:
+        with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
+            ws.send_text(json.dumps({"lang": "hi"}))
+            ws.send_bytes(b"\x01" * 2048)
+            time.sleep(0.2)
+            assert not gate._lock.locked()   # not held while streaming
+            ws.send_text(json.dumps({"type": "stop"}))
+            collect(ws)
+    assert used == [1] and gate.queue == 0

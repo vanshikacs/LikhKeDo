@@ -181,3 +181,20 @@ def test_provider_none_uses_rules_and_health_says_so(client, monkeypatch):
     h = client.get("/api/health").json()
     assert h["evon"] == "down" and h["evon_reason"] == "provider_none" and h["evon_provider"] == "none"
     health._cache.clear()
+
+
+def test_purge_removes_old_caches(client, tmp_path):
+    wav = tmp_path / "old.wav"
+    wav.write_bytes(b"RIFF")
+    old = db.now() - timedelta(hours=25)
+    with db.session() as s:
+        s.add(db.PrismaCache(hash="old", result={"text": "x"}, created_at=old))
+        s.add(db.PrismaCache(hash="new", result={"text": "y"}))
+        s.add(db.TtsCache(hash="t-old", voice="Tarika", model="timbre-v3.0", lang="hi-IN", path=str(wav), chars=1,
+                          created_at=old))
+        s.commit()
+    db.purge_expired()
+    with db.session() as s:
+        assert s.get(db.PrismaCache, "old") is None and s.get(db.PrismaCache, "new") is not None
+        assert not list(s.exec(db.select(db.TtsCache).where(db.TtsCache.hash == "t-old")))
+    assert not wav.exists()

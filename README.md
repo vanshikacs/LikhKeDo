@@ -128,7 +128,7 @@ Live captions, end to end: `scripts/stream_pitch_test.py` streams each pitch thr
 
 ## Privacy and synthetic data
 
-No accounts, no names, phone numbers, account numbers, Aadhaar or PAN are requested. Raw audio is never written to disk (streamed and discarded; recall clips are processed in memory). Case data is deleted after 24 hours or on *Delete my data*. Logs hold request ids, status and latency — never transcript text. Every person, insurer and policy in the demo is fictional; recordings use only our own voices.
+No accounts, no names, phone numbers, account numbers, Aadhaar or PAN are requested. Raw audio is never written to disk (streamed and discarded; recall clips are processed in memory). Case data is deleted after 24 hours or on *Delete my data*, and so are cached transcripts and synthesized audio. Logs hold request ids, status and latency — never transcript text. Every person, insurer and policy in the demo is fictional; the demo pitch audio is synthesized with Timbre and the test noise is generated, so no real person's voice is used.
 
 ## Run locally
 

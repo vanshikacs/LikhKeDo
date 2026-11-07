@@ -5,6 +5,7 @@ import asyncio
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Optional
 
 from sqlalchemy import JSON, Column, Index, UniqueConstraint
@@ -165,10 +166,22 @@ def delete_case(case_id: str) -> bool:
 
 
 def purge_expired() -> int:
+    """Delete expired cases, and cached transcripts / synthesized audio older than 24 h (they hold case content)."""
     with session() as s:
         ids = list(s.exec(select(Case.id).where(Case.expires_at < now())))
     for cid in ids:
         delete_case(cid)
+    cutoff = now() - CASE_TTL
+    with session() as s:
+        s.exec(delete(PrismaCache).where(PrismaCache.created_at < cutoff))
+        old = list(s.exec(select(TtsCache).where(TtsCache.created_at < cutoff)))
+        for row in old:
+            try:
+                Path(row.path).unlink(missing_ok=True)
+            except OSError:
+                log.warning("could not delete cached audio %s", Path(row.path).name)
+            s.delete(row)
+        s.commit()
     return len(ids)
 
 

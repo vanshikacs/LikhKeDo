@@ -15,7 +15,13 @@ services:
       - key: EVON_API_KEY
         sync: false
       - key: EVON_MODEL
-        value: gnani/gnani-evon-v3.3-30B-A3B
+        sync: false          # gnani/gnani-evon-v3.3-30B-A3B on vLLM, or "evon" for the llama.cpp GGUF
+      - key: EVON_PROVIDER
+        sync: false          # vllm | llamacpp | none (EVON_FREE.md)
+      - key: EVON_QUANT
+        sync: false
+      - key: EVON_TIMEOUT
+        value: "90"
       - key: FRONTEND_ORIGIN
         sync: false
       - key: DEMO_ONLY

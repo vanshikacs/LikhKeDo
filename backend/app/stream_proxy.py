@@ -129,10 +129,21 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                     if gnani.gate.queue:
                         await _send(ws, {"type": "status", "queue": gnani.gate.queue})
                     await stack.enter_async_context(gnani.gate.slot())
+                holds = get_settings().stream_holds_lock
+
+                async def _connect():
+                    """Open a Prisma stream. Every handshake goes through GnaniGate (CLAUDE.md: all Gnani calls);
+                    unless STREAM_HOLDS_LOCK, the slot is released once connected (measured: an open stream
+                    doesn't block other calls)."""
+                    opener = websockets.connect(WS_URL, additional_headers=prisma_headers(lang_code), max_size=None,
+                                                open_timeout=10)
+                    if holds:  # already holding the slot for the whole session
+                        return await stack.enter_async_context(opener)
+                    async with gnani.gate.slot():
+                        return await stack.enter_async_context(opener)
+
                 try:
-                    prisma = await stack.enter_async_context(
-                        websockets.connect(WS_URL, additional_headers=prisma_headers(lang_code), max_size=None,
-                                           open_timeout=10))
+                    prisma = await _connect()
                 except websockets.exceptions.InvalidStatus as e:
                     status_code = e.response.status_code
                     error_code = {429: "RATE_LIMITED", 402: "NO_CREDIT"}.get(status_code, f"HTTP_{status_code}")
@@ -234,8 +245,7 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                                            error_code=f"CLOSED_{code}_RECONNECTED",
                                            latency_ms=int((time.perf_counter() - t0) * 1000))
                             await _send(ws, {"type": "status", "reconnecting": True})
-                            conn["ws"] = await stack.enter_async_context(websockets.connect(
-                                WS_URL, additional_headers=prisma_headers(lang_code), max_size=None, open_timeout=10))
+                            conn["ws"] = await _connect()
                             conn["offset"] = seg_counter  # a new session restarts segment_index at 0
                             ready.set()
 
