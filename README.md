@@ -93,7 +93,16 @@ Mode B (rules, no AI model) on real Prisma v3.0 transcripts of the Timbre pitch 
 
 ## Noise robustness
 
-`scripts/noise_test.py` mixes cafe/traffic/TV noise at 20, 10 and 5 dB SNR plus an 8 kHz telephone band, and compares Prisma v2.5 (verbatim) with v3.0 (codemix + keyterms) on how many of the 6 promises are still extracted. Results go to [demo/noise_results.md](demo/noise_results.md). _Not run yet._
+`scripts/noise_test.py` mixes background noise at 20, 10 and 5 dB SNR plus an 8 kHz telephone band, and compares Prisma v2.5 (verbatim) with v3.0 (codemix + keyterms). Run on 7 Nov 2026 on the Hindi pitch (Timbre audio) with synthetic noise from `scripts/make_noise.py` (two other pitches talking over each other, and pink noise), scored with the rules check because Evon was not up ([demo/noise_results.md](demo/noise_results.md)):
+
+| Prisma | clean | 20 dB | 10 dB | 5 dB | telephone 8 kHz |
+| --- | --- | --- | --- | --- | --- |
+| v3.0 codemix + keyterms: similarity to script / correct verdicts (of 6) | 94% · 4 | 95% · 5 | 94% · 4 | 93% · 5 | 93% · 4 |
+| v2.5 verbatim | 72% · 0 | 72% · 0 | 72% · 0 | 72% · 0 | 72% · 0 |
+
+v3.0 holds steady from clean audio down to 5 dB babble and telephone-band audio. v2.5 writes everything in Devanagari ("भरोसा लाइफ", "एफ डी"), so it scores lower by construction against a mixed-script script and our keyword rules; that row shows why we use codemix, not that v2.5 hears worse. Caveats: a clean synthetic voice is easier than a real one, and the noise is synthetic. Real-room recordings are still to do.
+
+Live captions, end to end: `scripts/stream_pitch_test.py` streams each pitch through our WebSocket proxy to Prisma at real time, exactly like the browser. Caption similarity to the script: Hindi 96%, Tamil 92%, Marathi 94%, with the red flags firing. One Tamil run was closed by Prisma with code 1012 (service restart); the proxy now reconnects transparently on 1006/1011/1012/1013.
 
 ## Honest limitations
 

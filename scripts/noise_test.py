@@ -11,6 +11,10 @@ NOTE: the v2.5 model name ("prisma-v2.5") is not in CLAUDE.md's documented field
 and pass --v25-model if it differs.
 
 Usage: backend/.venv/Scripts/python scripts/noise_test.py [--yes] [--no-evon] [--v25-model prisma-v2.5]
+         [--only hi_hinglish] [--rules]
+  --rules: score with mode B (rules check, no AI model) instead of Evon: correct verdicts of 6 per transcript.
+  Every row also reports transcript similarity to the pitch text (rapidfuzz ratio).
+  No noise recordings? scripts/make_noise.py makes synthetic babble + pink noise.
 """
 from __future__ import annotations
 
@@ -102,10 +106,13 @@ async def main() -> None:
     ap.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
     ap.add_argument("--no-evon", action="store_true", help="only transcribe and count red flags")
     ap.add_argument("--v25-model", default="prisma-v2.5")
+    ap.add_argument("--only", help="one pitch slug")
+    ap.add_argument("--rules", action="store_true", help="score with the rules check (no AI model)")
     a = ap.parse_args()
 
     key = {p["slug"]: p for p in json.loads((ROOT / "demo/answer_key.json").read_text(encoding="utf-8"))["pitches"]}
-    pitches = [w for w in sorted((ROOT / "demo/pitches").glob("*.wav")) if w.stem in key]
+    pitches = [w for w in sorted((ROOT / "demo/pitches").glob("*.wav")) if w.stem in key
+               and (not a.only or w.stem == a.only)]
     noises = sorted((ROOT / "demo/noise").glob("*.wav"))
     if not pitches:
         sys.exit("No recorded pitches: put demo/pitches/<slug>.wav (slug from answer_key.json) first.")
@@ -130,7 +137,14 @@ async def main() -> None:
 
     db.init_db()
     client = gnani.get_client()
-    evon = None if a.no_evon else EvonClient()
+    evon = None if (a.no_evon or a.rules) else EvonClient()
+    if a.rules:
+        from app.ingest import parse_pdf
+        from app.rules import run_rules
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from eval_answer_key import match
+        doc = json.loads((ROOT / "demo/answer_key.json").read_text(encoding="utf-8"))["document"]
+        clauses = parse_pdf((ROOT / doc).read_bytes())
     results = []
     for slug, cond, (mname, model, fmt, langf, terms), pcm, ci in jobs:
         lang = key[slug]["lang"]
@@ -157,16 +171,24 @@ async def main() -> None:
             except Exception as e:  # bad JSON after repair: count as 0 recalled
                 print(f"  extraction failed: {e.__class__.__name__}")
                 recall = 0
+        if a.rules and text:
+            pairs = match(key[slug]["promises"], run_rules(text, clauses, lang).claims)
+            recall = sum(1 for e, p in pairs if p and p.verdict == e["expected_verdict"])
+        ref = (ROOT / "demo/pitches" / f"{slug}.txt").read_text(encoding="utf-8").replace("\n", " ")
+        similarity = round(fuzz.ratio(ref, text)) if text else 0
         flags = len(find_redflags(text))
         results.append({"pitch": slug, "condition": cond, "model": mname, "recall": recall,
-                        "total": len(key[slug]["promises"]), "redflags": flags, "error": err,
+                        "total": len(key[slug]["promises"]), "redflags": flags, "similarity": similarity, "error": err,
                         "transcript": text, "seconds": round(time.perf_counter() - t0, 1)})
-        print(f"{slug:18} {cond:6} {mname:12} recall={recall}/{len(key[slug]['promises'])} flags={flags}"
+        print(f"{slug:18} {cond:6} {mname:12} recall={recall}/{len(key[slug]['promises'])} flags={flags} sim={similarity}%"
               f"{'  ERROR ' + err if err else ''}")
 
     (ROOT / "demo/noise_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
-    lines = ["# Noise test", "", f"Run {time.strftime('%Y-%m-%d %H:%M')}. Cells: promises still extracted "
-             "(of 6) / red-flag phrases detected, summed over pitches. Synthetic recordings, our own voices.", "",
+    scorer = "correct verdicts from the rules check (no AI model)" if a.rules else "promises still extracted by Evon"
+    noise_names = ", ".join(n.name for n in noises)
+    lines = ["# Noise test", "", f"Run {time.strftime('%Y-%m-%d %H:%M')}. Pitches: {', '.join(w.stem for w in pitches)} "
+             f"(Timbre synthetic audio). Noise: {noise_names}. Cells: {scorer} / red-flag phrases / transcript "
+             "similarity to the pitch text.", "",
              "| Model | " + " | ".join(CONDITIONS) + " |", "| --- |" + " --- |" * len(CONDITIONS)]
     for mname in [m[0] for m in models]:
         cells = []
@@ -175,7 +197,9 @@ async def main() -> None:
             rec = sum(r["recall"] or 0 for r in rows)
             tot = sum(r["total"] for r in rows)
             fl = sum(r["redflags"] for r in rows)
-            cells.append(f"{rec}/{tot} · {fl}" if evon is not None else f"– · {fl}")
+            sim = round(sum(r["similarity"] for r in rows) / len(rows)) if rows else 0
+            scored = evon is not None or a.rules
+            cells.append(f"{rec}/{tot} · {fl} · {sim}%" if scored else f"– · {fl} · {sim}%")
         lines.append(f"| {mname} | " + " | ".join(cells) + " |")
     (ROOT / "demo/noise_results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\nwrote demo/noise_results.md")
