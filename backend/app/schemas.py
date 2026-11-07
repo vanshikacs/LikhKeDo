@@ -56,6 +56,15 @@ class Verification(BaseModel):
         return str(v).strip().upper().replace(" ", "_").replace("-", "_")
 
 
+class BatchVerification(Verification):
+    id: int
+
+
+class VerificationBatch(BaseModel):
+    """llamacpp mode: all claims verified in one call."""
+    results: list[BatchVerification] = Field(default_factory=list)
+
+
 class LocalText(BaseModel):
     text: str
 

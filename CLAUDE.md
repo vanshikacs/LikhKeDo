@@ -46,6 +46,9 @@ Contest: Gnani AI Great Indian AI Internship Challenge. Deadline 10 Nov 2026 23:
   one repair retry; otherwise mark the claim NOT_IN_WRITING.
 - NEVER substitute another LLM (Gemini/OpenAI/Claude). If Evon is down, serve cached demo results
   and say so in the UI.
+- EVON_PROVIDER=vllm|llamacpp|none (EVON_FREE.md). llamacpp = community 4-bit GGUF on free Kaggle T4s:
+  thinking off, one request at a time, one batched verify call, label "Evon v3.3 · community 4-bit GGUF
+  (llama.cpp)". Mode B "Rules check — no AI model" is keyword rules only, never presented as Evon/AI.
 
 ## Non-negotiable product rules
 - Grounding check in code: claim.quote must fuzzy-match the transcript (rapidfuzz partial_ratio >= 90)

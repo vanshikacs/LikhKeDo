@@ -103,6 +103,10 @@ async def main() -> None:
         rep["demo"] = {"slug": pitch["slug"], "lang": pitch["lang"], "title": TITLES.get(pitch["slug"], pitch["slug"]),
                        "source": "live", "live_run_at": when, "created": when,
                        "evon_model": rep["trace"]["evon_model"],
+                       # origin of the saved case: shown on the demo badge (mode C)
+                       "provider": (rep.get("engine") or {}).get("provider"),
+                       "label": (rep.get("engine") or {}).get("label"),
+                       "quant": (rep.get("engine") or {}).get("quant"),
                        "prisma_request_ids": rep.pop("_prisma_request_ids")}
         (out / "report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"  wrote {out / 'report.json'} ({rep['demo']['source']})")

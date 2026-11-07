@@ -51,8 +51,12 @@ export function Checking(props: { lang: Lang; caseId: string; onDone: (r: Report
   const label =
     ev.stage === 'extracting'
       ? t(lang, 'extracting')
-      : ev.stage === 'checking'
-        ? t(lang, 'checking', { i: ev.i ?? 0, n: ev.n ?? 0 })
+      : ev.stage === 'checking' && !ev.i
+        ? ev.n
+          ? t(lang, 'checkingAll', { n: ev.n })
+          : t(lang, 'modeB')
+        : ev.stage === 'checking'
+          ? t(lang, 'checking', { i: ev.i ?? 0, n: ev.n ?? 0 })
         : ev.stage === 'summarizing'
           ? t(lang, 'summarizing')
           : t(lang, 'starting')

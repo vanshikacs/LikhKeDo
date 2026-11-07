@@ -1,6 +1,7 @@
 """OpenAI-compatible client for the self-hosted Evon v3.3. No other LLM is ever called."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -16,8 +17,9 @@ from .config import get_settings
 log = logging.getLogger("likhkedo.evon")
 T = TypeVar("T", bound=BaseModel)
 
-TIMEOUT_S = 60.0
 _FENCE = re.compile(r"^```[a-zA-Z]*\s*|\s*```$")
+_THINK = re.compile(r"<think>.*?</think>", re.S)
+_ONE_AT_A_TIME = asyncio.Lock()  # llama-server runs with -np 1: never send two requests at once
 
 
 class EvonUnavailable(RuntimeError):
@@ -26,6 +28,13 @@ class EvonUnavailable(RuntimeError):
 
 class EvonJSONError(RuntimeError):
     """Evon returned output that failed validation even after one repair retry."""
+
+
+def engine_info() -> dict:
+    """What produced a report: shown in the UI badge and the trace (never contains keys or URLs)."""
+    st = get_settings()
+    return {"provider": st.evon_provider, "label": st.evon_display_label, "quant": st.evon_quant,
+            "model": None if st.evon_provider == "none" else st.evon_model}
 
 
 def strip_fences(s: str) -> str:
@@ -41,7 +50,10 @@ def strip_fences(s: str) -> str:
 class EvonClient:
     def __init__(self, openai_client=None):
         self._client = openai_client
-        self.model = get_settings().evon_model
+        st = get_settings()
+        self.model = st.evon_model
+        self.provider = st.evon_provider
+        self.label = st.evon_display_label
         self.calls: list[dict] = []   # trace: latency per call
 
     def _get(self):
@@ -53,10 +65,18 @@ class EvonClient:
                 key = st.require("evon_api_key").get_secret_value()
             except RuntimeError as e:
                 raise EvonUnavailable(str(e)) from None
-            self._client = AsyncOpenAI(base_url=base, api_key=key, timeout=TIMEOUT_S, max_retries=0)
+            self._client = AsyncOpenAI(base_url=base, api_key=key, timeout=st.evon_timeout, max_retries=0)
         return self._client
 
     async def _complete(self, messages: list[dict], thinking: bool, max_tokens: int, case_id: str | None) -> str:
+        if self.provider == "llamacpp":
+            async with _ONE_AT_A_TIME:
+                # thinking off for every call on the 4-bit build (time limit); prompts ask for JSON only
+                return await self._complete_once(messages, False, max_tokens, case_id)
+        return await self._complete_once(messages, thinking, max_tokens, case_id)
+
+    async def _complete_once(self, messages: list[dict], thinking: bool, max_tokens: int,
+                             case_id: str | None) -> str:
         from openai import APIConnectionError, APITimeoutError, APIStatusError
 
         client = self._get()
@@ -80,9 +100,10 @@ class EvonClient:
             tokens = getattr(getattr(r, "usage", None), "completion_tokens", 0) or 0
             db.record_call("evon", case_id=case_id, request_id=getattr(r, "id", None), status=200,
                            latency_ms=ms, units=tokens)
-            self.calls.append({"model": self.model, "thinking": thinking, "latency_ms": ms, "tokens": tokens,
-                               "request_id": getattr(r, "id", None)})
-            return r.choices[0].message.content or ""  # only content; reasoning is never used
+            self.calls.append({"model": self.model, "provider": self.provider, "thinking": thinking,
+                               "latency_ms": ms, "tokens": tokens, "request_id": getattr(r, "id", None)})
+            # only content; reasoning is never used (and stripped if a template leaks it into content)
+            return _THINK.sub("", r.choices[0].message.content or "").strip()
         raise EvonUnavailable(f"Evon not reachable ({last.__class__.__name__})")
 
     async def chat_json(self, messages: list[dict], thinking: bool, max_tokens: int, schema: type[T],
@@ -104,12 +125,14 @@ class EvonClient:
 
 
 # Reason codes for /api/health and the UI banner (never contain the key or the URL).
-EVON_REASONS = ("ok", "not_configured", "unreachable", "bad_key", "bad_url", "model_missing", "http_error")
+EVON_REASONS = ("ok", "provider_none", "not_configured", "unreachable", "bad_key", "bad_url", "model_missing", "http_error")
 
 
 async def evon_health() -> tuple[bool, str]:
     """Probe GET {EVON_BASE_URL}/models. Returns (ok, reason) where reason is one of EVON_REASONS."""
     st = get_settings()
+    if st.evon_provider == "none":
+        return False, "provider_none"
     if not st.evon_base_url or "<" in st.evon_base_url or st.evon_api_key is None:
         return False, "not_configured"
     try:

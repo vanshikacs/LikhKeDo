@@ -165,17 +165,20 @@ def _rate_ok(ip: str) -> bool:
 
 
 @router.post("/{case_id}/analyze")
-async def analyze(case_id: str, request: Request):
+async def analyze(case_id: str, request: Request, engine: str = "evon"):
+    """engine=evon (mode A, default) or engine=rules (mode B, "Rules check — no AI model", asked for explicitly).
+    EVON_PROVIDER=none always uses the rules check. Never falls back to another LLM."""
     case = _case(case_id)
-    if get_settings().demo_only:
-        up, reason = False, "demo_only"
-    else:
-        up, reason = await evon_status()
-    if not up:
-        return JSONResponse(status_code=503, content={"detail": {
-            "code": "LIVE_UNAVAILABLE", "reason": reason, "message": DEMO_HINT, "demo": "/api/demo/"}})
+    st = get_settings()
+    use_rules = engine == "rules" or st.evon_provider == "none"
+    if not use_rules:
+        up, reason = (False, "demo_only") if st.demo_only else await evon_status()
+        if not up:
+            return JSONResponse(status_code=503, content={"detail": {
+                "code": "LIVE_UNAVAILABLE", "reason": reason, "message": DEMO_HINT, "demo": "/api/demo/",
+                "rules_available": True}})
     if case.status == "analyzing":
-        return {"status": "analyzing"}
+        return {"status": "analyzing", "engine": "rules" if use_rules else "evon"}
     with db.session() as s:
         nseg = s.exec(select(func.count()).select_from(db.Segment).where(db.Segment.case_id == case_id)).one()
         ncl = s.exec(select(func.count()).select_from(db.ClauseRow).where(db.ClauseRow.case_id == case_id)).one()
@@ -193,10 +196,11 @@ async def analyze(case_id: str, request: Request):
         s.add(c)
         s.commit()
     pipeline.PROGRESS[case_id] = []
-    task = asyncio.create_task(pipeline.analyze(case_id, evon_factory()))
+    task = asyncio.create_task(pipeline.analyze(case_id, None if use_rules else evon_factory(),
+                                                "rules" if use_rules else "evon"))
     _tasks.add(task)
     task.add_done_callback(_tasks.discard)
-    return {"status": "analyzing"}
+    return {"status": "analyzing", "engine": "rules" if use_rules else "evon"}
 
 
 @router.get("/{case_id}/progress")

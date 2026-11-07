@@ -55,4 +55,4 @@ async def health() -> dict:
     g = await _cached("gnani", 60, _gnani_probe)
     e, reason = await evon_status()
     return {"ok": True, "gnani": "ok" if g else "error", "evon": "ok" if e else "down", "evon_reason": reason,
-            "evon_model": st.evon_model, "queue": gnani.gate.queue, "demo_only": st.demo_only}
+            "evon_model": st.evon_model, "evon_provider": st.evon_provider, "evon_label": st.evon_display_label, "queue": gnani.gate.queue, "demo_only": st.demo_only}

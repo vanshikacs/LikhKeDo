@@ -44,6 +44,20 @@ Never accuse the seller; say what the document says.
 Return ONLY JSON:
 {{"verdict":"WRITTEN|CONTRADICTED|NOT_IN_WRITING","clause_id":"<id or null>","clause_quote":"<exact words or null>","explain_en":"...","explain_local":"...","ask_agent":"..."}}"""
 
+VERIFY_BATCH_SYSTEM = """You compare several spoken promises with the official policy document, one by one.
+For EACH promise decide:
+- WRITTEN: the document clearly states the same thing.
+- CONTRADICTED: the document clearly states something incompatible.
+- NOT_IN_WRITING: the document does not address it.
+'clause_quote' must be copied exactly from one clause of the document (a sentence or phrase, not the whole document) and 'clause_id' must be that clause's id in square brackets. For NOT_IN_WRITING use null for both.
+If unsure, choose NOT_IN_WRITING.
+'explain_en': one short English sentence.
+'explain_local' and 'ask_agent': in {lang_name} using {script_name} script, short and simple, for an older reader. English product words (premium, lock-in, FD) may stay as they are.
+'ask_agent' is one polite question the buyer can ask the seller, asking for it in writing.
+Never accuse the seller; say what the document says.
+Do not think out loud. Return ONLY one JSON object, one result per promise id:
+{{"results":[{{"id":0,"verdict":"WRITTEN|CONTRADICTED|NOT_IN_WRITING","clause_id":"<id or null>","clause_quote":"<exact words or null>","explain_en":"...","explain_local":"...","ask_agent":"..."}}]}}"""
+
 SUMMARY_SYSTEM = """Write a short spoken summary for text-to-speech in {lang_name} using {script_name} script.
 2 to 4 short sentences: how many promises are not on paper, the most important one (by its topic), and advise to ask for it in writing.
 You get each promise's verdict and topic category (returns, premium_term, lock_in, liquidity, cover, tax, ...); describe topics in {lang_name}.
@@ -67,6 +81,14 @@ def verify_messages(claim_quote: str, claim_en: str, numbers: list[str], cis_tex
             f"NUMBERS: {', '.join(numbers) or 'none'}\n\n"
             f"MOST RELEVANT CLAUSES:\n{clauses}\n\nFULL DOCUMENT:\n{cis_text}")
     return [{"role": "system", "content": VERIFY_SYSTEM.format(lang_name=lang.name, script_name=lang.script)},
+            {"role": "user", "content": user}]
+
+
+def verify_batch_messages(claims: list, cis_text: str, lang: Lang) -> list[dict]:
+    promises = "\n".join(f"[{i}] spoken: {c.quote} | English: {c.claim_en} | numbers: {', '.join(c.numbers) or 'none'}"
+                         for i, c in enumerate(claims))
+    user = f"PROMISES:\n{promises}\n\nDOCUMENT:\n{cis_text}"
+    return [{"role": "system", "content": VERIFY_BATCH_SYSTEM.format(lang_name=lang.name, script_name=lang.script)},
             {"role": "user", "content": user}]
 
 

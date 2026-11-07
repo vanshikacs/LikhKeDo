@@ -50,6 +50,7 @@ def build_report(case_id: str) -> dict | None:
         "created_at": case.created_at.isoformat(),
         "expires_at": case.expires_at.isoformat(),
         "summary": case.summary,
+        "engine": trace.get("engine"),
         "counts": counts,
         "clauses": n_clauses,
         "transcript": [{"idx": x.idx, "text": x.text, "source": x.source, "lang": x.detected_lang} for x in segs],

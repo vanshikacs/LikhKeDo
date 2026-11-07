@@ -136,3 +136,47 @@ def test_admin_requires_secret(client):
 def test_demo_missing_is_404(client):
     assert client.get("/api/demo/does_not_exist").status_code == 404
     assert client.get("/api/demo/..%2f..").status_code == 404
+
+
+def _rules_case(client):
+    cid = new_case(client)
+    assert client.post(f"/api/cases/{cid}/recall", content=wav_bytes(2.0),
+                       headers={"content-type": "audio/wav"}).status_code == 200
+    client.post(f"/api/cases/{cid}/document", json={"demo_doc": "suraksha_plus"})
+    return cid
+
+
+def _wait_report(client, cid):
+    with client.stream("GET", f"/api/cases/{cid}/progress") as s:
+        events = [json.loads(line[6:]) for line in s.iter_lines() if line.startswith("data: ")]
+    assert events[-1]["stage"] == "done", events
+    return client.get(f"/api/cases/{cid}/report").json()
+
+
+def test_rules_engine_when_evon_down(client, monkeypatch):
+    async def down():
+        return False, "unreachable"
+
+    monkeypatch.setattr(cases, "evon_status", down)
+    cid = _rules_case(client)
+    r = client.post(f"/api/cases/{cid}/analyze")
+    assert r.status_code == 503 and r.json()["detail"]["rules_available"] is True
+    r = client.post(f"/api/cases/{cid}/analyze?engine=rules")
+    assert r.status_code == 200 and r.json()["engine"] == "rules"
+    rep = _wait_report(client, cid)
+    assert rep["engine"]["mode"] == "B" and rep["engine"]["label"] == "Rules check — no AI model"
+    assert rep["trace"]["evon_calls"] == [] and rep["counts"]["CONTRADICTED"] == 2
+    assert not any(c["service"] == "evon" for c in rep["trace"]["calls"])
+
+
+def test_provider_none_uses_rules_and_health_says_so(client, monkeypatch):
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "evon_provider", "none")
+    cid = _rules_case(client)
+    r = client.post(f"/api/cases/{cid}/analyze")
+    assert r.status_code == 200 and r.json()["engine"] == "rules"
+    assert _wait_report(client, cid)["engine"]["mode"] == "B"
+    health._cache.clear()
+    h = client.get("/api/health").json()
+    assert h["evon"] == "down" and h["evon_reason"] == "provider_none" and h["evon_provider"] == "none"
+    health._cache.clear()

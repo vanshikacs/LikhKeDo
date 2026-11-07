@@ -1,0 +1,578 @@
+{
+  "pitches": [
+    {
+      "slug": "hi_hinglish",
+      "correct": 4,
+      "total": 6,
+      "extra_claims": 3,
+      "seconds": 0.0,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "आपकी FD अगले हफ्ते mature हो रही है ना, तो मैंने सोचा आपको एक बहुत अच्छा plan बता दूँ।",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 1,
+          "quote": "Suraksha Plus Guaranteed Wealth Plan, देखिए सर इसमें returns guaranteed हैं।",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed.",
+          "clause_page": 2,
+          "explain_en": "The document says something different.",
+          "explain_local": "दस्तावेज़ में कुछ अलग लिखा है।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 2,
+          "quote": "हर साल minimum बारह percent मिलेगा, और आपको सिर्फ पाँच साल premium भरना है, उसके बाद कुछ नहीं देना।",
+          "claim_en": "",
+          "category": "premium_term",
+          "numbers": [
+            "12 percent",
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p1-s5",
+          "clause_quote": "10 years.",
+          "clause_page": 1,
+          "explain_en": "The document says something different.",
+          "explain_local": "दस्तावेज़ में कुछ अलग लिखा है।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 3,
+          "quote": "साथ में दस लाख का life cover भी मिलता है, family के लिए पूरी security रहेगी।",
+          "claim_en": "",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s6",
+          "clause_quote": "Rs 10,00,000 (Rupees ten lakh).",
+          "clause_page": 1,
+          "explain_en": "The document says the same thing.",
+          "explain_local": "दस्तावेज़ में यही लिखा है।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 4,
+          "quote": "अगर कभी पैसों की जरूरत पड़े, तो आप कभी भी loan ले सकते हैं, वो भी शून्य percent interest पर।",
+          "claim_en": "",
+          "category": "liquidity",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 5,
+          "quote": "यह FD से तो पक्का better है।",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 6,
+          "quote": "आजकल FD में मिलता ही क्या है?",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 7,
+          "quote": "कोई tension मत लीजिए, policy मिलने के तीस दिन के अंदर पसंद नहीं आई तो आप returns कर सकते हैं।",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [
+            "30 days"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        }
+      ],
+      "summary": "<slow> 8 में से 7 बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: रिटर्न का वादा। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
+      "trace": {
+        "engine": {
+          "provider": "none",
+          "label": "Rules check — no AI model",
+          "quant": null,
+          "model": null,
+          "mode": "B"
+        },
+        "evon_model": null,
+        "evon_calls": [],
+        "pipeline_ms": 4,
+        "claims": 8
+      }
+    },
+    {
+      "slug": "ta_tamil_english",
+      "correct": 5,
+      "total": 6,
+      "extra_claims": 3,
+      "seconds": 0.0,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "உங்க FD அடுத்த வாரம் mature ஆகுது இல்லையா, அதுக்கு ஒரு நல்ல plan சொல்லணும், Suraksha Plus Guaranteed Wealth Plan.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 1,
+          "quote": "இதுல returns guaranteed மேடம், ஒவ்வொரு வருஷமும் minimum பன்னிரண்டு percent கிடைக்கும்.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [
+            "12 percent"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed.",
+          "clause_page": 2,
+          "explain_en": "The document says something different.",
+          "explain_local": "ஆவணத்தில் வேறு மாதிரி எழுதப்பட்டுள்ளது.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 2,
+          "quote": "நீங்க ஐந்து வருஷம் மட்டும் premium கட்டினா போதும், அதுக்கப்புறம் எதுவும் கட்ட வேண்டாம்.",
+          "claim_en": "",
+          "category": "premium_term",
+          "numbers": [
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p1-s5",
+          "clause_quote": "10 years.",
+          "clause_page": 1,
+          "explain_en": "The document says something different.",
+          "explain_local": "ஆவணத்தில் வேறு மாதிரி எழுதப்பட்டுள்ளது.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 3,
+          "quote": "கூடவே பத்து லட்சம் லைஃப் கவர் இருக்கு.",
+          "claim_en": "",
+          "category": "other",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 4,
+          "quote": "familyக்கு முழு safety பணம் தேவைப்பட்டால், எப்போ வேணும்னாலும் loan எடுக்கலாம்.",
+          "claim_en": "",
+          "category": "liquidity",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 5,
+          "quote": "அதுவும் பூஜ்ஜியம் percent interest-இல்.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 6,
+          "quote": "உண்மையாக சொல்கிறேன் madam, இது FD-யை விட கண்டிப்பாக better.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 7,
+          "quote": "policy கிடச்சி முப்பது நாளுக்குள்ளே பிடிக்கலைன்னா, நீங்கள் திருப்பி கொடுக்கலாம்.",
+          "claim_en": "",
+          "category": "other",
+          "numbers": [
+            "30 days"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p3-s3",
+          "clause_quote": "you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms.",
+          "clause_page": 3,
+          "explain_en": "The document says the same thing.",
+          "explain_local": "ஆவணத்திலும் இதுவே எழுதப்பட்டுள்ளது.",
+          "ask_agent": "இந்த வாக்குறுதியை எழுத்தில் தருவீர்களா?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        }
+      ],
+      "summary": "<slow> 8 வாக்குறுதிகளில் 7 ஆவணத்தில் வேறாக உள்ளன அல்லது எழுதப்படவில்லை. <pauses> முக்கியமானது: வருமானம் பற்றிய வாக்குறுதி. <pauses> கையெழுத்திடும் முன் இதை எழுத்தில் கேளுங்கள்.",
+      "trace": {
+        "engine": {
+          "provider": "none",
+          "label": "Rules check — no AI model",
+          "quant": null,
+          "model": null,
+          "mode": "B"
+        },
+        "evon_model": null,
+        "evon_calls": [],
+        "pipeline_ms": 2,
+        "claims": 8
+      }
+    },
+    {
+      "slug": "mr_marathi",
+      "correct": 6,
+      "total": 6,
+      "extra_claims": 2,
+      "seconds": 0.0,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "तुमची FD पुढच्या आठवड्यात mature होतेय ना, म्हणून तुम्हाला एक छान plan सांगतो: Suraksha Plus.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "हे दस्तऐवजात सापडले नाही. हे लेखी मागा.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 1,
+          "quote": "यात returns guaranteed आहेत.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed.",
+          "clause_page": 2,
+          "explain_en": "The document says something different.",
+          "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 2,
+          "quote": "दरवर्षी minimum बारा percent मिळणार.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [
+            "12 percent"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "The illustrated rates of 4% and 8% p.a.",
+          "clause_page": 2,
+          "explain_en": "The document says something different.",
+          "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 3,
+          "quote": "तुम्हाला फक्त पाच वर्ष premium भरायचा आहे.",
+          "claim_en": "",
+          "category": "premium_term",
+          "numbers": [
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p1-s5",
+          "clause_quote": "10 years.",
+          "clause_page": 1,
+          "explain_en": "The document says something different.",
+          "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 4,
+          "quote": "त्यानंतर काहीच भरायचं नाही, शिवाय दहा लाखांचं life cover पण मिळतं.",
+          "claim_en": "",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s6",
+          "clause_quote": "Rs 10,00,000 (Rupees ten lakh).",
+          "clause_page": 1,
+          "explain_en": "The document says the same thing.",
+          "explain_local": "दस्तऐवजात हेच लिहिले आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 5,
+          "quote": "घरच्यांसाठी पूर्ण security, पैशांची गरज लागली तर कधीही loan घेऊ शकता, तेही शून्य percent interestवर.",
+          "claim_en": "",
+          "category": "liquidity",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "हे दस्तऐवजात सापडले नाही. हे लेखी मागा.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 6,
+          "quote": "खरं सांगतो काका, हे FD पेक्षा नक्कीच better आहे आणि policy मिळाल्यापासून.",
+          "claim_en": "",
+          "category": "returns",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "हे दस्तऐवजात सापडले नाही. हे लेखी मागा.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        },
+        {
+          "idx": 7,
+          "quote": "तीस दिवसात आवडली नाही तर तुम्ही परत करू शकता.",
+          "claim_en": "",
+          "category": "other",
+          "numbers": [
+            "30 days"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p3-s3",
+          "clause_quote": "you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms.",
+          "clause_page": 3,
+          "explain_en": "The document says the same thing.",
+          "explain_local": "दस्तऐवजात हेच लिहिले आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": null
+        }
+      ],
+      "summary": "<slow> 8 पैकी 6 गोष्टी कागदावर वेगळ्या आहेत किंवा लिहिलेल्या नाहीत। <pauses> सर्वात महत्त्वाचे: परताव्याचे आश्वासन। <pauses> सही करण्यापूर्वी हे लेखी मागा।",
+      "trace": {
+        "engine": {
+          "provider": "none",
+          "label": "Rules check — no AI model",
+          "quant": null,
+          "model": null,
+          "mode": "B"
+        },
+        "evon_model": null,
+        "evon_calls": [],
+        "pipeline_ms": 2,
+        "claims": 8
+      }
+    }
+  ],
+  "created": "2026-11-07 20:11",
+  "engine": "Rules check — no AI model",
+  "confusion": {
+    "WRITTEN": {
+      "WRITTEN": 4,
+      "CONTRADICTED": 0,
+      "NOT_IN_WRITING": 1,
+      "MISSED": 1
+    },
+    "CONTRADICTED": {
+      "WRITTEN": 0,
+      "CONTRADICTED": 5,
+      "NOT_IN_WRITING": 0,
+      "MISSED": 1
+    },
+    "NOT_IN_WRITING": {
+      "WRITTEN": 0,
+      "CONTRADICTED": 0,
+      "NOT_IN_WRITING": 6,
+      "MISSED": 0
+    }
+  },
+  "metrics": {
+    "WRITTEN": {
+      "precision": 1.0,
+      "recall": 0.667
+    },
+    "CONTRADICTED": {
+      "precision": 1.0,
+      "recall": 0.833
+    },
+    "NOT_IN_WRITING": {
+      "precision": 0.857,
+      "recall": 1.0
+    }
+  },
+  "disagreements": [
+    {
+      "pitch": "hi_hinglish",
+      "id": "hi-1",
+      "expected": "CONTRADICTED",
+      "got": "MISSED",
+      "quote_expected": "returns guaranteed हैं, हर साल minimum 12 percent",
+      "quote_got": null,
+      "clause_expected": "p2-s2",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish",
+      "id": "hi-6",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं",
+      "quote_got": "कोई tension मत लीजिए, policy मिलने के तीस दिन के अंदर पसंद नहीं आई तो आप returns कर सकते हैं।",
+      "clause_expected": "p3-s3",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "ta_tamil_english",
+      "id": "ta-3",
+      "expected": "WRITTEN",
+      "got": "MISSED",
+      "quote_expected": "10 லட்சம் life cover இருக்கு",
+      "quote_got": null,
+      "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    }
+  ]
+}

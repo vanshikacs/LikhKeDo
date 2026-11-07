@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AudioButton } from '../components/AudioButton'
+import { EngineBadge } from '../components/EngineBadge'
 import { Button, ErrorBox } from '../components/ui'
 import { UnderTheHood } from '../components/UnderTheHood'
 import { VerdictCard } from '../components/VerdictCard'
@@ -7,7 +8,6 @@ import { api, demoAudioUrl, demoSlipUrl, slipUrl, type Report } from '../lib/api
 import { t } from '../lib/i18n'
 import { RECORD } from '../lib/record'
 
-const LOCALE: Record<string, string> = { hi: 'hi-IN', mr: 'mr-IN', ta: 'ta-IN', en: 'en-IN' }
 const stripTags = (s: string) => s.replace(/<\/?(slow|pauses)>/g, ' ').replace(/\s+/g, ' ').trim()
 
 export function ReportPage(props: { report: Report; onHome: () => void }) {
@@ -55,11 +55,7 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
 
   return (
     <div className="space-y-5">
-      {demo && (
-        <p className="rounded-xl bg-blue-50 p-3 text-base text-blue-950">
-          {t(lang, 'demoLive', { date: new Date(demo.live_run_at).toLocaleString(LOCALE[lang]) })}
-        </p>
-      )}
+      <EngineBadge report={r} />
       <h1 className="text-[28px] font-bold leading-tight">{t(lang, 'reportTitle')}</h1>
       {r.product_label && <p className="text-base text-slate-600">{r.product_label}</p>}
 

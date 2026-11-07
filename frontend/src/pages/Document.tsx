@@ -23,12 +23,12 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
     }
   }
 
-  async function check() {
+  async function check(engine: 'evon' | 'rules' = 'evon') {
     setErr('')
     setUnavailable(false)
     setBusy('starting')
     try {
-      await api.analyze(caseId)
+      await api.analyze(caseId, engine)
       props.onChecking()
     } catch (e) {
       if (e instanceof ApiError && e.status === 503) setUnavailable(true)
@@ -68,7 +68,7 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
       {read && (
         <div className="space-y-4">
           <p className="rounded-xl bg-green-50 p-4 text-lg text-green-900">✓ {t(lang, 'docRead', { n: read.clauses, p: read.pages })}</p>
-          <Button onClick={check} disabled={!!busy}>
+          <Button onClick={() => void check()} disabled={!!busy}>
             {t(lang, 'check')} →
           </Button>
           {busy === 'starting' && <Spinner label={t(lang, 'starting')} />}
@@ -77,9 +77,14 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
       {err && (
         <ErrorBox message={unavailable ? t(lang, 'liveUnavailable') : err}>
           {unavailable && (
-            <Button kind="secondary" onClick={props.onDemo}>
-              {t(lang, 'seeDemo')}
-            </Button>
+            <>
+              <Button kind="secondary" onClick={() => void check('rules')} disabled={!!busy}>
+                {t(lang, 'runRules')}
+              </Button>
+              <Button kind="secondary" onClick={props.onDemo}>
+                {t(lang, 'seeDemo')}
+              </Button>
+            </>
           )}
         </ErrorBox>
       )}

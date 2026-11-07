@@ -37,7 +37,7 @@ export function UnderTheHood({ report, lang }: { report: Report; lang: Lang }) {
         </section>
 
         <section>
-          <p className="font-semibold">Gnani Evon v3.3</p>
+          <p className="font-semibold">{report.engine?.mode === 'B' ? t(lang, 'modeB') : report.engine?.label ?? 'Gnani Evon v3.3'}</p>
           <p className="text-slate-600">{t(lang, 'uthEvon')}</p>
           {evon.length ? (
             <>

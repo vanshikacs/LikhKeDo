@@ -57,6 +57,16 @@ flowchart LR
 
 All Gnani calls pass through one `asyncio.Lock` (the account may allow one active request); 429/500/503/504 retry after 0.5, 1 and 2 s; every call is logged with its request id, status and latency, and the report's **Under the hood** panel shows them. No other LLM is called anywhere.
 
+## Three modes, always labelled
+
+| Mode | What runs | Badge on the report |
+|---|---|---|
+| **A** | Prisma + Timbre + Evon (BF16 on vLLM, or the community 4-bit GGUF on llama.cpp for ₹0, see [EVON_FREE.md](EVON_FREE.md)) | `Live check · <engine label>` |
+| **B** | Prisma + Timbre; promises checked by plain keyword and number rules when Evon is down and the user chooses it | `Rules check — no AI model` |
+| **C** | Results saved from a real mode-A run, served when no Evon server is up | `Saved from a live check — <date>` |
+
+No other LLM is ever used in place of Evon.
+
 ## Measured API behaviour
 
 Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concurrency_probe.py` and `try_gnani_client.py`, on an 11 s Hindi/Hinglish pitch clip (the clip itself was synthesised with Timbre). Evon numbers come after the GPU is up.
@@ -79,6 +89,8 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 
 `scripts/eval_answer_key.py` runs the pipeline on three fictional pitches (Hindi/Hinglish, Tamil+English, Marathi; 6 promises each: 2 written, 2 contradicted, 2 not in writing) against the fictional CIS and writes [demo/eval_results.md](demo/eval_results.md). _Not run yet against the live Evon; numbers will be reported as they come out._
 
+Mode B (rules, no AI model) on real Prisma v3.0 transcripts of the Timbre pitch audio: **15/18**, with no wrong WRITTEN or CONTRADICTED; every miss fell on the cautious side ([demo/eval_rules_stt.md](demo/eval_rules_stt.md)). The rules were written with these pitches in view, so treat this as a sanity check, not an accuracy claim.
+
 ## Noise robustness
 
 `scripts/noise_test.py` mixes cafe/traffic/TV noise at 20, 10 and 5 dB SNR plus an 8 kHz telephone band, and compares Prisma v2.5 (verbatim) with v3.0 (codemix + keyterms) on how many of the 6 promises are still extracted. Results go to [demo/noise_results.md](demo/noise_results.md). _Not run yet._
@@ -86,7 +98,7 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 ## Honest limitations
 
 - The demo policy, insurer ("Bharosa Life Insurance Ltd (FICTIONAL)") and recordings are synthetic. Real CIS documents vary; scanned PDFs are rejected (no OCR).
-- Evon runs on a rented GPU that is switched off between sessions; the public site then serves cached demo cases and says so (`DEMO_ONLY=true`).
+- Evon runs only while a GPU session is up (free: the community 4-bit GGUF on Kaggle T4s, quality loss unmeasured; paid: BF16 on vLLM). The rest of the time the public site serves cases saved from a live run and says so (`DEMO_ONLY=true`).
 - Code-mixed speech recognition can mishear numbers ("baarah" vs "barah"); the grounding check prefers *Not in writing — ask* over a wrong red card, so errors fall on the cautious side.
 - The answer key is small (18 promises); it shows the pipeline works, not production accuracy.
 - Hindi, Marathi and Tamil UI strings were drafted by us and need native review.

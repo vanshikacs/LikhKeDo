@@ -2,6 +2,8 @@
 
 Usage (from the repo root, backend venv, after EVON_BASE_URL and EVON_API_KEY are in .env):
   backend/.venv/Scripts/python scripts/smoke_evon.py
+Works for EVON_PROVIDER=vllm and llamacpp (free Kaggle GGUF; thinking is off there). Test 4 runs the real
+pipeline on the demo pitch and checks every call stays under the Cloudflare tunnel's 100 s limit.
 """
 from __future__ import annotations
 
@@ -44,10 +46,13 @@ def main() -> None:
         key = st.require("evon_api_key").get_secret_value()
     except RuntimeError as e:
         sys.exit(str(e))
-    client = OpenAI(base_url=base, api_key=key, timeout=120)
+    client = OpenAI(base_url=base, api_key=key, timeout=st.evon_timeout)
     model = st.evon_model
+    llamacpp = st.evon_provider == "llamacpp"
+    print(f"provider={st.evon_provider} label={st.evon_display_label} model={model} timeout={st.evon_timeout}s\n")
 
     def call(messages, thinking: bool, max_tokens: int):
+        thinking = thinking and not llamacpp
         t0 = time.perf_counter()
         r = client.chat.completions.create(
             model=model, messages=messages, temperature=0.6, top_p=0.95, max_tokens=max_tokens,
@@ -61,7 +66,7 @@ def main() -> None:
         r, dt = call([{"role": "user", "content":
                        "Reply in Hindi in Devanagari script: what is a free-look period in insurance?"}],
                      False, 256)
-        out = r.choices[0].message.content or ""
+        out = re.sub(r"<think>.*?</think>", "", r.choices[0].message.content or "", flags=re.S)
         ok = bool(DEVANAGARI.search(out))
         print(f"--- test 1 (Hindi, thinking off) {dt:.2f}s, Devanagari={'yes' if ok else 'NO'}\n{out}\n")
         results.append(f"hindi {'pass' if ok else 'FAIL'} {dt:.1f}s")
@@ -73,7 +78,7 @@ def main() -> None:
                  '"numbers":["..."]}]}')
         r, dt = call([{"role": "system", "content": sys_p},
                       {"role": "user", "content": f"TRANSCRIPT (hi-IN, code-mixed):\n{PITCH}"}], False, 2048)
-        out = r.choices[0].message.content or ""
+        out = re.sub(r"<think>.*?</think>", "", r.choices[0].message.content or "", flags=re.S)
         try:
             claims = json.loads(strip_fences(out))["claims"]
             ok = isinstance(claims, list) and len(claims) > 0
@@ -89,7 +94,7 @@ def main() -> None:
         user = (f"PROMISE: Returns are guaranteed at a minimum of 12% a year.\n\nCLAUSES:\n{CLAUSES}")
         r, dt = call([{"role": "system", "content": sys_p}, {"role": "user", "content": user}], True, 4096)
         msg = r.choices[0].message
-        out = msg.content or ""
+        out = re.sub(r"<think>.*?</think>", "", msg.content or "", flags=re.S)
         reasoning = getattr(msg, "reasoning_content", None) or getattr(msg, "reasoning", None) or ""
         try:
             verdict = json.loads(strip_fences(out)).get("verdict")
@@ -106,7 +111,32 @@ def main() -> None:
     except APIStatusError as e:
         sys.exit(f"HTTP {e.status_code}: {e.message}")
 
-    print("SUMMARY: Evon " + "; ".join(results))
+    # 4. the real pipeline (extract -> verify -> grounding check -> summary) on the demo pitch
+    import asyncio
+
+    from app.evon import EvonClient
+    from app.ingest import parse_pdf
+    from app.pipeline import run_pipeline
+    root = Path(__file__).resolve().parents[1]
+    clauses = parse_pdf((root / "demo/policy/bharosa_suraksha_plus_cis.pdf").read_bytes())
+    pitch = (root / "demo/pitches/hi_hinglish.txt").read_text(encoding="utf-8")
+    evon = EvonClient()
+    t0 = time.perf_counter()
+    try:
+        res = asyncio.run(run_pipeline(pitch, clauses, "hi", evon))
+    except Exception as e:  # noqa: BLE001 - report and keep the summary
+        print(f"--- test 4 (pipeline) FAILED: {e.__class__.__name__}: {str(e)[:200]}")
+        results.append("pipeline FAIL")
+    else:
+        slowest = max((c["latency_ms"] for c in evon.calls), default=0) / 1000
+        print(f"--- test 4 (pipeline) {time.perf_counter() - t0:.1f}s, {len(evon.calls)} calls, slowest {slowest:.1f}s")
+        for r in res.claims:
+            print(f"  {r.verdict:15} {r.quote[:70]}  [{r.clause_id or '-'}]{'' if r.grounded else ' (downgraded: ' + str(r.reason) + ')'}")
+        print(f"  summary: {res.summary}")
+        warn = " (WARNING: close to the tunnel's 100 s limit)" if slowest > 80 else ""
+        results.append(f"pipeline {len(res.claims)} claims, slowest call {slowest:.1f}s{warn}")
+
+    print("\nSUMMARY: Evon " + "; ".join(results))
 
 
 if __name__ == "__main__":

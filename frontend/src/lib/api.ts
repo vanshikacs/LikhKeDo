@@ -41,6 +41,7 @@ export interface Report {
   error: string | null
   product_label: string | null
   summary: string | null
+  engine?: { mode: 'A' | 'B'; provider: string; label: string; quant: string | null; model: string | null } | null
   counts: Record<Verdict, number>
   clauses: number
   transcript: { idx: number; text: string; source: string; lang: string | null }[]
@@ -73,6 +74,9 @@ export interface Report {
     created: string
     evon_model?: string
     prisma_request_ids?: string[]
+    provider?: string
+    label?: string
+    quant?: string | null
   }
 }
 
@@ -80,8 +84,10 @@ export interface Health {
   ok: boolean
   gnani: 'ok' | 'error'
   evon: 'ok' | 'down'
-  evon_reason: 'ok' | 'not_configured' | 'unreachable' | 'bad_key' | 'bad_url' | 'model_missing' | 'http_error'
+  evon_reason: 'ok' | 'provider_none' | 'not_configured' | 'unreachable' | 'bad_key' | 'bad_url' | 'model_missing' | 'http_error'
   evon_model: string
+  evon_provider: 'vllm' | 'llamacpp' | 'none'
+  evon_label: string
   queue: number
   demo_only: boolean
 }
@@ -148,7 +154,8 @@ export const api = {
       headers: { 'Content-Type': 'application/pdf' },
       body: pdf,
     }),
-  analyze: (id: string) => call<{ status: string }>(`/api/cases/${id}/analyze`, { method: 'POST' }),
+  analyze: (id: string, engine: 'evon' | 'rules' = 'evon') =>
+    call<{ status: string; engine: string }>(`/api/cases/${id}/analyze?engine=${engine}`, { method: 'POST' }),
   report: (id: string) => call<Report>(`/api/cases/${id}/report`),
   speak: (id: string, target: string) => call<Blob>(`/api/cases/${id}/speak`, json({ target })),
   deleteCase: (id: string) => call<{ deleted: boolean }>(`/api/cases/${id}`, { method: 'DELETE' }),

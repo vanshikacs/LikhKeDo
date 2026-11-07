@@ -139,3 +139,83 @@ def test_pipeline_end_to_end_with_fake_evon():
     assert all(r["extra_body"]["chat_template_kwargs"]["enable_thinking"] for r in verify_reqs)
     assert all(r["max_tokens"] == 4096 and r["temperature"] == 0.6 and r["top_p"] == 0.95 for r in verify_reqs)
     assert "Hindi using Devanagari script" in verify_reqs[0]["messages"][0]["content"]
+
+
+# ---------- llamacpp provider (free Kaggle setup) ----------
+
+def test_llamacpp_batches_verification_without_thinking(monkeypatch):
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "evon_provider", "llamacpp")
+    fake = FakeOpenAI(EXTRACT, verify)
+    res = asyncio.run(run_pipeline(PITCH, CLAUSES, "hi", EvonClient(fake)))
+    assert [r.verdict for r in res.claims] == ["CONTRADICTED", "CONTRADICTED", "WRITTEN", "NOT_IN_WRITING",
+                                                "NOT_IN_WRITING", "WRITTEN"]
+    kinds = [r["messages"][0]["content"][:20] for r in fake.requests]
+    assert sum(k.startswith("You compare several") for k in kinds) == 1      # ONE verification call
+    assert not any(k.startswith("You compare one") for k in kinds)
+    assert all(r["extra_body"]["chat_template_kwargs"]["enable_thinking"] is False for r in fake.requests)
+    assert res.trace["engine"]["label"] == "Evon v3.3 · community 4-bit GGUF (llama.cpp)"
+    assert res.trace["engine"]["mode"] == "A" and all(c["provider"] == "llamacpp" for c in res.trace["evon_calls"])
+
+
+def test_llamacpp_missing_batch_item_is_not_in_writing(monkeypatch):
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "evon_provider", "llamacpp")
+
+    def only_first(promise):
+        return verify(promise) if "guaranteed" in promise else None
+
+    fake = FakeOpenAI(EXTRACT, only_first)
+    fake_verify = fake.verify
+    fake.verify = lambda p: fake_verify(p) or {"verdict": "WRITTEN", "clause_id": "p9", "clause_quote": "invented"}
+    res = asyncio.run(run_pipeline(PITCH, CLAUSES, "hi", EvonClient(fake)))
+    assert res.claims[0].verdict == "CONTRADICTED"
+    # invented clause quotes never survive the grounding check
+    assert all(r.verdict == "NOT_IN_WRITING" and not r.grounded for r in res.claims[1:])
+
+
+def test_think_tags_are_stripped(monkeypatch):
+    from types import SimpleNamespace
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "evon_provider", "llamacpp")
+
+    class Leaky:
+        def __init__(self):
+            self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
+
+        async def create(self, **kw):
+            msg = SimpleNamespace(content='<think>long reasoning</think>{"text": "ठीक है"}')
+            return SimpleNamespace(id="x", choices=[SimpleNamespace(message=msg)], usage=None)
+
+    from app.schemas import LocalText
+    out = asyncio.run(EvonClient(Leaky()).chat_json([{"role": "system", "content": "s"}], True, 50, LocalText))
+    assert out.text == "ठीक है"
+
+
+# ---------- mode B: rules check, no AI model ----------
+
+def test_rules_check_on_demo_pitches():
+    from app.rules import LABEL, run_rules
+    res = run_rules(PITCH, CLAUSES, "hi")
+    by_quote = {r.quote: r for r in res.claims}
+
+    def find(fragment):
+        return next(r for q, r in by_quote.items() if fragment in q)
+
+    assert find("returns guaranteed").verdict == "CONTRADICTED"
+    assert find("5 साल premium").verdict == "CONTRADICTED"
+    assert find("10 लाख").verdict == "WRITTEN"
+    assert find("loan").verdict == "NOT_IN_WRITING"
+    assert find("better").verdict == "NOT_IN_WRITING"
+    assert find("30 दिन").verdict == "WRITTEN"
+    assert all(r.grounded for r in res.claims)
+    assert res.trace["engine"] == {"provider": "none", "label": LABEL, "quant": None, "model": None, "mode": "B"}
+    assert res.trace["evon_calls"] == []
+    assert all(r.claim_en == "" and r.explain_local for r in res.claims)  # no English paraphrase invented
+
+
+def test_rules_number_words_from_prisma():
+    from app.rules import claim_values
+    assert ("percent", 12.0) in claim_values("हर साल minimum बारह percent मिलेगा")
+    assert ("years", 5.0) in claim_values("सिर्फ पाँच साल premium")
+    assert ("amount", 1_000_000.0) in claim_values("दस लाख का life cover")

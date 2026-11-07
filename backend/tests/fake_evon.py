@@ -28,6 +28,14 @@ class FakeOpenAI:
         first_user = kw["messages"][1]["content"] if len(kw["messages"]) > 1 else ""
         if system.startswith("You extract"):
             kind, out = "extract", json.dumps(self.extract, ensure_ascii=False)
+        elif system.startswith("You compare several"):
+            results = []
+            for line in first_user.split("\n"):
+                if line.startswith("[") and "| English: " in line:
+                    i = int(line[1:line.index("]")])
+                    en = line.split("| English: ", 1)[1].split(" | numbers:", 1)[0]
+                    results.append({"id": i, **self.verify(en)})
+            kind, out = "verify_batch", json.dumps({"results": results}, ensure_ascii=False)
         elif system.startswith("You compare"):
             promise = (first_user.split("PROMISE (English): ", 1)[1].split("\n", 1)[0]
                        if "PROMISE (English)" in first_user else "")

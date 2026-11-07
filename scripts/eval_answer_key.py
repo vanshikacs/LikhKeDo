@@ -1,7 +1,9 @@
 """Score the pipeline against demo/answer_key.json (skips STT; uses the pitch text). Needs Evon running.
 
-Usage: backend/.venv/Scripts/python scripts/eval_answer_key.py [--only hi_hinglish]
-Writes demo/eval_results.json and demo/eval_results.md.
+Usage: backend/.venv/Scripts/python scripts/eval_answer_key.py [--only hi_hinglish] [--rules]
+  default: Evon as configured (EVON_PROVIDER vllm | llamacpp) -> demo/eval_results.{json,md}
+  --rules: mode B "Rules check - no AI model" (runs offline)   -> demo/eval_rules.{json,md}
+  --from-audio: transcribe demo/pitches/<slug>.wav with Prisma first (real STT; cached after the first run)
 """
 from __future__ import annotations
 
@@ -18,9 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app import db  # noqa: E402
-from app.evon import EvonClient, EvonUnavailable  # noqa: E402
+from app.evon import EvonClient, EvonUnavailable, engine_info  # noqa: E402
 from app.ingest import parse_pdf  # noqa: E402
 from app.pipeline import fuzzy_in, run_pipeline  # noqa: E402
+from app.rules import LABEL as RULES_LABEL, run_rules  # noqa: E402
 
 VERDICTS = ["WRITTEN", "CONTRADICTED", "NOT_IN_WRITING"]
 MATCH = 70  # fuzzy match between a predicted quote and the answer-key quote hint
@@ -48,22 +51,34 @@ def match(expected: list[dict], predicted: list) -> list[tuple[dict, object | No
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only")
+    ap.add_argument("--rules", action="store_true")
+    ap.add_argument("--from-audio", action="store_true")
     a = ap.parse_args()
+    engine = RULES_LABEL if a.rules else engine_info()["label"]
+    out_name = ("eval_rules" if a.rules else "eval_results") + ("_stt" if a.from_audio else "")
     db.init_db()
     key = json.loads((ROOT / "demo/answer_key.json").read_text(encoding="utf-8"))
     clauses = parse_pdf((ROOT / key["document"]).read_bytes())
 
     confusion = {e: {p: 0 for p in VERDICTS + ["MISSED"]} for e in VERDICTS}
-    report = {"pitches": [], "created": time.strftime("%Y-%m-%d %H:%M")}
+    report = {"pitches": [], "created": time.strftime("%Y-%m-%d %H:%M"), "engine": None}
     disagreements = []
     for pitch in key["pitches"]:
         if a.only and pitch["slug"] != a.only:
             continue
         text = (ROOT / pitch["file"]).read_text(encoding="utf-8")
-        evon = EvonClient()
+        if a.from_audio:
+            from app import gnani
+            from app.langs import get_lang
+            wav = ROOT / "demo" / "pitches" / f"{pitch['slug']}.wav"
+            tr = await gnani.get_client().transcribe_rest(wav.read_bytes(), wav.name, get_lang(pitch["lang"]).prisma,
+                                                          keyterms=gnani.FINANCE_TERMS)
+            text = tr.text
+            print(f"{pitch['slug']}: Prisma {tr.request_ids}{' (cache)' if tr.cached else ''}")
         t0 = time.perf_counter()
         try:
-            res = await run_pipeline(text, clauses, pitch["lang"], evon)
+            res = (run_rules(text, clauses, pitch["lang"]) if a.rules
+                   else await run_pipeline(text, clauses, pitch["lang"], EvonClient()))
         except EvonUnavailable as e:
             sys.exit(f"Evon unavailable: {e}")
         secs = time.perf_counter() - t0
@@ -105,10 +120,11 @@ async def main() -> None:
         print(f"\n[{d['pitch']} {d['id']}] expected {d['expected']} got {d['got']}\n  said: {d['quote_got']}\n"
               f"  clause {d['clause_got']}: {d['clause_quote']}\n  reason: {d['reason']}")
 
-    report.update(confusion=confusion, metrics=metrics, disagreements=disagreements)
-    (ROOT / "demo/eval_results.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    md = ["# Answer-key evaluation", "", f"Run: {report['created']}. Pipeline on the pitch text (no STT), "
-          "fictional CIS. Model: Evon v3.3 (self-hosted).", "",
+    report.update(engine=engine, confusion=confusion, metrics=metrics, disagreements=disagreements)
+    (ROOT / f"demo/{out_name}.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    md = ["# Answer-key evaluation", "", f"Run: {report['created']}. "
+          f"fictional CIS. Engine: {engine}. Input: "
+          f"{'Prisma v3.0 transcript of the Timbre pitch audio' if a.from_audio else 'pitch text (no STT)'}.", "",
           "| Pitch | Correct | Extra claims | Time (s) |", "| --- | --- | --- | --- |"]
     md += [f"| {p['slug']} | {p['correct']}/{p['total']} | {p['extra_claims']} | {p['seconds']} |"
            for p in report["pitches"]]
@@ -117,8 +133,8 @@ async def main() -> None:
     md += [f"| {e} | " + " | ".join(str(confusion[e][c]) for c in VERDICTS + ["MISSED"]) + " |" for e in VERDICTS]
     md += ["", "| Verdict | Precision | Recall |", "| --- | --- | --- |"]
     md += [f"| {v} | {metrics[v]['precision']} | {metrics[v]['recall']} |" for v in VERDICTS]
-    (ROOT / "demo/eval_results.md").write_text("\n".join(md) + "\n", encoding="utf-8")
-    print("\nwrote demo/eval_results.json and demo/eval_results.md")
+    (ROOT / f"demo/{out_name}.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    print(f"\nwrote demo/{out_name}.json and demo/{out_name}.md")
 
 
 if __name__ == "__main__":

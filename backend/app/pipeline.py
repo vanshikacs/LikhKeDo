@@ -12,10 +12,10 @@ from rapidfuzz import fuzz
 from sqlmodel import select
 
 from . import db, localtext, prompts
-from .evon import EvonClient, EvonJSONError, EvonUnavailable
+from .evon import EvonClient, EvonJSONError, EvonUnavailable, engine_info
 from .ingest import Clause, ClauseIndex, full_text, normalise
 from .langs import Lang, get_lang, script_ratio
-from .schemas import Extraction, ExtractedClaim, LocalText, Verification
+from .schemas import Extraction, ExtractedClaim, LocalText, Verification, VerificationBatch
 
 log = logging.getLogger("likhkedo.pipeline")
 
@@ -152,52 +152,69 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
     n = len(claims)
     index = ClauseIndex(clauses)
     cis = full_text(clauses)
-    sem = asyncio.Semaphore(VERIFY_CONCURRENCY)
     done = 0
 
-    async def check(i: int, c: ExtractedClaim) -> ClaimResult:
+    async def finish(i: int, c: ExtractedClaim, v: Verification | None) -> ClaimResult:
+        """Code-level grounding check, then make sure user-facing text is in the buyer's language/script."""
         nonlocal done
-        async with sem:
-            top = index.search(c.claim_en, k=5) or index.search(c.quote, k=5)
-            try:
-                v = await evon.chat_json(prompts.verify_messages(c.quote, c.claim_en, c.numbers, cis, top, lang),
-                                         True, 4096, Verification, case_id)
-            except EvonJSONError:
-                v = None
-            verdict, grounded, reason, clause = ground_check(c, v, transcript, clauses)
-            r = ClaimResult(idx=i, quote=c.quote, claim_en=c.claim_en, category=c.category, numbers=c.numbers,
-                            verdict=verdict, grounded=grounded, reason=reason,
-                            model_verdict=v.verdict if v else None,
-                            explain_en=v.explain_en if v else "", explain_local=v.explain_local if v else "",
-                            ask_agent=v.ask_agent if v else "")
-            if clause is not None and verdict != "NOT_IN_WRITING":
-                r.clause_id, r.clause_quote, r.clause_page = clause.id, v.clause_quote, clause.page
-            if verdict != (v.verdict if v else None):
-                # never show the model's explanation of a verdict the grounding check overrode
-                r.explain_en = localtext.EXPLAIN["en"][verdict]
-                r.explain_local = localtext.EXPLAIN[lang.code][verdict]
-            if not r.ask_agent:
-                r.ask_agent = localtext.ASK[lang.code]
-            if lang.code == "en":
-                r.explain_local = r.explain_local or r.explain_en
-            else:
-                # script check on user-facing local text: one stricter rewrite, else the fixed local sentence
-                fallback = {"explain_local": localtext.EXPLAIN[lang.code][verdict], "ask_agent": localtext.ASK[lang.code]}
-                for attr in ("explain_local", "ask_agent"):
-                    val = getattr(r, attr)
-                    if val and script_ratio(val, lang) >= SCRIPT_MIN:
-                        continue
-                    fixed = await _localize(evon, val, lang, case_id) if val else None
-                    setattr(r, attr, fixed or fallback[attr])
-            done += 1
-            progress({"stage": "checking", "i": done, "n": n})
-            return r
+        verdict, grounded, reason, clause = ground_check(c, v, transcript, clauses)
+        r = ClaimResult(idx=i, quote=c.quote, claim_en=c.claim_en, category=c.category, numbers=c.numbers,
+                        verdict=verdict, grounded=grounded, reason=reason,
+                        model_verdict=v.verdict if v else None,
+                        explain_en=v.explain_en if v else "", explain_local=v.explain_local if v else "",
+                        ask_agent=v.ask_agent if v else "")
+        if clause is not None and verdict != "NOT_IN_WRITING":
+            r.clause_id, r.clause_quote, r.clause_page = clause.id, v.clause_quote, clause.page
+        if verdict != (v.verdict if v else None):
+            # never show the model's explanation of a verdict the grounding check overrode
+            r.explain_en = localtext.EXPLAIN["en"][verdict]
+            r.explain_local = localtext.EXPLAIN[lang.code][verdict]
+        if not r.ask_agent:
+            r.ask_agent = localtext.ASK[lang.code]
+        if lang.code == "en":
+            r.explain_local = r.explain_local or r.explain_en
+        else:
+            # script check on user-facing local text: one stricter rewrite, else the fixed local sentence
+            fallback = {"explain_local": localtext.EXPLAIN[lang.code][verdict], "ask_agent": localtext.ASK[lang.code]}
+            for attr in ("explain_local", "ask_agent"):
+                val = getattr(r, attr)
+                if val and script_ratio(val, lang) >= SCRIPT_MIN:
+                    continue
+                fixed = await _localize(evon, val, lang, case_id) if val else None
+                setattr(r, attr, fixed or fallback[attr])
+        done += 1
+        progress({"stage": "checking", "i": done, "n": n})
+        return r
 
-    results = sorted(await asyncio.gather(*(check(i, c) for i, c in enumerate(claims))), key=lambda r: r.idx)
+    if evon.provider == "llamacpp" and claims:
+        # one call for all claims: fits the tunnel's 100 s limit and llama-server's single slot
+        progress({"stage": "checking", "i": 0, "n": n})
+        try:
+            batch = await evon.chat_json(prompts.verify_batch_messages(claims, cis, lang), False, 3072,
+                                         VerificationBatch, case_id)
+            by_id = {b.id: b for b in batch.results}
+        except EvonJSONError:
+            by_id = {}
+        results = [await finish(i, c, by_id.get(i)) for i, c in enumerate(claims)]
+    else:
+        sem = asyncio.Semaphore(VERIFY_CONCURRENCY)
+
+        async def check(i: int, c: ExtractedClaim) -> ClaimResult:
+            async with sem:
+                top = index.search(c.claim_en, k=5) or index.search(c.quote, k=5)
+                try:
+                    v = await evon.chat_json(prompts.verify_messages(c.quote, c.claim_en, c.numbers, cis, top, lang),
+                                             True, 4096, Verification, case_id)
+                except EvonJSONError:
+                    v = None
+                return await finish(i, c, v)
+
+        results = list(await asyncio.gather(*(check(i, c) for i, c in enumerate(claims))))
+    results.sort(key=lambda r: r.idx)
 
     progress({"stage": "summarizing"})
     summary = await _summary(evon, results, lang, case_id)
-    trace = {"evon_model": evon.model, "evon_calls": list(evon.calls),
+    trace = {"engine": {**engine_info(), "mode": "A"}, "evon_model": evon.model, "evon_calls": list(evon.calls),
              "pipeline_ms": int((time.perf_counter() - t_start) * 1000), "claims": n}
     return PipelineResult(claims=results, summary=summary, trace=trace)
 
@@ -219,8 +236,10 @@ async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang, cas
 
 # ---------- case-level wrapper ----------
 
-async def analyze(case_id: str, evon: EvonClient | None = None) -> None:
-    evon = evon or EvonClient()
+async def analyze(case_id: str, evon: EvonClient | None = None, engine: str = "evon") -> None:
+    """engine="evon": mode A (Evon). engine="rules": mode B, "Rules check — no AI model"."""
+    if engine != "rules":
+        evon = evon or EvonClient()
     PROGRESS[case_id] = []
     with db.session() as s:
         case = s.get(db.Case, case_id)
@@ -232,7 +251,12 @@ async def analyze(case_id: str, evon: EvonClient | None = None) -> None:
     clauses = [Clause(id=r.id, page=r.page, section=r.section, text=r.text) for r in rows]
     transcript = "\n".join(s.text for s in segs)
     try:
-        result = await run_pipeline(transcript, clauses, case.lang, evon, lambda e: emit(case_id, e), case_id)
+        if engine == "rules":
+            from .rules import run_rules  # local import: rules builds on this module
+            emit(case_id, {"stage": "checking", "i": 0, "n": 0, "engine": "rules"})
+            result = run_rules(transcript, clauses, case.lang)
+        else:
+            result = await run_pipeline(transcript, clauses, case.lang, evon, lambda e: emit(case_id, e), case_id)
     except EvonUnavailable as e:
         _fail(case_id, "EVON_DOWN", str(e))
         return
