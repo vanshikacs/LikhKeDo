@@ -25,3 +25,4 @@ demo/test_clips/*.wav
 out_client.wav
 
 demo/noise/*.wav
+frontend/worklet_out_*.wav
