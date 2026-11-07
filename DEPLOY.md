@@ -18,6 +18,8 @@ build playbook, Phase 2). Keys go only into the Render dashboard, never into the
    | `EVON_BASE_URL` | `https://<gpu-host>:8000/v1` (or leave unset while the GPU is off) |
    | `EVON_API_KEY` | the key you passed to `vllm serve --api-key` |
    | `EVON_MODEL` | `gnani/gnani-evon-v3.3-30B-A3B` (preset) |
+   | `EVON_PROVIDER` | `vllm` (BF16 on a GPU), `llamacpp` (free Kaggle 4-bit GGUF, set `EVON_MODEL=evon`, see EVON_FREE.md) or `none` |
+   | `EVON_QUANT` / `EVON_LABEL` | optional: `Q4_K_M`; label override shown on reports |
    | `FRONTEND_ORIGIN` | your Vercel URL, e.g. `https://likhkedo.vercel.app` (comma-separate several) |
    | `DEMO_ONLY` | `true` when the GPU is off, `false` when Evon is running |
    | `ADMIN_SECRET` | `python -c "import secrets;print(secrets.token_urlsafe(24))"` |
