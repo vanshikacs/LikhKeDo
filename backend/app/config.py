@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # Measured 2026-11-07 (scripts/concurrency_probe.py): an open stream does NOT block Timbre, so streams
     # don't hold the lock. Set STREAM_HOLDS_LOCK=true if 429s appear during Listen.
     stream_holds_lock: bool = False
+    # DEV ONLY: lets /dev/listen save the exact 16 kHz stream sent to Prisma to DATA_DIR/debug/last_stream.wav.
+    # Must stay false in production (CLAUDE.md: never write raw audio to disk).
+    debug_save_audio: bool = False
     # Seeded demo cases (demo/cache/<slug>/report.json) and the demo CIS PDF.
     demo_dir: Path = REPO_ROOT / "demo"
     analyses_per_hour: int = 3

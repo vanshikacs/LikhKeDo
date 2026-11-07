@@ -19,6 +19,7 @@ class FakePrisma:
 
     def __init__(self, close_after_connect=False):
         self.frames: list[int] = []
+        self.times: list[float] = []
         self.headers: dict = {}
         self.commit = False
         self.close_after_connect = close_after_connect
@@ -35,6 +36,7 @@ class FakePrisma:
             async for m in ws:
                 if isinstance(m, bytes):
                     self.frames.append(len(m))
+                    self.times.append(time.perf_counter())
                     if len(self.frames) == 3:
                         await ws.send(json.dumps({"type": "transcript", "segment_index": 0,
                                                   "text": "सर, returns guaranteed हैं, बिल्कुल FD जैसा",
@@ -166,3 +168,43 @@ def test_listen_requires_consent(fake):
         with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
             m = json.loads(ws.receive_text())
     assert m["code"] == "NO_CONSENT"
+
+
+def test_frames_are_paced_at_32ms(fake):
+    """A burst of 25 frames from the browser must reach Prisma no faster than real time."""
+    cid = make_case()
+    with TestClient(app) as client:
+        with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
+            ws.send_text(json.dumps({"lang": "hi", "sample_rate": 48000}))
+            ws.send_bytes(b"\x01" * (1024 * 25))  # one burst
+            ws.send_text(json.dumps({"type": "stop"}))
+            collect(ws)
+    assert len(fake.frames) == 25 and set(fake.frames) == {1024}
+    span = fake.times[-1] - fake.times[0]
+    assert span >= 24 * 0.032 * 0.9, f"burst forwarded too fast: {span:.3f}s for 25 frames"
+
+
+def test_debug_save_only_when_enabled(fake, monkeypatch, tmp_path):
+    st = get_settings()
+    monkeypatch.setattr(st, "data_dir", tmp_path)
+    out = tmp_path / "debug" / "last_stream.wav"
+
+    def run(debug_flag):
+        cid = make_case()
+        with TestClient(app) as client:
+            with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
+                ws.send_text(json.dumps({"lang": "hi", "debug_save": True}))
+                ws.send_bytes(b"\x02" * 2048)
+                ws.send_text(json.dumps({"type": "stop"}))
+                collect(ws)
+
+    monkeypatch.setattr(st, "debug_save_audio", False)
+    run(False)
+    assert not out.exists()  # production default: never write audio
+    monkeypatch.setattr(st, "debug_save_audio", True)
+    run(True)
+    assert out.exists()
+    import wave
+    with wave.open(str(out)) as w:
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (16000, 1, 2)
+        assert w.getnframes() == 1024  # exactly the two frames Prisma received

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:worklet": "node scripts/test-worklet.mjs ../demo/test_clips/tts_clip.wav"
   },
   "dependencies": {
     "react": "^19.3.1",
