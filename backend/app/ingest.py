@@ -11,7 +11,11 @@ from rank_bm25 import BM25Okapi
 
 
 class IngestError(ValueError):
-    """The PDF cannot be used (no extractable text, unreadable file)."""
+    """The PDF cannot be used (no extractable text, unreadable file). `code` is localized in the frontend."""
+
+    def __init__(self, message: str, code: str = "PDF_UNREADABLE"):
+        super().__init__(message)
+        self.code = code
 
 
 @dataclass
@@ -87,7 +91,8 @@ def parse_pdf(data: bytes) -> list[Clause]:
         pages = [_page_lines(p) for p in pdf.pages]
 
     if sum(len(" ".join(p)) for p in pages) < 40:
-        raise IngestError("This PDF has no extractable text (scanned images are not supported; we do not do OCR).")
+        raise IngestError("This PDF has no extractable text (scanned images are not supported; we do not do OCR).",
+                          "PDF_NO_TEXT")
 
     # drop running headers/footers: lines (digits masked) present on at least half the pages
     if len(pages) >= 2:
@@ -127,7 +132,7 @@ def parse_pdf(data: bytes) -> list[Clause]:
                 n += 1
                 clauses.append(Clause(id=f"p{pno}-s{n}", page=pno, section=sec, text=part))
     if not clauses:
-        raise IngestError("No clauses found in the PDF.")
+        raise IngestError("No clauses found in the PDF.", "PDF_NO_CLAUSES")
     return clauses
 
 

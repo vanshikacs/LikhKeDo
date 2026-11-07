@@ -103,7 +103,6 @@ Mode B (rules, no AI model) on real Prisma v3.0 transcripts of the Timbre pitch 
 - The answer key is small (18 promises); it shows the pipeline works, not production accuracy.
 - Hindi, Marathi and Tamil UI strings were drafted by us and need native review.
 - The demo CIS is in English, so the *document* quote on each card stays in English even in a Hindi, Marathi or Tamil report (it must be the exact words of the document). Everything else on the card is in the buyer's language; the model's English paraphrase sits behind a "Show English" toggle.
-- Some server error messages (rare paths such as "file too large") are still English only.
 - Live Listen mode records nothing to disk, but everyone present should still know the conversation is being noted.
 
 ## Recording the demo

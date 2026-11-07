@@ -35,25 +35,30 @@ _rate: dict[str, deque] = defaultdict(deque)
 _tasks: set[asyncio.Task] = set()
 
 
+def _err(status: int, code: str, message: str) -> HTTPException:
+    """User-facing error: the frontend shows err_<code> in the buyer's language, `message` is the English fallback."""
+    return HTTPException(status, {"code": code, "message": message})
+
+
 def _case(case_id: str) -> db.Case:
     if len(case_id) > 64:
-        raise HTTPException(404, "Case not found.")
+        raise _err(404, "CASE_NOT_FOUND", "Case not found.")
     with db.session() as s:
         c = s.get(db.Case, case_id)
     if c is None:
-        raise HTTPException(404, "Case not found or expired.")
+        raise _err(404, "CASE_NOT_FOUND", "Case not found or expired.")
     return c
 
 
 async def _body(request: Request, limit: int) -> bytes:
     size = int(request.headers.get("content-length") or 0)
     if size > limit:
-        raise HTTPException(413, f"File too large (max {limit // (1024 * 1024)} MB).")
+        raise _err(413, "FILE_TOO_LARGE", f"File too large (max {limit // (1024 * 1024)} MB).")
     data = await request.body()
     if len(data) > limit:
-        raise HTTPException(413, f"File too large (max {limit // (1024 * 1024)} MB).")
+        raise _err(413, "FILE_TOO_LARGE", f"File too large (max {limit // (1024 * 1024)} MB).")
     if not data:
-        raise HTTPException(400, "Empty upload.")
+        raise _err(400, "EMPTY_UPLOAD", "Empty upload.")
     return data
 
 
@@ -85,9 +90,9 @@ async def recall(case_id: str, request: Request) -> dict:
         raise _gnani_http(e) from None
     seconds = len(pcm) / 32000
     if seconds > MAX_AUDIO_S + 0.5:
-        raise HTTPException(400, "Recording is too long. Please keep it under 30 seconds.")
+        raise _err(400, "MAX_AUDIO_DURATION_EXCEEDED", "Recording is too long. Please keep it under 30 seconds.")
     if seconds < 0.5:
-        raise HTTPException(400, "The recording is empty. Please try again.")
+        raise _err(400, "EMPTY_AUDIO", "The recording is empty. Please try again.")
     lang = get_lang(case.lang)
     with db.session() as s:
         prev = list(s.exec(select(db.Segment.text).where(db.Segment.case_id == case_id).order_by(db.Segment.idx)))
@@ -100,7 +105,7 @@ async def recall(case_id: str, request: Request) -> dict:
     except gnani.GnaniError as e:
         raise _gnani_http(e) from None
     if not tr.text.strip():
-        raise HTTPException(400, "We couldn't hear any words. Please try again, a little louder.")
+        raise _err(400, "NO_WORDS", "We couldn't hear any words. Please try again, a little louder.")
     with db.session() as s:
         seg = db.Segment(case_id=case_id, idx=n, text=tr.text, detected_lang=tr.detected_language_code,
                          source="rest", prisma_request_id=(tr.request_ids or [None])[0])
@@ -136,12 +141,12 @@ async def document(case_id: str, request: Request) -> dict:
     else:
         data = await _body(request, MAX_PDF_BYTES)
         if not data.startswith(b"%PDF"):
-            raise HTTPException(400, "Please upload a PDF file.")
+            raise _err(400, "NOT_PDF", "Please upload a PDF file.")
         label = None
     try:
         clauses = await asyncio.to_thread(parse_pdf, data)
     except IngestError as e:
-        raise HTTPException(400, str(e)) from None
+        raise _err(400, e.code, str(e)) from None
     with db.session() as s:
         for old in s.exec(select(db.ClauseRow).where(db.ClauseRow.case_id == case_id)):
             s.delete(old)
@@ -183,11 +188,11 @@ async def analyze(case_id: str, request: Request, engine: str = "evon"):
         nseg = s.exec(select(func.count()).select_from(db.Segment).where(db.Segment.case_id == case_id)).one()
         ncl = s.exec(select(func.count()).select_from(db.ClauseRow).where(db.ClauseRow.case_id == case_id)).one()
     if not nseg:
-        raise HTTPException(400, "Nothing to check yet: record or listen to the pitch first.")
+        raise _err(400, "NOTHING_TO_CHECK", "Nothing to check yet: record or listen to the pitch first.")
     if not ncl:
-        raise HTTPException(400, "Add the policy document first.")
+        raise _err(400, "NO_DOCUMENT", "Add the policy document first.")
     if not _rate_ok(request.client.host if request.client else "?"):
-        raise HTTPException(429, "Limit reached: 3 checks per hour. Please try the demo case.")
+        raise _err(429, "CHECK_LIMIT", "Limit reached: 3 checks per hour. Please try the demo case.")
     with db.session() as s:
         for old in s.exec(select(db.Claim).where(db.Claim.case_id == case_id)):
             s.delete(old)

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Button, ErrorBox, Spinner } from '../components/ui'
 import { api, progressUrl, type Lang, type Report } from '../lib/api'
-import { t } from '../lib/i18n'
+import { errText, t } from '../lib/i18n'
 
 interface Ev {
   stage: string
   i?: number
   n?: number
   message?: string | null
+  code?: string
 }
 
 export function Checking(props: { lang: Lang; caseId: string; onDone: (r: Report) => void; onDemo: () => void }) {
@@ -27,12 +28,12 @@ export function Checking(props: { lang: Lang; caseId: string; onDone: (r: Report
         try {
           onDone(await api.report(caseId))
         } catch (x) {
-          setErr(x instanceof Error ? x.message : String(x))
+          setErr(errText(lang, x))
         }
       } else if (e.stage === 'error') {
         finished = true
         es.close()
-        setErr(e.message ?? 'Error')
+        setErr(errText(lang, e))
       }
     }
     es.onerror = () => {
@@ -41,8 +42,8 @@ export function Checking(props: { lang: Lang; caseId: string; onDone: (r: Report
         es.close()
         api
           .report(caseId)
-          .then((r) => (r.status === 'done' ? onDone(r) : r.status === 'error' ? setErr(r.error ?? 'Error') : setErr('Connection lost.')))
-          .catch((x) => setErr(x instanceof Error ? x.message : String(x)))
+          .then((r) => (r.status === 'done' ? onDone(r) : r.status === 'error' ? setErr(r.error ?? 'Error') : setErr(t(lang, 'err_NETWORK'))))
+          .catch((x) => setErr(errText(lang, x)))
       }
     }
     return () => es.close()

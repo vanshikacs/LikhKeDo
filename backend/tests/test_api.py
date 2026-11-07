@@ -89,10 +89,11 @@ def test_validation(client):
     assert client.post("/api/cases", json={"lang": "xx", "mode": "recall", "consent": True}).status_code == 422
     assert client.post("/api/cases", json={"lang": "hi", "mode": "recall", "consent": False}).status_code == 422
     cid = new_case(client)
-    assert client.post(f"/api/cases/{cid}/document", content=b"hello", headers={"content-type": "application/pdf"}).status_code == 400
+    r = client.post(f"/api/cases/{cid}/document", content=b"hello", headers={"content-type": "application/pdf"})
+    assert r.status_code == 400 and r.json()["detail"]["code"] == "NOT_PDF"
     assert client.post(f"/api/cases/{cid}/recall", content=wav_bytes(31.5), headers={"content-type": "audio/wav"}).status_code == 400
     r = client.post(f"/api/cases/{cid}/analyze")
-    assert r.status_code == 400 and "record" in r.json()["detail"]
+    assert r.status_code == 400 and r.json()["detail"]["code"] == "NOTHING_TO_CHECK"
     assert client.get("/api/cases/nope/report").status_code == 404
     big = b"%PDF" + b"0" * (5 * 1024 * 1024 + 10)
     assert client.post(f"/api/cases/{cid}/document", content=big, headers={"content-type": "application/pdf"}).status_code == 413

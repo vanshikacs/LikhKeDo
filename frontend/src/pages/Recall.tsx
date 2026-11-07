@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, ErrorBox, Spinner } from '../components/ui'
 import { api, type Lang } from '../lib/api'
-import { t, type Key } from '../lib/i18n'
+import { errText, t, type Key } from '../lib/i18n'
 import { MicError, pcmToWav, startMic, type Mic } from '../lib/recorder'
 
 const MAX_S = 30
@@ -77,7 +77,7 @@ export function Recall(props: { lang: Lang; caseId: string; onNext: () => void }
       URL.revokeObjectURL(clip.url)
       setClip(null)
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     } finally {
       setBusy(false)
     }
@@ -88,7 +88,7 @@ export function Recall(props: { lang: Lang; caseId: string; onNext: () => void }
       await api.deleteSegment(caseId, idx)
       setHeard((h) => h.filter((x) => x.idx !== idx))
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     }
   }
 

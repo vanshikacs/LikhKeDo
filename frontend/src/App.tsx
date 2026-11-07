@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, ErrorBox, Shell, Spinner } from './components/ui'
 import { api, type Lang, type Report } from './lib/api'
-import { LANG_LABELS, t } from './lib/i18n'
+import { LANG_LABELS, errText, t } from './lib/i18n'
 import { Checking } from './pages/Checking'
 import { DocumentPage } from './pages/Document'
 import { Home } from './pages/Home'
@@ -95,7 +95,7 @@ function Demos({ lang, onOpen }: { lang: Lang; onOpen: (r: Report) => void }) {
     api
       .demos()
       .then((l) => setList([...l].sort((a, b) => Number(b.lang === lang) - Number(a.lang === lang))))
-      .catch((e) => setErr(e instanceof Error ? e.message : String(e)))
+      .catch((e) => setErr(errText(lang, e)))
   }, [lang])
   useEffect(() => {
     load()
@@ -107,7 +107,7 @@ function Demos({ lang, onOpen }: { lang: Lang; onOpen: (r: Report) => void }) {
     try {
       onOpen(await api.demo(slug))
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     } finally {
       setOpening('')
     }
@@ -142,7 +142,7 @@ function DevListen({ lang }: { lang: Lang }) {
     api
       .createCase(lang, 'listen')
       .then((c) => setCaseId(c.id))
-      .catch((e) => setErr(e instanceof Error ? e.message : String(e)))
+      .catch((e) => setErr(errText(lang, e)))
   }, [lang])
   return (
     <Shell lang={lang} title="/dev/listen" onHome={() => (window.location.href = '/')}>

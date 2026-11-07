@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LiveBanner } from '../components/LiveBanner'
 import { Button, ErrorBox, Spinner } from '../components/ui'
 import { api, ApiError, type Lang } from '../lib/api'
-import { t } from '../lib/i18n'
+import { errText, t } from '../lib/i18n'
 
 export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: () => void; onDemo: () => void }) {
   const { lang, caseId } = props
@@ -17,7 +17,7 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
     try {
       setRead(await fn())
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     } finally {
       setBusy('')
     }
@@ -32,7 +32,7 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
       props.onChecking()
     } catch (e) {
       if (e instanceof ApiError && e.status === 503) setUnavailable(true)
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     } finally {
       setBusy('')
     }

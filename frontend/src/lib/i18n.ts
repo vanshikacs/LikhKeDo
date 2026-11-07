@@ -127,6 +127,29 @@ const en = {
   runRules: 'Check with simple rules instead (no AI model)',
   evon_provider_none: 'No model server is set up (EVON_PROVIDER=none).',
   reconnecting: 'Reconnecting to the speech service… keep talking.',
+  err_CASE_NOT_FOUND: 'This case was not found or has expired (cases are deleted after 24 hours).',
+  err_FILE_TOO_LARGE: 'The file is too large (maximum 5 MB).',
+  err_EMPTY_UPLOAD: 'The file was empty. Please try again.',
+  err_MAX_AUDIO_DURATION_EXCEEDED: 'The recording is too long. Please keep it under 30 seconds.',
+  err_EMPTY_AUDIO: 'We couldn\'t hear anything in that recording. Please try again.',
+  err_NO_WORDS: 'We couldn\'t hear any words. Please try again, a little louder.',
+  err_UNSUPPORTED_AUDIO_FORMAT: 'That audio format isn\'t supported. Please record again.',
+  err_NOT_PDF: 'Please upload a PDF file.',
+  err_PDF_UNREADABLE: 'This PDF could not be read.',
+  err_PDF_NO_TEXT: 'This PDF has no text we can read (scanned pages are not supported).',
+  err_PDF_NO_CLAUSES: 'We found no policy terms in this PDF.',
+  err_NOTHING_TO_CHECK: 'Nothing to check yet: listen to the pitch or record what was said first.',
+  err_NO_DOCUMENT: 'Add the policy document first.',
+  err_CHECK_LIMIT: 'Limit reached: 3 checks per hour. Please open the demo case.',
+  err_RATE_LIMITED: 'The speech service is busy. Please try again in a few seconds.',
+  err_NO_CREDIT: 'The speech service has run out of credit. Please open the demo case.',
+  err_UPSTREAM_TIMEOUT: 'The speech service took too long. Please try again.',
+  err_CONNECT_FAILED: 'Could not reach the speech service.',
+  err_STREAM_CLOSED: 'The speech connection closed. Please start again.',
+  err_NETWORK: 'Cannot reach the LikhKeDo server. Check your internet connection and try again.',
+  err_EVON_DOWN: 'The Evon model server stopped answering. Please open the demo case or try again later.',
+  err_EVON_BAD_OUTPUT: 'The model\'s answer could not be read. Please try again.',
+  err_PIPELINE_ERROR: 'Something went wrong while checking. Please try again.',
 }
 
 type Strings = typeof en
@@ -258,6 +281,29 @@ const hi: Strings = {
   runRules: 'इसकी जगह सरल नियमों से जाँचें (कोई AI मॉडल नहीं)',
   evon_provider_none: 'कोई मॉडल सर्वर सेट नहीं है (EVON_PROVIDER=none)।',
   reconnecting: 'स्पीच सेवा से फिर जुड़ रहे हैं… बोलते रहिए।',
+  err_CASE_NOT_FOUND: 'यह केस नहीं मिला या उसकी अवधि ख़त्म हो गई (केस 24 घंटे बाद मिट जाते हैं)।',
+  err_FILE_TOO_LARGE: 'फ़ाइल बहुत बड़ी है (अधिकतम 5 MB)।',
+  err_EMPTY_UPLOAD: 'फ़ाइल ख़ाली थी। फिर कोशिश करें।',
+  err_MAX_AUDIO_DURATION_EXCEEDED: 'रिकॉर्डिंग बहुत लंबी है। 30 सेकंड से कम रखें।',
+  err_EMPTY_AUDIO: 'उस रिकॉर्डिंग में कुछ सुनाई नहीं दिया। फिर कोशिश करें।',
+  err_NO_WORDS: 'कोई शब्द सुनाई नहीं दिया। थोड़ा ज़ोर से फिर बोलिए।',
+  err_UNSUPPORTED_AUDIO_FORMAT: 'यह ऑडियो फ़ॉर्मैट नहीं चलता। फिर से रिकॉर्ड करें।',
+  err_NOT_PDF: 'कृपया PDF फ़ाइल अपलोड करें।',
+  err_PDF_UNREADABLE: 'यह PDF पढ़ी नहीं जा सकी।',
+  err_PDF_NO_TEXT: 'इस PDF में पढ़ने लायक टेक्स्ट नहीं है (स्कैन किए पन्ने नहीं चलते)।',
+  err_PDF_NO_CLAUSES: 'इस PDF में पॉलिसी की कोई शर्त नहीं मिली।',
+  err_NOTHING_TO_CHECK: 'अभी जाँचने को कुछ नहीं है: पहले बातचीत सुनें या जो कहा गया वह रिकॉर्ड करें।',
+  err_NO_DOCUMENT: 'पहले पॉलिसी दस्तावेज़ जोड़ें।',
+  err_CHECK_LIMIT: 'सीमा पूरी: एक घंटे में 3 जाँच। कृपया डेमो केस खोलें।',
+  err_RATE_LIMITED: 'स्पीच सेवा व्यस्त है। कुछ सेकंड बाद फिर कोशिश करें।',
+  err_NO_CREDIT: 'स्पीच सेवा का क्रेडिट ख़त्म हो गया है। कृपया डेमो केस खोलें।',
+  err_UPSTREAM_TIMEOUT: 'स्पीच सेवा ने बहुत देर लगाई। फिर कोशिश करें।',
+  err_CONNECT_FAILED: 'स्पीच सेवा तक पहुँच नहीं हो सकी।',
+  err_STREAM_CLOSED: 'स्पीच कनेक्शन बंद हो गया। फिर से शुरू करें।',
+  err_NETWORK: 'LikhKeDo सर्वर तक पहुँच नहीं हो पा रही। इंटरनेट जाँचकर फिर कोशिश करें।',
+  err_EVON_DOWN: 'Evon मॉडल सर्वर जवाब नहीं दे रहा। डेमो केस खोलें या बाद में कोशिश करें।',
+  err_EVON_BAD_OUTPUT: 'मॉडल का जवाब पढ़ा नहीं जा सका। फिर कोशिश करें।',
+  err_PIPELINE_ERROR: 'जाँच के दौरान कुछ गड़बड़ हुई। फिर कोशिश करें।',
 }
 
 const mr: Strings = {
@@ -387,6 +433,29 @@ const mr: Strings = {
   runRules: 'त्याऐवजी साध्या नियमांनी तपासा (AI मॉडेल नाही)',
   evon_provider_none: 'कोणताही मॉडेल सर्व्हर सेट नाही (EVON_PROVIDER=none).',
   reconnecting: 'स्पीच सेवेशी पुन्हा जोडत आहोत… बोलत राहा.',
+  err_CASE_NOT_FOUND: 'हा केस सापडला नाही किंवा त्याची मुदत संपली (केस 24 तासांनंतर हटवले जातात).',
+  err_FILE_TOO_LARGE: 'फाइल खूप मोठी आहे (कमाल 5 MB).',
+  err_EMPTY_UPLOAD: 'फाइल रिकामी होती. पुन्हा प्रयत्न करा.',
+  err_MAX_AUDIO_DURATION_EXCEEDED: 'रेकॉर्डिंग खूप मोठे आहे. 30 सेकंदांपेक्षा कमी ठेवा.',
+  err_EMPTY_AUDIO: 'त्या रेकॉर्डिंगमध्ये काहीच ऐकू आले नाही. पुन्हा प्रयत्न करा.',
+  err_NO_WORDS: 'कोणतेही शब्द ऐकू आले नाहीत. थोडे मोठ्याने पुन्हा बोला.',
+  err_UNSUPPORTED_AUDIO_FORMAT: 'हा ऑडिओ फॉरमॅट चालत नाही. पुन्हा रेकॉर्ड करा.',
+  err_NOT_PDF: 'कृपया PDF फाइल अपलोड करा.',
+  err_PDF_UNREADABLE: 'ही PDF वाचता आली नाही.',
+  err_PDF_NO_TEXT: 'या PDF मध्ये वाचता येईल असा मजकूर नाही (स्कॅन केलेली पाने चालत नाहीत).',
+  err_PDF_NO_CLAUSES: 'या PDF मध्ये पॉलिसीच्या अटी सापडल्या नाहीत.',
+  err_NOTHING_TO_CHECK: 'अजून तपासण्यासारखे काही नाही: आधी संभाषण ऐका किंवा जे सांगितले ते रेकॉर्ड करा.',
+  err_NO_DOCUMENT: 'आधी पॉलिसी दस्तऐवज जोडा.',
+  err_CHECK_LIMIT: 'मर्यादा संपली: एका तासात 3 तपासण्या. कृपया डेमो केस उघडा.',
+  err_RATE_LIMITED: 'स्पीच सेवा व्यस्त आहे. काही सेकंदांनी पुन्हा प्रयत्न करा.',
+  err_NO_CREDIT: 'स्पीच सेवेचे क्रेडिट संपले आहे. कृपया डेमो केस उघडा.',
+  err_UPSTREAM_TIMEOUT: 'स्पीच सेवेने खूप वेळ घेतला. पुन्हा प्रयत्न करा.',
+  err_CONNECT_FAILED: 'स्पीच सेवेपर्यंत पोहोचता आले नाही.',
+  err_STREAM_CLOSED: 'स्पीच कनेक्शन बंद झाले. पुन्हा सुरू करा.',
+  err_NETWORK: 'LikhKeDo सर्व्हरपर्यंत पोहोचता येत नाही. इंटरनेट तपासून पुन्हा प्रयत्न करा.',
+  err_EVON_DOWN: 'Evon मॉडेल सर्व्हर उत्तर देत नाही. डेमो केस उघडा किंवा नंतर प्रयत्न करा.',
+  err_EVON_BAD_OUTPUT: 'मॉडेलचे उत्तर वाचता आले नाही. पुन्हा प्रयत्न करा.',
+  err_PIPELINE_ERROR: 'तपासणीदरम्यान काहीतरी चुकले. पुन्हा प्रयत्न करा.',
 }
 
 const ta: Strings = {
@@ -516,6 +585,29 @@ const ta: Strings = {
   runRules: 'பதிலாக எளிய விதிகளால் சரிபார் (AI மாடல் இல்லை)',
   evon_provider_none: 'மாடல் சர்வர் அமைக்கப்படவில்லை (EVON_PROVIDER=none).',
   reconnecting: 'பேச்சுச் சேவையுடன் மீண்டும் இணைக்கிறோம்… தொடர்ந்து பேசுங்கள்.',
+  err_CASE_NOT_FOUND: 'இந்த வழக்கு கிடைக்கவில்லை அல்லது காலாவதியானது (24 மணி நேரத்தில் நீக்கப்படும்).',
+  err_FILE_TOO_LARGE: 'கோப்பு மிகப் பெரியது (அதிகபட்சம் 5 MB).',
+  err_EMPTY_UPLOAD: 'கோப்பு காலியாக இருந்தது. மீண்டும் முயலுங்கள்.',
+  err_MAX_AUDIO_DURATION_EXCEEDED: 'பதிவு மிக நீளமானது. 30 விநாடிகளுக்குள் வைத்திருங்கள்.',
+  err_EMPTY_AUDIO: 'அந்தப் பதிவில் எதுவும் கேட்கவில்லை. மீண்டும் முயலுங்கள்.',
+  err_NO_WORDS: 'எந்த வார்த்தையும் கேட்கவில்லை. சற்று சத்தமாக மீண்டும் பேசுங்கள்.',
+  err_UNSUPPORTED_AUDIO_FORMAT: 'இந்த ஒலி வடிவம் ஆதரிக்கப்படவில்லை. மீண்டும் பதிவு செய்யுங்கள்.',
+  err_NOT_PDF: 'PDF கோப்பைப் பதிவேற்றுங்கள்.',
+  err_PDF_UNREADABLE: 'இந்த PDF-ஐப் படிக்க முடியவில்லை.',
+  err_PDF_NO_TEXT: 'இந்த PDF-இல் படிக்கக்கூடிய உரை இல்லை (ஸ்கேன் செய்த பக்கங்கள் ஆதரிக்கப்படவில்லை).',
+  err_PDF_NO_CLAUSES: 'இந்த PDF-இல் பாலிசி விதிகள் எதுவும் கிடைக்கவில்லை.',
+  err_NOTHING_TO_CHECK: 'இன்னும் சரிபார்க்க எதுவும் இல்லை: முதலில் பேச்சைக் கேளுங்கள் அல்லது சொன்னதைப் பதிவு செய்யுங்கள்.',
+  err_NO_DOCUMENT: 'முதலில் பாலிசி ஆவணத்தைச் சேர்க்கவும்.',
+  err_CHECK_LIMIT: 'வரம்பு முடிந்தது: ஒரு மணி நேரத்தில் 3 சரிபார்ப்புகள். டெமோ வழக்கைத் திறக்கவும்.',
+  err_RATE_LIMITED: 'பேச்சுச் சேவை பிஸியாக உள்ளது. சில விநாடிகளில் மீண்டும் முயலுங்கள்.',
+  err_NO_CREDIT: 'பேச்சுச் சேவையின் கிரெடிட் தீர்ந்துவிட்டது. டெமோ வழக்கைத் திறக்கவும்.',
+  err_UPSTREAM_TIMEOUT: 'பேச்சுச் சேவை மிகத் தாமதமானது. மீண்டும் முயலுங்கள்.',
+  err_CONNECT_FAILED: 'பேச்சுச் சேவையை அணுக முடியவில்லை.',
+  err_STREAM_CLOSED: 'பேச்சு இணைப்பு மூடப்பட்டது. மீண்டும் தொடங்குங்கள்.',
+  err_NETWORK: 'LikhKeDo சர்வரை அணுக முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயலுங்கள்.',
+  err_EVON_DOWN: 'Evon மாடல் சர்வர் பதிலளிக்கவில்லை. டெமோ வழக்கைத் திறக்கவும் அல்லது பிறகு முயலுங்கள்.',
+  err_EVON_BAD_OUTPUT: 'மாடலின் பதிலைப் படிக்க முடியவில்லை. மீண்டும் முயலுங்கள்.',
+  err_PIPELINE_ERROR: 'சரிபார்க்கும்போது ஏதோ தவறு நடந்தது. மீண்டும் முயலுங்கள்.',
 }
 
 const STRINGS: Record<Lang, Strings> = { en, hi, mr, ta }
@@ -525,6 +617,16 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
   let s = (STRINGS[lang] ?? en)[key] ?? en[key]
   for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v))
   return s
+}
+
+/** Error text in the buyer's language: known codes come from the err_<CODE> keys, else the server's message. */
+export function errText(lang: Lang, e: unknown): string {
+  const x = e as { code?: string; status?: number; message?: string } | null
+  const code = x?.code ?? (x?.status === 0 ? 'NETWORK' : x?.message?.match(/^CLOSED_/) ? 'STREAM_CLOSED' : undefined)
+  const key = `err_${code}`
+  if (code && key in en) return t(lang, key as Key)
+  if (code?.startsWith('CLOSED_')) return t(lang, 'err_STREAM_CLOSED')
+  return e instanceof Error ? e.message : (x?.message ?? String(e))
 }
 
 export const LANG_LABELS: Record<Lang, string> = { hi: 'हिंदी', en: 'English', ta: 'தமிழ்', mr: 'मराठी' }

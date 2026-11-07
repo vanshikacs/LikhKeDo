@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LiveBanner } from '../components/LiveBanner'
 import { Button, ErrorBox } from '../components/ui'
 import type { Lang } from '../lib/api'
-import { LANG_LABELS, t } from '../lib/i18n'
+import { LANG_LABELS, errText, t } from '../lib/i18n'
 
 export function Home(props: {
   lang: Lang
@@ -26,7 +26,7 @@ export function Home(props: {
     try {
       await fn()
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     } finally {
       setBusy(false)
     }

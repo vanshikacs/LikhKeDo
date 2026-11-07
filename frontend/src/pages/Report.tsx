@@ -5,7 +5,7 @@ import { Button, ErrorBox } from '../components/ui'
 import { UnderTheHood } from '../components/UnderTheHood'
 import { VerdictCard } from '../components/VerdictCard'
 import { api, demoAudioUrl, demoSlipUrl, slipUrl, type Report } from '../lib/api'
-import { t } from '../lib/i18n'
+import { errText, t } from '../lib/i18n'
 import { RECORD } from '../lib/record'
 
 const stripTags = (s: string) => s.replace(/<\/?(slow|pauses)>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -41,7 +41,7 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
       await api.deleteCase(r.id)
       setDeleted(true)
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e))
+      setErr(errText(lang, e))
     }
   }
 

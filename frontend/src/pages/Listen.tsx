@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, ErrorBox, Spinner } from '../components/ui'
 import { API_URL, api, wsUrl, type Lang } from '../lib/api'
-import { t, type Key } from '../lib/i18n'
+import { errText, t, type Key } from '../lib/i18n'
 import { MicError, startMic, type Mic } from '../lib/recorder'
 
 type Phase = 'idle' | 'connecting' | 'announcing' | 'listening' | 'stopping' | 'done'
@@ -149,7 +149,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
         const phrase = m.phrase
         setFlags((f) => (f.includes(phrase) ? f : [...f, phrase]))
       } else if (m.type === 'error') {
-        setErr(m.message ?? 'Error')
+        setErr(errText(lang, m))
       } else if (m.type === 'closed') {
         setPhase('done')
       }
@@ -160,7 +160,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
       sending.current = false
       setPhase((p) => (p === 'idle' ? p : 'done'))
     }
-    sock.onerror = () => setErr('Connection to the server failed.')
+    sock.onerror = () => setErr(t(lang, 'err_NETWORK'))
 
     // 2) start the mic in parallel (frames are dropped until the announcement has finished)
     const micReady = startMic(
