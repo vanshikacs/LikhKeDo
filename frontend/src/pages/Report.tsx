@@ -5,6 +5,7 @@ import { UnderTheHood } from '../components/UnderTheHood'
 import { VerdictCard } from '../components/VerdictCard'
 import { api, demoAudioUrl, demoSlipUrl, slipUrl, type Report } from '../lib/api'
 import { t } from '../lib/i18n'
+import { RECORD } from '../lib/record'
 
 const LOCALE: Record<string, string> = { hi: 'hi-IN', mr: 'mr-IN', ta: 'ta-IN', en: 'en-IN' }
 const stripTags = (s: string) => s.replace(/<\/?(slow|pauses)>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -78,9 +79,11 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
       </section>
 
       {r.claims.length === 0 && <p className="text-lg">{t(lang, 'noPromises')}</p>}
-      {r.claims.map((c) => (
+      {r.claims.map((c, i) => (
         <VerdictCard
           key={c.id}
+          highlight={RECORD}
+          delayMs={i * 500}
           claim={c}
           lang={lang}
           audioSrc={demo && r.audio?.[c.id] ? demoAudioUrl(demo.slug, r.audio[c.id]) : undefined}

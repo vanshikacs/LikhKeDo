@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, ErrorBox, Spinner } from '../components/ui'
-import { api, wsUrl, type Lang } from '../lib/api'
+import { API_URL, api, wsUrl, type Lang } from '../lib/api'
 import { t, type Key } from '../lib/i18n'
 import { MicError, startMic, type Mic } from '../lib/recorder'
 
@@ -35,6 +35,8 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
   const [ns, setNs] = useState(true)
   const [agc, setAgc] = useState(true)
   const [saveDebug, setSaveDebug] = useState(false)
+  const [pitchSlug, setPitchSlug] = useState('hi_hinglish')
+  const pitchAudio = useRef<HTMLAudioElement | null>(null)
 
   const ws = useRef<WebSocket | null>(null)
   const mic = useRef<Mic | null>(null)
@@ -63,6 +65,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
     () => () => {
       void mic.current?.stop()
       ws.current?.close()
+      pitchAudio.current?.pause()
       if (announceUrl.current) URL.revokeObjectURL(announceUrl.current)
     },
     [],
@@ -108,7 +111,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
     })
   }
 
-  async function start() {
+  async function start(over?: { echoCancellation?: boolean; onSending?: () => void }) {
     setErr('')
     setMicProblem(false)
     setPhase('connecting')
@@ -163,7 +166,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
           sent.current += 1
         }
       },
-      { echoCancellation: ec, noiseSuppression: ns, autoGainControl: agc, onLevel },
+      { echoCancellation: over?.echoCancellation ?? ec, noiseSuppression: ns, autoGainControl: agc, onLevel },
     )
       .then((m) => {
         mic.current = m
@@ -185,9 +188,22 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
     sending.current = true
     setPhase((p) => (p === 'announcing' ? 'connecting' : p))
     markReady()
+    over?.onSending?.()
+  }
+
+  // dev: play the synthetic pitch from the speakers while listening. Echo cancellation must be off,
+  // otherwise the browser removes exactly the speaker audio we are trying to capture.
+  async function startWithPitch() {
+    setEc(false)
+    const a = new Audio(`${API_URL}/api/dev/pitch/${pitchSlug}`)
+    a.onerror = () =>
+      setErr('No pitch audio. Run scripts/make_pitch_audio.py and start the backend with DEBUG_SAVE_AUDIO=true.')
+    pitchAudio.current = a
+    await start({ echoCancellation: false, onSending: () => void a.play().catch(() => undefined) })
   }
 
   async function stop() {
+    pitchAudio.current?.pause()
     setPhase('stopping')
     sending.current = false
     await mic.current?.stop()
@@ -209,7 +225,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
       <div className="flex flex-col items-center gap-3">
         <button
           type="button"
-          onClick={active ? stop : start}
+          onClick={active ? stop : () => start()}
           disabled={phase === 'stopping'}
           aria-pressed={active}
           className={`flex h-40 w-40 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg transition ${
@@ -255,6 +271,26 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
               <input type="checkbox" checked={saveDebug} disabled={active} onChange={(e) => setSaveDebug(e.target.checked)} /> Save what
               Prisma hears (backend needs DEBUG_SAVE_AUDIO=true → data/debug/last_stream.wav)
             </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 font-sans text-base">
+            <select
+              value={pitchSlug}
+              disabled={active}
+              onChange={(e) => setPitchSlug(e.target.value)}
+              className="rounded border-2 border-slate-400 px-2 py-1"
+            >
+              <option value="hi_hinglish">hi_hinglish</option>
+              <option value="mr_marathi">mr_marathi</option>
+              <option value="ta_tamil_english">ta_tamil_english</option>
+            </select>
+            <button
+              type="button"
+              disabled={active}
+              onClick={() => void startWithPitch()}
+              className="rounded-lg border-2 border-slate-800 px-3 py-1 font-semibold disabled:opacity-50"
+            >
+              ▶ Start + play pitch audio (echoCancellation off)
+            </button>
           </div>
         </section>
       )}

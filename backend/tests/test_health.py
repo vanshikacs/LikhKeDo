@@ -97,3 +97,16 @@ def test_demo_serves_only_live_runs(monkeypatch, tmp_path):
     assert c.get("/api/demo/preview").status_code == 404
     assert c.get("/api/demo/nodate").status_code == 404
     assert c.get("/api/demo/preview/slip").status_code == 404
+
+
+def test_dev_pitch_only_in_debug(monkeypatch, tmp_path):
+    st = get_settings()
+    monkeypatch.setattr(st, "demo_dir", tmp_path)
+    (tmp_path / "pitches").mkdir()
+    (tmp_path / "pitches" / "hi_hinglish.wav").write_bytes(b"RIFF0000WAVE")
+    c = TestClient(app)
+    monkeypatch.setattr(st, "debug_save_audio", False)
+    assert c.get("/api/dev/pitch/hi_hinglish").status_code == 404
+    monkeypatch.setattr(st, "debug_save_audio", True)
+    assert c.get("/api/dev/pitch/hi_hinglish").status_code == 200
+    assert c.get("/api/dev/pitch/ta_tamil_english").status_code == 404

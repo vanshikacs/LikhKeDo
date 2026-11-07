@@ -7,3 +7,14 @@
 html { font-size: 18px; }
 body { @apply bg-slate-50 text-slate-900 antialiased; }
 button:focus-visible, a:focus-visible, input:focus-visible { @apply outline-3 outline-offset-2 outline-blue-600; }
+
+/* recording mode (?record=1) */
+html.lkd-record { font-size: 20px; }
+html.lkd-record body { @apply bg-slate-200; }
+@keyframes lkd-reveal {
+  0% { opacity: 0; transform: translateY(14px); box-shadow: 0 0 0 4px rgb(37 99 235 / 0.7); }
+  50% { opacity: 1; transform: none; box-shadow: 0 0 0 4px rgb(37 99 235 / 0.7); }
+  100% { box-shadow: 0 0 0 0 rgb(37 99 235 / 0); }
+}
+.lkd-reveal { animation: lkd-reveal 1.6s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .lkd-reveal { animation: none; } }

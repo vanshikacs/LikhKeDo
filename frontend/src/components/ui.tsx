@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { Lang, Verdict } from '../lib/api'
 import { t } from '../lib/i18n'
+import { RECORD } from '../lib/record'
 
 type BtnKind = 'primary' | 'secondary' | 'danger' | 'ghost'
 
@@ -52,7 +53,9 @@ export function Spinner({ label }: { label: string }) {
 
 export function Shell(props: { lang: Lang; onHome?: () => void; title?: string; children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-screen max-w-xl flex-col px-4">
+    <div
+      className={`mx-auto flex min-h-screen flex-col px-4 ${RECORD ? 'max-w-[390px] bg-slate-50 shadow-xl' : 'max-w-xl'}`}
+    >
       <header className="flex items-center justify-between py-4">
         <button onClick={props.onHome} className="text-xl font-bold tracking-tight text-slate-900" aria-label={t(props.lang, 'home')}>
           Likh<span className="text-blue-700">Ke</span>Do

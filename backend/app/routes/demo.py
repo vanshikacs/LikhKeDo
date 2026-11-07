@@ -74,3 +74,15 @@ def demo_slip(slug: str):
 
     from ..report import render_slip
     return HTMLResponse(render_slip(_load(slug)[1]))
+
+
+@router.get("/api/dev/pitch/{slug}")
+def dev_pitch_audio(slug: str):
+    """DEV ONLY (DEBUG_SAVE_AUDIO=true): synthetic pitch audio for /dev/listen and recording the video.
+    Files come from scripts/make_pitch_audio.py (Timbre reading demo/pitches/<slug>.txt)."""
+    if not get_settings().debug_save_audio or not SLUG.match(slug):
+        raise HTTPException(404, "Not found.")
+    f = get_settings().demo_dir / "pitches" / f"{slug}.wav"
+    if not f.exists():
+        raise HTTPException(404, "No pitch audio yet. Run scripts/make_pitch_audio.py.")
+    return FileResponse(f, media_type="audio/wav")

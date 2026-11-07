@@ -13,6 +13,7 @@ export function VerdictCard(props: {
   audioSrc?: string
   loadAudio?: () => Promise<Blob>
   highlight?: boolean
+  delayMs?: number
 }) {
   const { claim: c, lang } = props
   const [english, setEnglish] = useState(false)
@@ -25,6 +26,7 @@ export function VerdictCard(props: {
       className={`space-y-3 rounded-2xl border-l-8 bg-white p-4 shadow-sm ${VERDICT_STYLE[c.verdict].box} ${
         props.highlight ? 'lkd-reveal' : ''
       }`}
+      style={props.highlight ? { animationDelay: `${props.delayMs ?? 0}ms` } : undefined}
     >
       <VerdictBadge verdict={c.verdict} lang={lang} />
       <section>
