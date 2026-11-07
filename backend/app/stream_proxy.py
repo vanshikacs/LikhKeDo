@@ -24,7 +24,7 @@ from sqlmodel import select
 
 from . import db, gnani
 from .config import get_settings
-from .langs import LANGS
+from .langs import LANGS, stream_locale
 from .redflags import find_redflags
 
 log = logging.getLogger("likhkedo.stream")
@@ -86,7 +86,7 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
     except (asyncio.TimeoutError, ValueError, WebSocketDisconnect):
         await ws.close(code=1008)
         return
-    lang_code = LANGS[lang].prisma if lang in LANGS else LANGS[case.lang].prisma
+    lang_code = stream_locale(LANGS[lang] if lang in LANGS else LANGS[case.lang])
 
     frames = 0
     request_id: str | None = None

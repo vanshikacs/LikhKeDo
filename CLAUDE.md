@@ -25,6 +25,8 @@ Contest: Gnani AI Great Indian AI Internship Challenge. Deadline 10 Nov 2026 23:
   frames of exactly 1024 bytes every 32 ms; send {"type":"commit"} to finish. Server messages:
   connected, speech_start, processing, transcript {text, segment_index, detected_language_code,
   latency}, error. Session max 15 min.
+  MEASURED: streaming language_code must be exactly ONE locale ("hi-IN"); "hi-IN,en-IN" -> error + 1008.
+  REST accepts "hi-IN,en-IN". Timbre v3.0 returns WAV with 0xFFFFFFFF sizes (patch the header).
 - Timbre REST: POST /api/v1/tts/inference, JSON {text, voice, model, language, speed, audio_config
   {sample_rate, num_channels, sample_width, encoding:"linear_pcm", container:"wav"}} -> raw audio/wav.
   Primary: model "timbre-v3.0", voice "Tarika". Fallback: model "timbre-v2.5", voice "Poorvi",

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
 import time
 from pathlib import Path
 

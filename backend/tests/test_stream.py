@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import select
 
 from app import db, gnani, stream_proxy
+from app.config import get_settings
 from app.main import app
 from app.redflags import find_redflags
 
@@ -65,6 +66,7 @@ def fake(monkeypatch):
     f = FakePrisma()
     monkeypatch.setattr(stream_proxy, "WS_URL", f"ws://127.0.0.1:{f.port}")
     monkeypatch.setattr(gnani, "gate", gnani.GnaniGate())
+    monkeypatch.setattr(get_settings(), "stream_holds_lock", True)  # exercise the lock path
     yield f
     f.stop()
 
@@ -92,6 +94,10 @@ def test_redflag_rules():
     assert "sirf N saal" in find_redflags("सिर्फ़ 5 साल premium")
     assert "no lock-in" in find_redflags("uske baad lock-in nahi")
     assert find_redflags("नमस्ते सर") == []
+    # real Prisma v3.0 codemix output (numbers as words)
+    real = "सर, यह plan बिल्कुल FD जैसा है, इसमें returns guaranteed हैं, हर साल minimum बारह percent मिलेगा। आपको सिर्फ पाँच साल premium भरना है।"
+    assert set(find_redflags(real)) == {"guaranteed", "FD jaisa", "sirf N saal"}
+    assert "sirf N saal" in find_redflags("5 வருஷம் மட்டும் premium") and "sirf N saal" in find_redflags("फक्त पाच वर्षं")
 
 
 def test_forwarding_redflags_segments_and_lock_release(fake):
@@ -106,7 +112,7 @@ def test_forwarding_redflags_segments_and_lock_release(fake):
             ws.send_text(json.dumps({"type": "stop"}))
             msgs = collect(ws)
     assert fake.headers["model"] == "prisma-v3.0"
-    assert fake.headers["language_code"] == "hi-IN,en-IN"
+    assert fake.headers["language_code"] == "hi-IN"
     assert fake.headers["x-sample-rate"] == "16000" and fake.headers["format"] == "codemix"
     assert fake.headers["x-api-key-id"] == "test-key"
     assert set(fake.frames) == {1024} and len(fake.frames) == 4 and fake.commit

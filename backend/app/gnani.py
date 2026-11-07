@@ -155,6 +155,24 @@ def split_on_silence(pcm: bytes, max_s: float = CHUNK_S, rate: int = 16000) -> l
     return [c for c in chunks if len(c) >= bps // 10]  # drop < 0.1 s slivers
 
 
+def fix_wav_header(data: bytes) -> bytes:
+    """Timbre returns streaming WAVs whose RIFF/data sizes are 0xFFFFFFFF; patch them to the real sizes."""
+    if len(data) < 44 or data[:4] != b"RIFF" or data[8:12] != b"WAVE":
+        return data
+    buf = bytearray(data)
+    i = 12
+    while i + 8 <= len(buf):
+        cid, size = bytes(buf[i:i + 4]), int.from_bytes(buf[i + 4:i + 8], "little")
+        if cid == b"data":
+            actual = len(buf) - (i + 8)
+            if size != actual:
+                buf[i + 4:i + 8] = actual.to_bytes(4, "little")
+            break
+        i += 8 + size + (size & 1)
+    buf[4:8] = (len(buf) - 8).to_bytes(4, "little")
+    return bytes(buf)
+
+
 def concat_wavs(parts: list[bytes]) -> bytes:
     if len(parts) == 1:
         return parts[0]
@@ -389,7 +407,7 @@ class GnaniClient:
                         continue  # try the next documented combination
                     raise
                 used = att
-                parts.append(resp.content)
+                parts.append(fix_wav_header(resp.content))
                 rids.append(rid)
                 break
             else:

@@ -59,16 +59,18 @@ All Gnani calls pass through one `asyncio.Lock` (the account may allow one activ
 
 ## Measured API behaviour
 
-_To be filled from the Phase 1 scripts (`scripts/smoke_prisma.py`, `smoke_timbre.py`, `concurrency_probe.py`, `smoke_evon.py`). Until then these are unmeasured._
+Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concurrency_probe.py` and `try_gnani_client.py`, on an 11 s Hindi/Hinglish pitch clip (the clip itself was synthesised with Timbre). Evon numbers come after the GPU is up.
 
 | Item | Result |
 | --- | --- |
-| Prisma REST, N s clip | _pending_ |
-| Prisma streaming, first transcript after | _pending_ |
-| Timbre v3.0 working combination (speed / sample rate) | _pending_ |
-| Does an open stream block Timbre (429)? | _pending_ |
-| Credits per Prisma call / per Timbre call | _pending_ |
-| Evon latency: extraction / one verification | _pending_ |
+| Prisma v3.0 REST, 11.0 s clip, `hi-IN,en-IN`, codemix + keyterms | HTTP 200, detected `hi-IN`, processing 0.22–0.25 s, wall 0.7–1.1 s |
+| Codemix output | English finance words stay Latin ("FD", "returns guaranteed", "premium"); small numbers come back as words ("बारह percent", "पाँच साल") |
+| Prisma v3.0 streaming | `language_code` must be **one** locale (`hi-IN`); `hi-IN,en-IN` returns an error and closes with 1008. Connected 0.4 s, `speech_start` 0.7 s, transcript 0.3 s after `commit` (server latency ~225 ms) |
+| Timbre v3.0, Tarika, `hi-IN`, speed 0.9, 24 kHz | HTTP 200 on the first combination; 136 chars → 11.0 s audio in 2.8 s. WAV header sizes are `0xFFFFFFFF` (streaming style); we patch them |
+| Does an open stream block Timbre? | **No**: Timbre returned 200 in 0.94 s while a stream was open, so streams don't hold GnaniGate (`STREAM_HOLDS_LOCK=false`) |
+| Request ids | Gnani echoes our `X-API-Request-ID` as `request_id`, so the ids in **Under the hood** match Gnani's logs |
+| Credits per Prisma call / per Timbre call | _check the balance on app.gnani.ai before and after a call_ |
+| Evon latency: extraction / one verification | _pending (GPU)_ |
 
 ## Accuracy
 

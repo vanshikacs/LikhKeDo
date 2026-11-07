@@ -8,6 +8,7 @@ import asyncio
 import io
 import json
 import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
 import time
 import warnings
 import wave
@@ -49,7 +50,8 @@ def rest_headers() -> dict[str, str]:
 
 
 def wav_duration(data: bytes) -> float:
-    with wave.open(io.BytesIO(data)) as w:
+    from app.gnani import fix_wav_header  # Timbre sends 0xFFFFFFFF streaming sizes
+    with wave.open(io.BytesIO(fix_wav_header(data))) as w:
         return w.getnframes() / float(w.getframerate())
 
 
@@ -171,17 +173,26 @@ async def _stream(websockets, pcm, lang, fmt, keyterms, on_connected, verbose, r
 
         # pace exactly one 1024-byte frame every 32 ms against a monotonic clock
         n_frames = len(pcm) // FRAME_BYTES
-        start = time.perf_counter()
-        for i in range(n_frames):
-            await ws.send(pcm[i * FRAME_BYTES:(i + 1) * FRAME_BYTES])
-            delay = start + (i + 1) * FRAME_SECONDS - time.perf_counter()
-            if delay > 0:
-                await asyncio.sleep(delay)
-        # final partial frame padded with silence so every frame is exactly 1024 bytes
         tail = pcm[n_frames * FRAME_BYTES:]
-        if tail:
-            await ws.send(tail + b"\x00" * (FRAME_BYTES - len(tail)))
-        await ws.send(json.dumps({"type": "commit"}))
+        start = time.perf_counter()
+        try:
+            for i in range(n_frames):
+                await ws.send(pcm[i * FRAME_BYTES:(i + 1) * FRAME_BYTES])
+                delay = start + (i + 1) * FRAME_SECONDS - time.perf_counter()
+                if delay > 0:
+                    await asyncio.sleep(delay)
+            # final partial frame padded with silence so every frame is exactly 1024 bytes
+            if tail:
+                await ws.send(tail + b"\x00" * (FRAME_BYTES - len(tail)))
+            await ws.send(json.dumps({"type": "commit"}))
+        except websockets.exceptions.ConnectionClosed as e:
+            code = e.rcvd.code if e.rcvd else None
+            print(f"  server closed the stream while audio was being sent (code {code})")
+            result["errors"].append({"close": code})
+            await asyncio.gather(recv_task, return_exceptions=True)
+            if result["side_task"] is not None:
+                result["side_result"] = await result["side_task"]
+            return result
         if verbose:
             print(f"  [{time.perf_counter() - t0:6.2f}s] sent {n_frames + bool(tail)} frames + commit")
 

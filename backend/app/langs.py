@@ -9,7 +9,7 @@ class Lang:
     code: str           # our short code
     name: str           # language name for prompts
     script: str         # script name for prompts
-    prisma: str         # Prisma language_code (buyer language + English)
+    prisma: str         # Prisma REST language_code (buyer language + English)
     tts: str            # Timbre "language"
     ranges: tuple[tuple[int, int], ...]  # Unicode ranges of the script
 
@@ -20,6 +20,11 @@ LANGS: dict[str, Lang] = {
     "ta": Lang("ta", "Tamil", "Tamil", "ta-IN,en-IN", "ta-IN", ((0x0B80, 0x0BFF),)),
     "en": Lang("en", "English", "Latin", "en-IN", "en-IN", ((0x0041, 0x007A),)),
 }
+
+
+def stream_locale(lang: Lang) -> str:
+    """Prisma streaming accepts exactly ONE locale (measured: "hi-IN,en-IN" -> error + close 1008)."""
+    return lang.prisma.split(",")[0]
 
 
 def get_lang(code: str) -> Lang:

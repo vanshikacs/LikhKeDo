@@ -4,6 +4,7 @@ Usage: backend/.venv/Scripts/python scripts/try_gnani_client.py demo/test_clips/
 """
 import asyncio
 import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))

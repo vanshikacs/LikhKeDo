@@ -106,7 +106,7 @@ def main() -> None:
 
     if a.stream:
         print("--- STREAM ---")
-        res = asyncio.run(stream_pcm(pcm, a.lang, a.format, FINANCE_TERMS if a.keyterms else None))
+        res = asyncio.run(stream_pcm(pcm, a.lang.split(",")[0], a.format, FINANCE_TERMS if a.keyterms else None))
         calls += 1
         print("message types:", " ".join(res["types"]))
         print("full streamed transcript:", " ".join(t.get("text", "") for t in res["transcripts"]))

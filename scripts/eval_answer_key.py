@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import json
 import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
 import time
 from dataclasses import asdict
 from pathlib import Path

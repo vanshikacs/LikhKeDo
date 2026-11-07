@@ -17,6 +17,7 @@ from pathlib import Path
 import httpx
 
 from gnani_common import REST_BASE, error_code, rest_headers, wav_duration
+from app.gnani import fix_wav_header
 
 ATTEMPTS = [
     {"label": "speed=0.9, 24000 Hz", "speed": 0.9, "sample_rate": 24000},
@@ -68,7 +69,7 @@ def main() -> None:
         print(f"--- attempt: {att['label']} ---")
         print(f"status: {r.status_code}  content-type: {ctype}  bytes: {len(r.content)}  wall: {wall:.2f} s")
         if r.status_code == 200:
-            a.out.write_bytes(r.content)
+            a.out.write_bytes(fix_wav_header(r.content))
             try:
                 dur = f"{wav_duration(r.content):.2f}s"
             except Exception as e:  # not a parseable WAV

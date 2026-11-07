@@ -47,7 +47,7 @@ def main() -> None:
     a = p.parse_args()
     pcm = wav_to_pcm16_mono_16k(a.wav) if a.wav else b"\x00" * (32000 * 8)
 
-    res = asyncio.run(stream_pcm(pcm, "hi-IN,en-IN", "codemix", None, on_connected=fire_tts))
+    res = asyncio.run(stream_pcm(pcm, "hi-IN", "codemix", None, on_connected=fire_tts))
     tts = res.get("side_result") or {}
     status = tts.get("status")
     if status == 429:

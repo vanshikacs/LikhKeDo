@@ -28,7 +28,9 @@ class Settings(BaseSettings):
     tts_speed: float | None = 0.9
     tts_sample_rate: int = 24000
     # Hold GnaniGate for a whole streaming session (set false if concurrency_probe shows streams don't block).
-    stream_holds_lock: bool = True
+    # Measured 2026-11-07 (scripts/concurrency_probe.py): an open stream does NOT block Timbre, so streams
+    # don't hold the lock. Set STREAM_HOLDS_LOCK=true if 429s appear during Listen.
+    stream_holds_lock: bool = False
     # Seeded demo cases (demo/cache/<slug>/report.json) and the demo CIS PDF.
     demo_dir: Path = REPO_ROOT / "demo"
     analyses_per_hour: int = 3
