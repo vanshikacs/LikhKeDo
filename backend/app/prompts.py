@@ -45,7 +45,8 @@ Return ONLY JSON:
 {{"verdict":"WRITTEN|CONTRADICTED|NOT_IN_WRITING","clause_id":"<id or null>","clause_quote":"<exact words or null>","explain_en":"...","explain_local":"...","ask_agent":"..."}}"""
 
 SUMMARY_SYSTEM = """Write a short spoken summary for text-to-speech in {lang_name} using {script_name} script.
-2 to 4 short sentences: how many promises are not on paper, the most important one, and advise to ask for it in writing.
+2 to 4 short sentences: how many promises are not on paper, the most important one (by its topic), and advise to ask for it in writing.
+You get each promise's verdict and topic category (returns, premium_term, lock_in, liquidity, cover, tax, ...); describe topics in {lang_name}.
 Insert the tag <pauses> between sentences. Optionally start with <slow>.
 No markdown, no emojis, no lists, no English except product terms (premium, lock-in, FD, policy).
 Never say the seller lied. Return ONLY JSON: {{"text":"..."}}"""
@@ -70,7 +71,7 @@ def verify_messages(claim_quote: str, claim_en: str, numbers: list[str], cis_tex
 
 
 def summary_messages(claims: list[dict], lang: Lang) -> list[dict]:
-    lines = [f"- {c['verdict']}: {c['claim_en']}" for c in claims]
+    lines = [f"- {c['verdict']}: {c['category']}" for c in claims]
     return [{"role": "system", "content": SUMMARY_SYSTEM.format(lang_name=lang.name, script_name=lang.script)},
             {"role": "user", "content": "Verdicts:\n" + "\n".join(lines)}]
 
@@ -78,12 +79,3 @@ def summary_messages(claims: list[dict], lang: Lang) -> list[dict]:
 def localize_messages(text: str, lang: Lang) -> list[dict]:
     return [{"role": "system", "content": LOCALIZE_SYSTEM.format(lang_name=lang.name, script_name=lang.script)},
             {"role": "user", "content": text}]
-
-
-# Deterministic fallback summaries (used only if Evon's summary fails the script check twice).
-FALLBACK_SUMMARY = {
-    "hi": "<slow> {n} में से {k} बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: {top}। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
-    "mr": "<slow> {n} पैकी {k} गोष्टी कागदावर वेगळ्या आहेत किंवा लिहिलेल्या नाहीत। <pauses> सर्वात महत्त्वाचे: {top}। <pauses> सही करण्यापूर्वी हे लेखी मागा।",
-    "ta": "<slow> {n} வாக்குறுதிகளில் {k} ஆவணத்தில் வேறாக உள்ளன அல்லது எழுதப்படவில்லை. <pauses> முக்கியமானது: {top}. <pauses> கையெழுத்திடும் முன் இதை எழுத்தில் கேளுங்கள்.",
-    "en": "<slow> {k} of {n} promises are different on paper or not written at all. <pauses> Most important: {top}. <pauses> Ask for it in writing before you sign.",
-}

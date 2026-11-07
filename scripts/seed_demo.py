@@ -27,7 +27,7 @@ from app.routes.cases import _speak_text  # noqa: E402
 
 TITLES = {"hi_hinglish": "Hindi / Hinglish pitch", "ta_tamil_english": "Tamil + English pitch",
           "mr_marathi": "Marathi pitch"}
-PRODUCT = "Suraksha Plus Guaranteed Wealth Plan (Bharosa Life, FICTIONAL)"
+PRODUCT = "Bharosa Life · Suraksha Plus Guaranteed Wealth Plan"
 
 
 async def live(pitch: dict, pdf: bytes, clauses, with_audio: bool, out: Path) -> dict:

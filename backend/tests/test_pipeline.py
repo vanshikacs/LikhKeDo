@@ -32,14 +32,14 @@ def test_hallucinated_quote_downgraded():
     c = claim("आपको हर महीने बोनस मिलेगा")
     v = Verification(verdict="CONTRADICTED", clause_id="p2-s4", clause_quote="No bonus is declared")
     verdict, grounded, reason, _ = ground_check(c, v, PITCH, CLAUSES)
-    assert (verdict, grounded) == ("NOT_IN_WRITING", False) and "transcript" in reason
+    assert (verdict, grounded) == ("NOT_IN_WRITING", False) and reason == "quote_not_in_transcript"
 
 
 def test_invented_clause_quote_downgraded():
     c = claim("returns guaranteed हैं, हर साल minimum 12 percent")
     v = Verification(verdict="CONTRADICTED", clause_id="p2-s2", clause_quote="Returns are guaranteed at 12% for life")
     verdict, grounded, reason, _ = ground_check(c, v, PITCH, CLAUSES)
-    assert verdict == "NOT_IN_WRITING" and not grounded and "document" in reason
+    assert verdict == "NOT_IN_WRITING" and not grounded and reason == "clause_quote_not_found"
 
 
 def test_wrong_clause_id_is_corrected():
@@ -53,7 +53,7 @@ def test_written_with_missing_number_downgraded():
     c = claim("सिर्फ़ 5 साल premium भरना है", "Premium for only 5 years", ["5 years"])
     v = Verification(verdict="WRITTEN", clause_id="p1-s5", clause_quote="Premium paying term: 10 years")
     verdict, grounded, reason, _ = ground_check(c, v, PITCH, CLAUSES)
-    assert verdict == "NOT_IN_WRITING" and "5 years" in reason
+    assert verdict == "NOT_IN_WRITING" and reason == "number_missing"
 
 
 def test_numbers_with_lakh_and_percent():

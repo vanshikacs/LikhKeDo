@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/check-i18n.mjs && tsc -b && vite build",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "test:worklet": "node scripts/test-worklet.mjs ../demo/test_clips/tts_clip.wav"

@@ -47,6 +47,15 @@ export interface Report {
   claims: Claim[]
   trace: {
     prisma_model: string | null
+    prisma?: {
+      request_id: string | null
+      mode: string
+      status: number | null
+      error_code: string | null
+      latency_ms: number | null
+      cached: boolean
+      lang: string | null
+    }[]
     evon_model: string | null
     evon_calls: { model?: string; thinking: boolean; latency_ms: number; tokens: number; request_id?: string | null }[]
     pipeline_ms: number | null

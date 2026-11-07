@@ -11,7 +11,7 @@ from typing import Callable
 from rapidfuzz import fuzz
 from sqlmodel import select
 
-from . import db, prompts
+from . import db, localtext, prompts
 from .evon import EvonClient, EvonJSONError, EvonUnavailable
 from .ingest import Clause, ClauseIndex, full_text, normalise
 from .langs import Lang, get_lang, script_ratio
@@ -65,10 +65,8 @@ def numbers_in_clause(numbers: list[str], clause_text: str) -> tuple[bool, str |
     have = _num_values(clause_text)
     for n in numbers:
         want = _num_values(n)
-        if not want:
-            return False, f"number '{n}' is not written with digits"
-        if not (want & have):
-            return False, f"number '{n}' does not appear in the clause"
+        if not want or not (want & have):
+            return False, "number_missing"
     return True, None
 
 
@@ -102,20 +100,20 @@ def ground_check(claim: ExtractedClaim, v: Verification | None, transcript: str,
                  clauses: list[Clause]) -> tuple[str, bool, str | None, Clause | None]:
     """Return (verdict, grounded, reason, clause). Failing checks downgrade to NOT_IN_WRITING."""
     if fuzzy_in(claim.quote, transcript) < MATCH_MIN:
-        return "NOT_IN_WRITING", False, "the quote was not found in the transcript", None
+        return "NOT_IN_WRITING", False, "quote_not_in_transcript", None
     if v is None:
-        return "NOT_IN_WRITING", False, "the model output could not be validated", None
+        return "NOT_IN_WRITING", False, "invalid_model_output", None
     if v.verdict == "NOT_IN_WRITING":
         return "NOT_IN_WRITING", True, None, None
     if not v.clause_quote:
-        return "NOT_IN_WRITING", False, "no clause quote was given", None
+        return "NOT_IN_WRITING", False, "clause_quote_not_found", None
     by_id = {c.id: c for c in clauses}
     clause = by_id.get(v.clause_id or "")
     if clause is None or fuzzy_in(v.clause_quote, clause.text) < MATCH_MIN:
         # the quote may belong to another clause (wrong id): accept the best exact-enough match
         best = max(clauses, key=lambda c: fuzzy_in(v.clause_quote, c.text), default=None)
         if best is None or fuzzy_in(v.clause_quote, best.text) < MATCH_MIN:
-            return "NOT_IN_WRITING", False, "the clause quote was not found in the document", None
+            return "NOT_IN_WRITING", False, "clause_quote_not_found", None
         clause = best
     if v.verdict == "WRITTEN" and claim.numbers:
         ok, why = numbers_in_clause(claim.numbers, clause.text)
@@ -174,19 +172,23 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
                             ask_agent=v.ask_agent if v else "")
             if clause is not None and verdict != "NOT_IN_WRITING":
                 r.clause_id, r.clause_quote, r.clause_page = clause.id, v.clause_quote, clause.page
-            if verdict == "NOT_IN_WRITING" and not grounded:
-                # never show the model's reasoning about a verdict we overrode
-                r.explain_en = "We could not confirm this in the document. Ask for it in writing."
-                r.explain_local = ""
-            # script check on user-facing local text: retry once, else fall back to English
-            if lang.code != "en":
+            if verdict != (v.verdict if v else None):
+                # never show the model's explanation of a verdict the grounding check overrode
+                r.explain_en = localtext.EXPLAIN["en"][verdict]
+                r.explain_local = localtext.EXPLAIN[lang.code][verdict]
+            if not r.ask_agent:
+                r.ask_agent = localtext.ASK[lang.code]
+            if lang.code == "en":
+                r.explain_local = r.explain_local or r.explain_en
+            else:
+                # script check on user-facing local text: one stricter rewrite, else the fixed local sentence
+                fallback = {"explain_local": localtext.EXPLAIN[lang.code][verdict], "ask_agent": localtext.ASK[lang.code]}
                 for attr in ("explain_local", "ask_agent"):
                     val = getattr(r, attr)
                     if val and script_ratio(val, lang) >= SCRIPT_MIN:
                         continue
-                    src = val or (r.explain_en if attr == "explain_local" else "")
-                    fixed = await _localize(evon, src, lang, case_id) if src else None
-                    setattr(r, attr, fixed or (r.explain_en if attr == "explain_local" else val))
+                    fixed = await _localize(evon, val, lang, case_id) if val else None
+                    setattr(r, attr, fixed or fallback[attr])
             done += 1
             progress({"stage": "checking", "i": done, "n": n})
             return r
@@ -202,9 +204,9 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
 
 async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang, case_id: str | None) -> str:
     if not results:
-        return {"hi": "कोई वादा नहीं मिला।", "mr": "कोणतेही आश्वासन सापडले नाही।",
-                "ta": "எந்த வாக்குறுதியும் கிடைக்கவில்லை.", "en": "No promises were found."}[lang.code]
-    payload = [{"verdict": r.verdict, "claim_en": r.claim_en} for r in results]
+        return localtext.NO_PROMISES[lang.code]
+    # verdict + category only: the summary must not echo English claim text
+    payload = [{"verdict": r.verdict, "category": r.category} for r in results]
     for _ in range(2):
         try:
             out = await evon.chat_json(prompts.summary_messages(payload, lang), False, 512, LocalText, case_id)
@@ -212,10 +214,7 @@ async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang, cas
             break
         if lang.code == "en" or script_ratio(out.text.replace("<pauses>", "").replace("<slow>", ""), lang) >= SCRIPT_MIN:
             return out.text
-    bad = [r for r in results if r.verdict != "WRITTEN"]
-    top = (bad[0] if bad else results[0])
-    top_text = top.explain_local if lang.code != "en" and top.explain_local else top.claim_en
-    return prompts.FALLBACK_SUMMARY[lang.code].format(n=len(results), k=len(bad), top=top_text.rstrip("।."))
+    return localtext.fallback_summary(lang.code, [(r.verdict, r.category) for r in results])
 
 
 # ---------- case-level wrapper ----------

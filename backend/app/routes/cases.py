@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingRes
 from pydantic import ValidationError
 from sqlmodel import func, select
 
-from .. import db, gnani, pipeline
+from .. import db, gnani, localtext, pipeline
 from ..config import get_settings
 from ..evon import EvonClient
 from ..ingest import IngestError, parse_pdf
@@ -132,7 +132,7 @@ async def document(case_id: str, request: Request) -> dict:
         except (ValidationError, ValueError):
             raise HTTPException(422, 'Send {"demo_doc": "suraksha_plus"} or upload a PDF.') from None
         data = (get_settings().demo_dir / "policy" / "bharosa_suraksha_plus_cis.pdf").read_bytes()
-        label = "Suraksha Plus Guaranteed Wealth Plan (Bharosa Life, FICTIONAL)"
+        label = "Bharosa Life · Suraksha Plus Guaranteed Wealth Plan"
     else:
         data = await _body(request, MAX_PDF_BYTES)
         if not data.startswith(b"%PDF"):
@@ -258,9 +258,10 @@ def _speak_text(rep: dict, target: str) -> str:
     c = next((c for c in rep["claims"] if c["id"] == target), None)
     if c is None:
         raise HTTPException(404, "Promise not found.")
-    if rep["lang"] == "en":
-        return f"<slow> {c['explain_en']} <pauses> {c['ask_agent']}".strip()
-    return f"<slow> {c['explain_local'] or c['explain_en']} <pauses> {c['ask_agent']}".strip()
+    lang = rep["lang"] if rep["lang"] in localtext.ASK else "en"
+    explain = (c["explain_en"] if lang == "en" else c["explain_local"]) or localtext.EXPLAIN[lang][c["verdict"]]
+    ask = c["ask_agent"] or localtext.ASK[lang]
+    return f"<slow> {explain} <pauses> {ask}".strip()
 
 
 @router.post("/{case_id}/speak")

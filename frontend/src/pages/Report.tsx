@@ -17,12 +17,22 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
   const [copied, setCopied] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [err, setErr] = useState('')
+  const [trace, setTrace] = useState(r.trace)
+  // live cases: after Timbre speaks, refresh the trace so "Under the hood" shows the new call
+  const speak = async (target: string) => {
+    const blob = await api.speak(r.id, target)
+    api
+      .report(r.id)
+      .then((x) => setTrace(x.trace))
+      .catch(() => undefined)
+    return blob
+  }
 
   const summaryAudio = demo
     ? r.audio?.summary
       ? { src: demoAudioUrl(demo.slug, r.audio.summary) }
       : null
-    : { load: () => api.speak(r.id, 'summary') }
+    : { load: () => speak('summary') }
 
   async function del() {
     setErr('')
@@ -74,7 +84,7 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
           claim={c}
           lang={lang}
           audioSrc={demo && r.audio?.[c.id] ? demoAudioUrl(demo.slug, r.audio[c.id]) : undefined}
-          loadAudio={demo ? undefined : () => api.speak(r.id, c.id)}
+          loadAudio={demo ? undefined : () => speak(c.id)}
         />
       ))}
 
@@ -116,8 +126,8 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
       </div>
       {err && <ErrorBox message={err} />}
 
-      <UnderTheHood report={r} lang={lang} />
-      <p className="text-sm text-slate-600">{r.disclaimer}</p>
+      <UnderTheHood report={{ ...r, trace }} lang={lang} />
+      <p className="text-sm text-slate-600">{t(lang, 'footer')}</p>
     </div>
   )
 }

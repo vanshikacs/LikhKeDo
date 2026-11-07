@@ -65,14 +65,21 @@ def test_happy_path(client):
     assert rep["counts"] == {"WRITTEN": 2, "CONTRADICTED": 2, "NOT_IN_WRITING": 2}
     assert rep["trace"]["evon_model"] == "gnani/gnani-evon-v3.3-30B-A3B"
     assert any(c["request_id"] == "prisma-rid-1" for c in rep["trace"]["calls"])
-    assert rep["disclaimer"] == "Not financial or legal advice."
+    pr = rep["trace"]["prisma"][0]
+    assert (pr["request_id"], pr["mode"], pr["lang"], pr["cached"]) == ("prisma-rid-1", "rest", "hi-IN", False)
+    assert all(c["model"] == "gnani/gnani-evon-v3.3-30B-A3B" and "thinking" in c for c in rep["trace"]["evon_calls"])
+    assert {c["thinking"] for c in rep["trace"]["evon_calls"]} == {True, False}
+    assert rep["disclaimer"] == "यह वित्तीय या कानूनी सलाह नहीं है।"
 
     r = client.post(f"/api/cases/{cid}/speak", json={"target": "summary"})
     assert r.status_code == 200 and r.content[:4] == b"RIFF"
     r = client.post(f"/api/cases/{cid}/speak", json={"target": rep["claims"][0]["id"]})
     assert r.status_code == 200
+    tim = client.get(f"/api/cases/{cid}/report").json()["trace"]["timbre"]
+    assert [x["target"] for x in tim][:2] == ["summary", rep["claims"][0]["id"]]
+    assert all("latency_ms" in x for x in tim)
     slip = client.get(f"/api/cases/{cid}/slip").text
-    assert "लिख के दो" in slip and "Not financial or legal advice" in slip
+    assert "लिख के दो" in slip and "यह वित्तीय या कानूनी सलाह नहीं है" in slip
     assert rep["claims"][0]["quote"] in slip       # contradicted promise listed
     assert client.delete(f"/api/cases/{cid}").json() == {"deleted": True}
     assert client.get(f"/api/cases/{cid}/report").status_code == 404
