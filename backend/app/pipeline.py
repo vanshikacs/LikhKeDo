@@ -240,8 +240,9 @@ async def analyze(case_id: str, evon: EvonClient | None = None) -> None:
     except EvonJSONError:
         _fail(case_id, "EVON_BAD_OUTPUT", "The model's answer could not be read. Please try again.")
         return
-    except Exception:  # never leave a case stuck in 'analyzing'
-        log.exception("pipeline failed case=%s", case_id)
+    except Exception as e:  # never leave a case stuck in 'analyzing'
+        # type only: exception messages can quote transcript text, which must never reach logs
+        log.error("pipeline failed case=%s error=%s", case_id, e.__class__.__name__)
         _fail(case_id, "PIPELINE_ERROR", "Something went wrong while checking. Please try again.")
         return
 
