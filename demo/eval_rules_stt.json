@@ -85,7 +85,9 @@
           "quote": "अगर कभी पैसों की जरूरत पड़े, तो आप कभी भी loan ले सकते हैं, वो भी शून्य percent interest पर।",
           "claim_en": "",
           "category": "liquidity",
-          "numbers": [],
+          "numbers": [
+            "0 percent"
+          ],
           "verdict": "NOT_IN_WRITING",
           "clause_id": null,
           "clause_quote": null,
@@ -162,7 +164,7 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 4,
+        "pipeline_ms": 7,
         "claims": 8
       }
     },
@@ -269,7 +271,9 @@
           "quote": "அதுவும் பூஜ்ஜியம் percent interest-இல்.",
           "claim_en": "",
           "category": "returns",
-          "numbers": [],
+          "numbers": [
+            "0 percent"
+          ],
           "verdict": "NOT_IN_WRITING",
           "clause_id": null,
           "clause_quote": null,
@@ -329,7 +333,7 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 2,
+        "pipeline_ms": 5,
         "claims": 8
       }
     },
@@ -382,12 +386,12 @@
           "numbers": [
             "12 percent"
           ],
-          "verdict": "CONTRADICTED",
-          "clause_id": "p2-s2",
-          "clause_quote": "The illustrated rates of 4% and 8% p.a.",
-          "clause_page": 2,
-          "explain_en": "The document says something different.",
-          "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "हे दस्तऐवजात सापडले नाही. हे लेखी मागा.",
           "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
           "grounded": true,
           "reason": null,
@@ -436,7 +440,9 @@
           "quote": "घरच्यांसाठी पूर्ण security, पैशांची गरज लागली तर कधीही loan घेऊ शकता, तेही शून्य percent interestवर.",
           "claim_en": "",
           "category": "liquidity",
-          "numbers": [],
+          "numbers": [
+            "0 percent"
+          ],
           "verdict": "NOT_IN_WRITING",
           "clause_id": null,
           "clause_quote": null,
@@ -496,12 +502,12 @@
         },
         "evon_model": null,
         "evon_calls": [],
-        "pipeline_ms": 2,
+        "pipeline_ms": 5,
         "claims": 8
       }
     }
   ],
-  "created": "2026-11-07 20:11",
+  "created": "2026-11-07 20:35",
   "engine": "Rules check — no AI model",
   "confusion": {
     "WRITTEN": {

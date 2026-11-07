@@ -14,6 +14,7 @@ interface ServerMsg {
   queue?: number
   code?: string
   message?: string
+  reconnecting?: boolean
 }
 
 const MIC_KEY: Record<string, Key> = { denied: 'micDenied', none: 'micNone', unsupported: 'micUnsupported', failed: 'micFailed' }
@@ -29,6 +30,7 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
   const [micProblem, setMicProblem] = useState(false)
   const [level, setLevel] = useState(0)
   const [quiet, setQuiet] = useState(false)
+  const [reconnecting, setReconnecting] = useState(false)
   // dev-only diagnostics and switches
   const [stats, setStats] = useState({ rate: 0, fps: 0, sent: 0 })
   const [ec, setEc] = useState(true)
@@ -135,10 +137,12 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
       }
       if (m.type === 'status') {
         setQueue(m.queue ?? 0)
+        if (m.reconnecting) setReconnecting(true)
       } else if (m.type === 'connected') {
         connected.current = true
         markReady()
       } else if (m.type === 'transcript' && m.text) {
+        setReconnecting(false)
         const idx = m.segment_index ?? Date.now()
         setCaptions((c) => ({ ...c, [idx]: m.text as string }))
       } else if (m.type === 'redflag' && m.phrase) {
@@ -236,7 +240,8 @@ export function Listen(props: { lang: Lang; caseId: string; onNext: () => void; 
         </button>
         {phase === 'connecting' && <Spinner label={queue ? t(lang, 'queued', { n: queue }) : t(lang, 'connecting')} />}
         {phase === 'announcing' && <Spinner label={t(lang, 'announcing')} />}
-        {phase === 'listening' && <p className="text-2xl font-bold text-green-800">🟢 {t(lang, 'speakNow')}</p>}
+        {phase === 'listening' && !reconnecting && <p className="text-2xl font-bold text-green-800">🟢 {t(lang, 'speakNow')}</p>}
+        {phase === 'listening' && reconnecting && <Spinner label={t(lang, 'reconnecting')} />}
         {phase === 'stopping' && <Spinner label={t(lang, 'transcribing')} />}
 
         {(phase === 'listening' || phase === 'announcing' || phase === 'connecting') && (

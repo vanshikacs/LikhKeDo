@@ -1,6 +1,6 @@
 # Answer-key evaluation
 
-Run: 2026-11-07 20:11. fictional CIS. Engine: Rules check — no AI model. Input: pitch text (no STT).
+Run: 2026-11-07 20:35. fictional CIS. Engine: Rules check — no AI model. Input: pitch text (no STT).
 
 | Pitch | Correct | Extra claims | Time (s) |
 | --- | --- | --- | --- |

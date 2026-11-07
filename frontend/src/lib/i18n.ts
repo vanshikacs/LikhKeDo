@@ -126,6 +126,7 @@ const en = {
   modeBNote: 'Only simple word and number matching was used. Treat every result as a reason to ask for it in writing.',
   runRules: 'Check with simple rules instead (no AI model)',
   evon_provider_none: 'No model server is set up (EVON_PROVIDER=none).',
+  reconnecting: 'Reconnecting to the speech service… keep talking.',
 }
 
 type Strings = typeof en
@@ -256,6 +257,7 @@ const hi: Strings = {
   modeBNote: 'सिर्फ़ शब्दों और संख्याओं का सीधा मिलान किया गया है। हर नतीजे को लिखित में माँगने की वजह मानें।',
   runRules: 'इसकी जगह सरल नियमों से जाँचें (कोई AI मॉडल नहीं)',
   evon_provider_none: 'कोई मॉडल सर्वर सेट नहीं है (EVON_PROVIDER=none)।',
+  reconnecting: 'स्पीच सेवा से फिर जुड़ रहे हैं… बोलते रहिए।',
 }
 
 const mr: Strings = {
@@ -384,6 +386,7 @@ const mr: Strings = {
   modeBNote: 'फक्त शब्द आणि संख्यांची साधी जुळवणी केली आहे. प्रत्येक निकालासाठी लेखी मागणी करा.',
   runRules: 'त्याऐवजी साध्या नियमांनी तपासा (AI मॉडेल नाही)',
   evon_provider_none: 'कोणताही मॉडेल सर्व्हर सेट नाही (EVON_PROVIDER=none).',
+  reconnecting: 'स्पीच सेवेशी पुन्हा जोडत आहोत… बोलत राहा.',
 }
 
 const ta: Strings = {
@@ -512,6 +515,7 @@ const ta: Strings = {
   modeBNote: 'சொற்கள், எண்களை எளிதாகப் பொருத்தி மட்டுமே பார்த்தோம். ஒவ்வொரு முடிவுக்கும் எழுத்தில் கேளுங்கள்.',
   runRules: 'பதிலாக எளிய விதிகளால் சரிபார் (AI மாடல் இல்லை)',
   evon_provider_none: 'மாடல் சர்வர் அமைக்கப்படவில்லை (EVON_PROVIDER=none).',
+  reconnecting: 'பேச்சுச் சேவையுடன் மீண்டும் இணைக்கிறோம்… தொடர்ந்து பேசுங்கள்.',
 }
 
 const STRINGS: Record<Lang, Strings> = { en, hi, mr, ta }

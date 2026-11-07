@@ -17,19 +17,24 @@ from app.redflags import find_redflags
 class FakePrisma:
     """websockets.serve in its own thread/loop; records frames and replies like Prisma."""
 
-    def __init__(self, close_after_connect=False):
+    def __init__(self, close_after_connect=False, close_1012_after=None):
         self.frames: list[int] = []
         self.times: list[float] = []
         self.headers: dict = {}
         self.commit = False
         self.close_after_connect = close_after_connect
+        self.close_1012_after = close_1012_after   # first session: close with 1012 after N frames
+        self.sessions = 0
         self.loop = asyncio.new_event_loop()
         self.port = None
         ready = threading.Event()
 
         async def handler(ws):
             self.headers = dict(ws.request.headers)
-            await ws.send(json.dumps({"type": "connected", "request_id": "fake-rid"}))
+            self.sessions += 1
+            session = self.sessions
+            await ws.send(json.dumps({"type": "connected", "request_id": f"fake-rid{'' if session == 1 else session}"}))
+            seen = 0
             if self.close_after_connect:
                 await ws.close(1008, "bad header")
                 return
@@ -37,6 +42,11 @@ class FakePrisma:
                 if isinstance(m, bytes):
                     self.frames.append(len(m))
                     self.times.append(time.perf_counter())
+                    seen += 1
+                    if session == 1 and self.close_1012_after and seen == self.close_1012_after:
+                        await ws.send(json.dumps({"type": "transcript", "segment_index": 0, "text": "पहला हिस्सा"}))
+                        await ws.close(1012, "service restart")
+                        return
                     if len(self.frames) == 3:
                         await ws.send(json.dumps({"type": "transcript", "segment_index": 0,
                                                   "text": "सर, returns guaranteed हैं, बिल्कुल FD जैसा",
@@ -208,3 +218,31 @@ def test_debug_save_only_when_enabled(fake, monkeypatch, tmp_path):
     with wave.open(str(out)) as w:
         assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (16000, 1, 2)
         assert w.getnframes() == 1024  # exactly the two frames Prisma received
+
+
+def test_transient_close_reconnects_and_keeps_segment_order(monkeypatch):
+    f = FakePrisma(close_1012_after=2)
+    monkeypatch.setattr(stream_proxy, "WS_URL", f"ws://127.0.0.1:{f.port}")
+    monkeypatch.setattr(gnani, "gate", gnani.GnaniGate())
+    try:
+        cid = make_case()
+        with TestClient(app) as client:
+            with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
+                ws.send_text(json.dumps({"lang": "hi"}))
+                ws.send_bytes(b"\x01" * (1024 * 6))
+                time.sleep(0.6)
+                ws.send_text(json.dumps({"type": "stop"}))
+                msgs = collect(ws)
+        assert f.sessions == 2 and f.commit
+        assert not [m for m in msgs if m["type"] == "error"]
+        assert any(m.get("reconnecting") for m in msgs if m["type"] == "status")
+        idx = [m["segment_index"] for m in msgs if m["type"] == "transcript"]
+        assert idx == sorted(idx) and len(set(idx)) == len(idx)   # second session continues after the first
+        with db.session() as s:
+            segs = [x.idx for x in s.exec(select(db.Segment).where(db.Segment.case_id == cid).order_by(db.Segment.idx))]
+            calls = list(s.exec(select(db.ApiCall).where(db.ApiCall.service == "prisma-stream", db.ApiCall.case_id == cid)))
+        assert segs == [0, 1, 2]
+        assert {c.request_id for c in calls} == {"fake-rid", "fake-rid2"}
+        assert len(set(f.frames)) == 1 and len(f.frames) >= 6   # no frame lost across the reconnect
+    finally:
+        f.stop()

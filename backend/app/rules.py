@@ -25,7 +25,7 @@ _SPLIT = re.compile(r"(?<=[।.!?\n])\s*|\n+")
 
 # number words as Prisma codemix writes them (hi / mr / ta / romanised)
 _WORDS = {
-    "एक": 1, "दो": 2, "तीन": 3, "चार": 4, "पाँच": 5, "पांच": 5, "छह": 6, "सात": 7, "आठ": 8, "नौ": 9, "दस": 10,
+    "शून्य": 0, "பூஜ்ஜியம்": 0, "zero": 0, "एक": 1, "दो": 2, "तीन": 3, "चार": 4, "पाँच": 5, "पांच": 5, "छह": 6, "सात": 7, "आठ": 8, "नौ": 9, "दस": 10,
     "बारह": 12, "पंद्रह": 15, "बीस": 20, "पच्चीस": 25, "तीस": 30, "पचास": 50, "सौ": 100,
     "पाच": 5, "सहा": 6, "दहा": 10, "बारा": 12, "पंधरा": 15, "वीस": 20, "तीस": 30,
     "ஒன்று": 1, "இரண்டு": 2, "மூன்று": 3, "நான்கு": 4, "ஐந்து": 5, "ஆறு": 6, "ஏழு": 7, "எட்டு": 8, "பத்து": 10,
@@ -49,7 +49,7 @@ GUARANTEE = re.compile(r"guarante|गारंटी|गॅरंटी|हम�
 CATEGORY_WORDS = [
     ("lock_in", re.compile(r"lock[\s-]?in|लॉक", re.I)),
     ("premium_term", re.compile(r"premium|प्रीमियम|பிரீமியம்", re.I)),
-    ("liquidity", re.compile(r"\bloan|लोन|कर्ज|withdraw|निकाल", re.I)),
+    ("liquidity", re.compile(r"\bloan|लोन|कर्ज|withdraw|निकाल|லோன்|கடன்", re.I)),
     ("cover", re.compile(r"cover|कवर|sum assured|बीमा राशि", re.I)),
     ("tax", re.compile(r"\btax|टैक्स|टॅक्स|வரி", re.I)),
     ("free_look", re.compile(r"return\s*कर|वापस|लौटा|परत\s*कर|திருப்பி", re.I)),
@@ -66,7 +66,10 @@ ANCHORS = {
     "free_look": re.compile(r"free-?look", re.I),
     "returns": re.compile(r"\breturns?\b.*guarantee|guaranteed? returns?", re.I),
 }
-CONTRADICTABLE = {"premium_term", "policy_term", "lock_in", "free_look", "returns"}
+# A different number means "different on paper" only for terms (years/days). Rates and amounts are too easy to
+# mismatch (e.g. a loan's "0 percent interest" vs the illustrated returns), so returns are contradicted only by the
+# explicit "guaranteed" vs "not guaranteed" rule above.
+CONTRADICTABLE = {"premium_term", "policy_term", "lock_in", "free_look"}
 CATEGORY_OUT = {"free_look": "other"}  # schema categories
 
 

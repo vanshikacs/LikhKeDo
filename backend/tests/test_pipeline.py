@@ -219,3 +219,11 @@ def test_rules_number_words_from_prisma():
     assert ("percent", 12.0) in claim_values("हर साल minimum बारह percent मिलेगा")
     assert ("years", 5.0) in claim_values("सिर्फ पाँच साल premium")
     assert ("amount", 1_000_000.0) in claim_values("दस लाख का life cover")
+
+
+def test_rules_never_contradict_a_bare_rate():
+    """Prisma split a loan promise; '0 percent interest' alone must not clash with the illustrated returns."""
+    from app.rules import judge
+    v = judge("அதுவும் பூஜ்ஜியம் percent interest-இல் கிடைக்கும் சார்.", "returns", CLAUSES)
+    assert v.verdict == "NOT_IN_WRITING"
+    assert judge("आपको सिर्फ पाँच साल प्रीमियम भरना है", "premium_term", CLAUSES).verdict == "CONTRADICTED"

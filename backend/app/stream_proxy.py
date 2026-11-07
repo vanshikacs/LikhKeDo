@@ -34,6 +34,9 @@ log = logging.getLogger("likhkedo.stream")
 WS_URL = f"{gnani.WS_BASE}/stt/v3/stream"
 FRAME = 1024
 FRAME_S = 0.032
+# Prisma close codes worth one transparent reconnect mid-session (abnormal, internal error, restart, try later)
+TRANSIENT_CLOSE = {1006, 1011, 1012, 1013}
+MAX_RECONNECTS = 2
 FINAL_WAIT_S = 5.0
 FORWARD_KEYS = ("type", "text", "segment_index", "detected_language_code")
 
@@ -145,6 +148,10 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                 status_code = 101
                 stopped = asyncio.Event()
                 seg_counter = 0
+                # the live Prisma connection can be replaced after a transient close (see prisma_to_browser)
+                conn = {"ws": prisma, "offset": 0, "reconnects": 0}
+                ready = asyncio.Event()
+                ready.set()
 
                 queue: asyncio.Queue = asyncio.Queue()
 
@@ -186,7 +193,7 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                     while True:
                         frame = await queue.get()
                         if frame is None:
-                            await prisma.send(json.dumps({"type": "commit"}))
+                            await _send_prisma(json.dumps({"type": "commit"}))
                             stopped.set()
                             return
                         if t_start is None:
@@ -194,14 +201,47 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                         ahead = t_start + frames * FRAME_S - time.perf_counter()
                         if ahead > 0:
                             await asyncio.sleep(ahead)
-                        await prisma.send(frame)
+                        await _send_prisma(frame)
                         frames += 1
                         if debug_pcm is not None:
                             debug_pcm.extend(frame)
 
+                async def _send_prisma(data):
+                    """Send to the current Prisma connection; during a reconnect, hold the frame until it's back."""
+                    while True:
+                        await ready.wait()
+                        try:
+                            await conn["ws"].send(data)
+                            return
+                        except websockets.exceptions.ConnectionClosed:
+                            ready.clear()  # prisma_to_browser reconnects (or fails and ends the session)
+
                 async def prisma_to_browser():
+                    nonlocal request_id
+                    while True:
+                        try:
+                            await _read_prisma()
+                            return
+                        except websockets.exceptions.ConnectionClosed as e:
+                            code = getattr(e.rcvd, "code", None)
+                            if stopped.is_set() or code not in TRANSIENT_CLOSE or conn["reconnects"] >= MAX_RECONNECTS:
+                                raise
+                            ready.clear()
+                            conn["reconnects"] += 1
+                            log.warning("prisma stream closed %s case=%s; reconnecting (%d)", code, case_id,
+                                        conn["reconnects"])
+                            db.record_call("prisma-stream", case_id=case_id, request_id=request_id, status=101,
+                                           error_code=f"CLOSED_{code}_RECONNECTED",
+                                           latency_ms=int((time.perf_counter() - t0) * 1000))
+                            await _send(ws, {"type": "status", "reconnecting": True})
+                            conn["ws"] = await stack.enter_async_context(websockets.connect(
+                                WS_URL, additional_headers=prisma_headers(lang_code), max_size=None, open_timeout=10))
+                            conn["offset"] = seg_counter  # a new session restarts segment_index at 0
+                            ready.set()
+
+                async def _read_prisma():
                     nonlocal request_id, seg_counter, error_code
-                    async for raw in prisma:
+                    async for raw in conn["ws"]:
                         if isinstance(raw, bytes):
                             continue
                         try:
@@ -218,10 +258,13 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                                              "message": ev.get("message") or "The speech service reported an error."})
                             continue
                         out = {k: ev[k] for k in FORWARD_KEYS if k in ev}
-                        await _send(ws, out)
                         if etype == "transcript" and ev.get("text"):
                             idx = ev.get("segment_index")
-                            idx = int(idx) if isinstance(idx, int) or (isinstance(idx, str) and idx.isdigit()) else seg_counter
+                            raw_idx = int(idx) if isinstance(idx, int) or (isinstance(idx, str) and idx.isdigit()) else None
+                            idx = seg_counter if raw_idx is None else raw_idx + conn["offset"]
+                            out["segment_index"] = idx
+                        await _send(ws, out)
+                        if etype == "transcript" and ev.get("text"):
                             seg_counter = max(seg_counter, idx + 1)
                             _store_segment(case_id, idx, ev["text"], ev.get("detected_language_code"))
                             for phrase in find_redflags(ev["text"]):
