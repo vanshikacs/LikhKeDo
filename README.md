@@ -112,8 +112,7 @@ cp .env.example .env                                               # add GNANI_A
 | Backend dev server | `make dev-backend` | `cd backend; .venv\Scripts\python -m uvicorn app.main:app --reload --port 8000` |
 | Frontend dev server | `make dev-frontend` | `cd frontend; npm run dev` |
 | Backend tests | `make test` | `cd backend; .venv\Scripts\python -m pytest -q` |
-| Demo cases (offline preview) | | `backend\.venv\Scripts\python scripts\seed_demo.py --preview` |
-| Demo cases (live run) | | `backend\.venv\Scripts\python scripts\seed_demo.py` |
+| Demo cases (live run only; needs Evon) | | `backend\.venv\Scripts\python scripts\seed_demo.py` |
 
 Uploads go as raw request bodies (`audio/wav`, `application/pdf`) rather than multipart, so the backend needs no extra form-parsing dependency. Deployment: see [DEPLOY.md](DEPLOY.md).
 

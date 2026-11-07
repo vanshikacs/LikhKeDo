@@ -6,6 +6,7 @@ import { VerdictCard } from '../components/VerdictCard'
 import { api, demoAudioUrl, demoSlipUrl, slipUrl, type Report } from '../lib/api'
 import { t } from '../lib/i18n'
 
+const LOCALE: Record<string, string> = { hi: 'hi-IN', mr: 'mr-IN', ta: 'ta-IN', en: 'en-IN' }
 const stripTags = (s: string) => s.replace(/<\/?(slow|pauses)>/g, ' ').replace(/\s+/g, ' ').trim()
 
 export function ReportPage(props: { report: Report; onHome: () => void }) {
@@ -44,9 +45,8 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
   return (
     <div className="space-y-5">
       {demo && (
-        <p className={`rounded-xl p-3 text-base ${demo.source === 'live' ? 'bg-blue-50 text-blue-950' : 'bg-amber-50 text-amber-950'}`}>
-          {demo.title} ·{' '}
-          {demo.source === 'live' ? t(lang, 'demoLive', { date: new Date(demo.created).toLocaleString() }) : t(lang, 'demoPreview')}
+        <p className="rounded-xl bg-blue-50 p-3 text-base text-blue-950">
+          {t(lang, 'demoLive', { date: new Date(demo.live_run_at).toLocaleString(LOCALE[lang]) })}
         </p>
       )}
       <h1 className="text-[28px] font-bold leading-tight">{t(lang, 'reportTitle')}</h1>

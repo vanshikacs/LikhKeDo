@@ -377,14 +377,16 @@ class GnaniClient:
 
     async def synthesize(self, text: str, lang: str, voice: str = "Tarika", model: str = "timbre-v3.0",
                          case_id: str | None = None) -> tuple[bytes, dict]:
-        """Returns (wav bytes, meta{request_ids, model, voice, cached})."""
+        """Returns (wav bytes, meta{request_ids, model, voice, cached, latency_ms})."""
+        t0 = time.perf_counter()
         key = hashlib.sha256(f"{text}\x00{voice}\x00{model}\x00{lang}".encode()).hexdigest()
         tts_dir = Path(get_settings().data_dir) / "tts"
         with db.session() as s:
             hit = s.exec(select(db.TtsCache).where(db.TtsCache.hash == key)).first()
         if hit is not None and Path(hit.path).exists():
             return Path(hit.path).read_bytes(), {"cached": True, "model": hit.model, "voice": hit.voice,
-                                                 "request_ids": []}
+                                                 "request_ids": [],
+                                                 "latency_ms": int((time.perf_counter() - t0) * 1000)}
 
         attempts = self.tts_attempts(lang, voice, model)
         if lang in ("ta-IN", "mr-IN", "en-IN"):
@@ -419,7 +421,8 @@ class GnaniClient:
         with db.session() as s:
             s.add(db.TtsCache(hash=key, voice=voice, model=model, lang=lang, path=str(path), chars=len(text)))
             s.commit()
-        return wav, {"cached": False, "model": used["model"], "voice": used["voice"], "request_ids": rids}
+        return wav, {"cached": False, "model": used["model"], "voice": used["voice"], "request_ids": rids,
+                     "latency_ms": int((time.perf_counter() - t0) * 1000)}
 
 
 _client: GnaniClient | None = None

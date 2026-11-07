@@ -19,7 +19,7 @@ from ..ingest import IngestError, parse_pdf
 from ..langs import get_lang
 from ..report import build_report, render_slip
 from ..schemas import CaseCreate, DemoDoc, SpeakRequest
-from .health import evon_up
+from .health import evon_status
 
 log = logging.getLogger("likhkedo.api")
 router = APIRouter(prefix="/api/cases")
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/cases")
 MAX_AUDIO_BYTES = 5 * 1024 * 1024
 MAX_PDF_BYTES = 5 * 1024 * 1024
 MAX_AUDIO_S = 30.0
-DEMO_HINT = "Live checking is unavailable right now. Please open the demo case: /api/demo/hi_hinglish"
+DEMO_HINT = "Live checking is unavailable right now (the Evon model server is not connected)."
 
 # Factory so tests can inject a fake Evon client.
 evon_factory = EvonClient
@@ -167,9 +167,13 @@ def _rate_ok(ip: str) -> bool:
 @router.post("/{case_id}/analyze")
 async def analyze(case_id: str, request: Request):
     case = _case(case_id)
-    if get_settings().demo_only or not await evon_up():
+    if get_settings().demo_only:
+        up, reason = False, "demo_only"
+    else:
+        up, reason = await evon_status()
+    if not up:
         return JSONResponse(status_code=503, content={"detail": {
-            "code": "LIVE_UNAVAILABLE", "message": DEMO_HINT, "demo": "/api/demo/hi_hinglish"}})
+            "code": "LIVE_UNAVAILABLE", "reason": reason, "message": DEMO_HINT, "demo": "/api/demo/"}})
     if case.status == "analyzing":
         return {"status": "analyzing"}
     with db.session() as s:
@@ -276,7 +280,7 @@ async def speak(case_id: str, request: Request):
         c.trace = {**(c.trace or {}), "timbre": [*(c.trace or {}).get("timbre", []),
                                                  {"target": body.target, "model": meta["model"],
                                                   "voice": meta["voice"], "request_ids": meta["request_ids"],
-                                                  "cached": meta["cached"]}]}
+                                                  "cached": meta["cached"], "latency_ms": meta["latency_ms"]}]}
         s.add(c)
         s.commit()
     return Response(wav, media_type="audio/wav",

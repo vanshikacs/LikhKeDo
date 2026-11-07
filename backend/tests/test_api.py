@@ -30,9 +30,9 @@ def client(monkeypatch):
     gnani.set_client(gnani.GnaniClient(transport=httpx.MockTransport(handler), sleep=no_sleep, gate_=gnani.GnaniGate()))
 
     async def up():
-        return True
+        return True, "ok"
 
-    monkeypatch.setattr(cases, "evon_up", up)
+    monkeypatch.setattr(cases, "evon_status", up)
     monkeypatch.setattr(cases, "evon_factory", lambda: EvonClient(FakeOpenAI(EXTRACT, verify)))
     cases._rate.clear()
     with TestClient(app) as c:
@@ -93,12 +93,13 @@ def test_validation(client):
 
 def test_analyze_503_when_evon_down(client, monkeypatch):
     async def down():
-        return False
+        return False, "unreachable"
 
-    monkeypatch.setattr(cases, "evon_up", down)
+    monkeypatch.setattr(cases, "evon_status", down)
     cid = new_case(client)
     r = client.post(f"/api/cases/{cid}/analyze")
-    assert r.status_code == 503 and r.json()["detail"]["demo"].startswith("/api/demo/")
+    d = r.json()["detail"]
+    assert r.status_code == 503 and d["demo"].startswith("/api/demo/") and d["reason"] == "unreachable"
 
 
 def test_rate_limit(client, monkeypatch):

@@ -48,20 +48,31 @@ export interface Report {
   trace: {
     prisma_model: string | null
     evon_model: string | null
-    evon_calls: { thinking: boolean; latency_ms: number; tokens: number }[]
+    evon_calls: { model?: string; thinking: boolean; latency_ms: number; tokens: number; request_id?: string | null }[]
     pipeline_ms: number | null
-    timbre: { target: string; model: string; voice: string; request_ids: string[]; cached: boolean }[]
+    timbre: { target: string; model: string; voice: string; request_ids: string[]; cached: boolean; latency_ms?: number }[]
     calls: TraceCall[]
   }
   disclaimer: string
   audio?: Record<string, string>
-  demo?: { slug: string; lang: Lang; title: string; source: 'live' | 'answer_key_preview'; created: string }
+  demo?: {
+    slug: string
+    lang: Lang
+    title: string
+    source: 'live'
+    live_run_at: string
+    created: string
+    evon_model?: string
+    prisma_request_ids?: string[]
+  }
 }
 
 export interface Health {
   ok: boolean
   gnani: 'ok' | 'error'
   evon: 'ok' | 'down'
+  evon_reason: 'ok' | 'not_configured' | 'unreachable' | 'bad_key' | 'bad_url' | 'model_missing' | 'http_error'
+  evon_model: string
   queue: number
   demo_only: boolean
 }
@@ -132,7 +143,7 @@ export const api = {
   report: (id: string) => call<Report>(`/api/cases/${id}/report`),
   speak: (id: string, target: string) => call<Blob>(`/api/cases/${id}/speak`, json({ target })),
   deleteCase: (id: string) => call<{ deleted: boolean }>(`/api/cases/${id}`, { method: 'DELETE' }),
-  demos: () => call<{ slug: string; lang: Lang; title: string }[]>('/api/demo'),
+  demos: () => call<{ slug: string; lang: Lang; title: string; live_run_at: string }[]>('/api/demo'),
   demo: (slug: string) => call<Report>(`/api/demo/${slug}`),
 }
 

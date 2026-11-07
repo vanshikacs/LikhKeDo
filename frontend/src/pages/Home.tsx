@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LiveBanner } from '../components/LiveBanner'
 import { Button, ErrorBox } from '../components/ui'
 import type { Lang } from '../lib/api'
 import { LANG_LABELS, t } from '../lib/i18n'
@@ -37,6 +38,8 @@ export function Home(props: {
         <h1 className="text-[34px] font-bold leading-tight">{t(lang, 'tagline')}</h1>
         <p className="mt-2 text-lg text-slate-700">{t(lang, 'taglineSub')}</p>
       </section>
+
+      <LiveBanner lang={lang} onDemo={props.onDemo} />
 
       <fieldset>
         <legend className="mb-2 text-base font-semibold">{t(lang, 'chooseLang')}</legend>

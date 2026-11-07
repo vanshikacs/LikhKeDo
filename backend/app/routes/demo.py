@@ -1,4 +1,7 @@
-"""Seeded demo cases served from demo/cache/<slug>/ (work with Evon and Gnani offline)."""
+"""Seeded demo cases served from demo/cache/<slug>/ (work with Evon and Gnani offline).
+
+Only cases saved from a real pipeline run (scripts/seed_demo.py, metadata demo.live_run_at) are served.
+"""
 from __future__ import annotations
 
 import json
@@ -14,13 +17,26 @@ SLUG = re.compile(r"^[a-z0-9_]{1,40}$")
 AUDIO = re.compile(r"^[a-z0-9_-]{1,40}\.wav$")
 
 
-def _dir(slug: str):
+def is_live(rep: dict) -> bool:
+    meta = rep.get("demo") or {}
+    return meta.get("source") == "live" and bool(meta.get("live_run_at"))
+
+
+def _load(slug: str) -> tuple:
     if not SLUG.match(slug):
         raise HTTPException(404, "Demo case not found.")
     d = get_settings().demo_dir / "cache" / slug
-    if not (d / "report.json").exists():
+    f = d / "report.json"
+    if not f.exists():
         raise HTTPException(404, "Demo case not found. Run scripts/seed_demo.py first.")
-    return d
+    rep = json.loads(f.read_text(encoding="utf-8"))
+    if not is_live(rep):
+        raise HTTPException(404, "This demo case was not saved from a live run.")
+    return d, rep
+
+
+def _dir(slug: str):
+    return _load(slug)[0]
 
 
 @router.get("/api/demo")
@@ -28,14 +44,18 @@ def list_demos() -> list[dict]:
     root = get_settings().demo_dir / "cache"
     out = []
     for p in sorted(root.glob("*/report.json")) if root.exists() else []:
-        meta = json.loads(p.read_text(encoding="utf-8")).get("demo", {})
-        out.append({"slug": p.parent.name, "lang": meta.get("lang"), "title": meta.get("title")})
+        rep = json.loads(p.read_text(encoding="utf-8"))
+        if not is_live(rep):
+            continue
+        meta = rep["demo"]
+        out.append({"slug": p.parent.name, "lang": meta.get("lang"), "title": meta.get("title"),
+                    "live_run_at": meta.get("live_run_at")})
     return out
 
 
 @router.get("/api/demo/{slug}")
 def demo_case(slug: str) -> dict:
-    return json.loads((_dir(slug) / "report.json").read_text(encoding="utf-8"))
+    return _load(slug)[1]
 
 
 @router.get("/api/demo/{slug}/audio/{name}")
@@ -53,4 +73,4 @@ def demo_slip(slug: str):
     from fastapi.responses import HTMLResponse
 
     from ..report import render_slip
-    return HTMLResponse(render_slip(json.loads((_dir(slug) / "report.json").read_text(encoding="utf-8"))))
+    return HTMLResponse(render_slip(_load(slug)[1]))

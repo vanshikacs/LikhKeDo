@@ -11,16 +11,16 @@ from ..config import get_settings
 from ..evon import evon_health
 
 router = APIRouter()
-_cache: dict[str, tuple[float, bool]] = {}
+_cache: dict[str, tuple[float, object]] = {}
 
 
-async def _cached(name: str, ttl: float, probe) -> bool:
+async def _cached(name: str, ttl: float, probe):
     hit = _cache.get(name)
     if hit and time.monotonic() - hit[0] < ttl:
         return hit[1]
-    ok = await probe()
-    _cache[name] = (time.monotonic(), ok)
-    return ok
+    val = await probe()
+    _cache[name] = (time.monotonic(), val)
+    return val
 
 
 async def _gnani_probe() -> bool:
@@ -35,14 +35,24 @@ async def _gnani_probe() -> bool:
         return False
 
 
+async def evon_status() -> tuple[bool, str]:
+    """(ok, reason); cached 30 s when up, 10 s when down so a fresh GPU shows up quickly."""
+    hit = _cache.get("evon")
+    if hit and time.monotonic() - hit[0] < (30 if hit[1][0] else 10):
+        return hit[1]
+    val = await evon_health()
+    _cache["evon"] = (time.monotonic(), val)
+    return val
+
+
 async def evon_up() -> bool:
-    return await _cached("evon", 30, evon_health)
+    return (await evon_status())[0]
 
 
 @router.get("/api/health")
 async def health() -> dict:
     st = get_settings()
     g = await _cached("gnani", 60, _gnani_probe)
-    e = await evon_up()
-    return {"ok": True, "gnani": "ok" if g else "error", "evon": "ok" if e else "down",
-            "queue": gnani.gate.queue, "demo_only": st.demo_only}
+    e, reason = await evon_status()
+    return {"ok": True, "gnani": "ok" if g else "error", "evon": "ok" if e else "down", "evon_reason": reason,
+            "evon_model": st.evon_model, "queue": gnani.gate.queue, "demo_only": st.demo_only}

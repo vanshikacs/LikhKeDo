@@ -1,18 +1,15 @@
-"""Build the seeded demo cases in demo/cache/<slug>/ so /api/demo/<slug> works with Evon and Gnani offline.
+"""Build the seeded demo cases in demo/cache/<slug>/ from a REAL pipeline run, so /api/demo/<slug> works
+when Evon or Gnani is offline. There is no preview mode: every saved case comes from real model calls.
 
-Live (default; needs Evon, spends Gnani credits for Prisma on recorded WAVs and Timbre audio):
+Needs Evon (EVON_BASE_URL/EVON_API_KEY) and spends Gnani credits (Prisma for recorded WAVs, Timbre audio):
   backend/.venv/Scripts/python scripts/seed_demo.py [--slug hi_hinglish] [--no-audio]
-  Uses demo/pitches/<slug>.wav through Prisma if present, else the pitch text.
-
-Preview (no model calls at all; labelled in the UI as NOT a live run):
-  backend/.venv/Scripts/python scripts/seed_demo.py --preview
+Uses demo/pitches/<slug>.wav through Prisma REST if present, else the pitch text.
 """
 from __future__ import annotations
 
 import argparse
 import asyncio
 import json
-import re
 import sys
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
 from datetime import datetime, timezone
@@ -24,42 +21,13 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app import db, gnani, pipeline  # noqa: E402
 from app.ingest import parse_pdf  # noqa: E402
 from app.langs import get_lang  # noqa: E402
-from app.prompts import FALLBACK_SUMMARY  # noqa: E402
-from app.report import DISCLAIMER, build_report  # noqa: E402
+from app.evon import evon_health  # noqa: E402
+from app.report import build_report  # noqa: E402
+from app.routes.cases import _speak_text  # noqa: E402
 
 TITLES = {"hi_hinglish": "Hindi / Hinglish pitch", "ta_tamil_english": "Tamil + English pitch",
           "mr_marathi": "Marathi pitch"}
 PRODUCT = "Suraksha Plus Guaranteed Wealth Plan (Bharosa Life, FICTIONAL)"
-
-
-def first_sentence(text: str) -> str:
-    text = re.sub(r"^\d+\.\s*", "", text)
-    return re.split(r"(?<=[.])\s+(?=[A-Z])", text)[0]
-
-
-def preview(pitch: dict, clauses) -> dict:
-    by_id = {c.id: c for c in clauses}
-    text = (ROOT / pitch["file"]).read_text(encoding="utf-8")
-    claims = []
-    for i, p in enumerate(pitch["promises"]):
-        cl = by_id.get(p["expected_clause_id"] or "")
-        explain = {"WRITTEN": "The document states this.",
-                   "CONTRADICTED": "The document states something different.",
-                   "NOT_IN_WRITING": "The document does not mention this. Ask for it in writing."}[p["expected_verdict"]]
-        claims.append({"id": p["id"], "quote": p["quote_hint"], "claim_en": p["claim_en"], "category": "other",
-                       "numbers": [], "verdict": p["expected_verdict"],
-                       "clause_id": cl.id if cl else None, "clause_quote": first_sentence(cl.text) if cl else None,
-                       "clause_page": cl.page if cl else None, "explain_en": explain, "explain_local": "",
-                       "ask_agent": "Can you give me this in writing?", "grounded": True, "reason": None})
-    bad = [c for c in claims if c["verdict"] != "WRITTEN"]
-    summary = FALLBACK_SUMMARY[pitch["lang"]].format(n=len(claims), k=len(bad), top=bad[0]["claim_en"])
-    counts = {v: sum(1 for c in claims if c["verdict"] == v) for v in ("WRITTEN", "CONTRADICTED", "NOT_IN_WRITING")}
-    return {"id": f"demo-{pitch['slug']}", "lang": pitch["lang"], "mode": "recall", "status": "done", "error": None,
-            "product_label": PRODUCT, "summary": summary, "counts": counts, "clauses": len(clauses),
-            "transcript": [{"idx": 0, "text": text, "source": "text", "lang": None}], "claims": claims,
-            "trace": {"prisma_model": None, "evon_model": None, "evon_calls": [], "pipeline_ms": None,
-                      "timbre": [], "calls": []},
-            "disclaimer": DISCLAIMER}
 
 
 async def live(pitch: dict, pdf: bytes, clauses, with_audio: bool, out: Path) -> dict:
@@ -89,16 +57,25 @@ async def live(pitch: dict, pdf: bytes, clauses, with_audio: bool, out: Path) ->
     rep = build_report(cid)
     if rep["status"] != "done":
         raise SystemExit(f"  pipeline failed: {rep['error']}")
-    audio = {}
+    audio, timbre = {}, []
     if with_audio:
-        targets = [("summary", rep["summary"])] + [
-            (c["id"], f"<slow> {c['explain_local'] or c['explain_en']} <pauses> {c['ask_agent']}") for c in rep["claims"]]
-        for name, txt in targets:
-            data, meta = await client.synthesize(txt, lang.tts, case_id=cid)
+        for c in [{"id": "summary"}] + rep["claims"]:
+            name = c["id"]
+            data, meta = await client.synthesize(_speak_text(rep, name), lang.tts, case_id=cid)
             (out / f"{name}.wav").write_bytes(data)
             audio[name] = f"{name}.wav"
-            print(f"  audio {name}.wav ({meta['model']}/{meta['voice']}, request_ids={meta['request_ids']})")
-        rep = {**build_report(cid), "audio": audio}
+            timbre.append({"target": name, "model": meta["model"], "voice": meta["voice"],
+                           "request_ids": meta["request_ids"], "cached": meta["cached"],
+                           "latency_ms": meta["latency_ms"]})
+            print(f"  audio {name}.wav ({meta['model']}/{meta['voice']}, {meta['latency_ms']} ms, "
+                  f"request_ids={meta['request_ids']}{', cache hit' if meta['cached'] else ''})")
+        with db.session() as s:
+            case = s.get(db.Case, cid)
+            case.trace = {**(case.trace or {}), "timbre": timbre}
+            s.add(case)
+            s.commit()
+    rep = {**build_report(cid), "audio": audio}
+    rep["_prisma_request_ids"] = [rid] if rid else []
     db.delete_case(cid)
     return rep
 
@@ -106,24 +83,27 @@ async def live(pitch: dict, pdf: bytes, clauses, with_audio: bool, out: Path) ->
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--slug")
-    ap.add_argument("--preview", action="store_true")
     ap.add_argument("--no-audio", action="store_true")
     a = ap.parse_args()
     key = json.loads((ROOT / "demo/answer_key.json").read_text(encoding="utf-8"))
     pdf = (ROOT / key["document"]).read_bytes()
     clauses = parse_pdf(pdf)
-    if not a.preview:
-        db.init_db()
+    db.init_db()
+    ok, reason = await evon_health()
+    if not ok:
+        raise SystemExit(f"Evon is not ready ({reason}). Start the GPU server and run scripts/smoke_evon.py first.")
     for pitch in key["pitches"]:
         if a.slug and pitch["slug"] != a.slug:
             continue
         out = ROOT / "demo" / "cache" / pitch["slug"]
         out.mkdir(parents=True, exist_ok=True)
         print(f"{pitch['slug']}:")
-        rep = preview(pitch, clauses) if a.preview else await live(pitch, pdf, clauses, not a.no_audio, out)
+        rep = await live(pitch, pdf, clauses, not a.no_audio, out)
+        when = datetime.now(timezone.utc).isoformat(timespec="minutes")
         rep["demo"] = {"slug": pitch["slug"], "lang": pitch["lang"], "title": TITLES.get(pitch["slug"], pitch["slug"]),
-                       "source": "answer_key_preview" if a.preview else "live",
-                       "created": datetime.now(timezone.utc).isoformat(timespec="minutes")}
+                       "source": "live", "live_run_at": when, "created": when,
+                       "evon_model": rep["trace"]["evon_model"],
+                       "prisma_request_ids": rep.pop("_prisma_request_ids")}
         (out / "report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"  wrote {out / 'report.json'} ({rep['demo']['source']})")
 

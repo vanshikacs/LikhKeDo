@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LiveBanner } from '../components/LiveBanner'
 import { Button, ErrorBox, Spinner } from '../components/ui'
 import { api, ApiError, type Lang } from '../lib/api'
 import { t } from '../lib/i18n'
@@ -41,6 +42,7 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
     <div className="space-y-5">
       <h1 className="text-3xl font-bold">{t(lang, 'docTitle')}</h1>
       <p className="text-lg text-slate-700">{t(lang, 'docHint')}</p>
+      <LiveBanner lang={lang} onDemo={props.onDemo} />
       {!read && (
         <div className="space-y-3">
           <Button onClick={() => load(() => api.demoDocument(caseId))} disabled={!!busy}>
@@ -73,7 +75,7 @@ export function DocumentPage(props: { lang: Lang; caseId: string; onChecking: ()
         </div>
       )}
       {err && (
-        <ErrorBox message={unavailable ? `${t(lang, 'liveUnavailable')} ${err}` : err}>
+        <ErrorBox message={unavailable ? t(lang, 'liveUnavailable') : err}>
           {unavailable && (
             <Button kind="secondary" onClick={props.onDemo}>
               {t(lang, 'seeDemo')}

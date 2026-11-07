@@ -85,7 +85,7 @@ export default function App() {
 }
 
 function Demos({ lang, onOpen }: { lang: Lang; onOpen: (r: Report) => void }) {
-  const [list, setList] = useState<{ slug: string; lang: Lang; title: string }[] | null>(null)
+  const [list, setList] = useState<{ slug: string; lang: Lang; title: string; live_run_at: string }[] | null>(null)
   const [err, setErr] = useState('')
   const [opening, setOpening] = useState('')
 
@@ -119,9 +119,10 @@ function Demos({ lang, onOpen }: { lang: Lang; onOpen: (r: Report) => void }) {
       {!list && !err && <Spinner label={t(lang, 'loading')} />}
       {list?.map((d) => (
         <Button key={d.slug} kind={d.lang === lang ? 'primary' : 'secondary'} onClick={() => open(d.slug)} disabled={!!opening}>
-          {LANG_LABELS[d.lang] ?? d.lang} · {d.title}
+          {LANG_LABELS[d.lang] ?? d.lang} · {t(lang, 'demoPitch')}
         </Button>
       ))}
+      {list && list.length === 0 && <p className="rounded-xl bg-amber-50 p-4 text-lg text-amber-950">{t(lang, 'noDemos')}</p>}
       {opening && <Spinner label={t(lang, 'loading')} />}
       {err && (
         <ErrorBox message={err}>

@@ -80,7 +80,8 @@ class EvonClient:
             tokens = getattr(getattr(r, "usage", None), "completion_tokens", 0) or 0
             db.record_call("evon", case_id=case_id, request_id=getattr(r, "id", None), status=200,
                            latency_ms=ms, units=tokens)
-            self.calls.append({"thinking": thinking, "latency_ms": ms, "tokens": tokens})
+            self.calls.append({"model": self.model, "thinking": thinking, "latency_ms": ms, "tokens": tokens,
+                               "request_id": getattr(r, "id", None)})
             return r.choices[0].message.content or ""  # only content; reasoning is never used
         raise EvonUnavailable(f"Evon not reachable ({last.__class__.__name__})")
 
@@ -102,14 +103,31 @@ class EvonClient:
             raise EvonJSONError(str(e)[:300]) from None
 
 
-async def evon_health() -> bool:
+# Reason codes for /api/health and the UI banner (never contain the key or the URL).
+EVON_REASONS = ("ok", "not_configured", "unreachable", "bad_key", "bad_url", "model_missing", "http_error")
+
+
+async def evon_health() -> tuple[bool, str]:
+    """Probe GET {EVON_BASE_URL}/models. Returns (ok, reason) where reason is one of EVON_REASONS."""
     st = get_settings()
     if not st.evon_base_url or "<" in st.evon_base_url or st.evon_api_key is None:
-        return False
+        return False, "not_configured"
     try:
-        async with httpx.AsyncClient(timeout=3) as c:
+        async with httpx.AsyncClient(timeout=5) as c:
             r = await c.get(st.evon_base_url.rstrip("/") + "/models",
                             headers={"Authorization": f"Bearer {st.evon_api_key.get_secret_value()}"})
-        return r.status_code == 200
     except httpx.HTTPError:
-        return False
+        return False, "unreachable"
+    if r.status_code in (401, 403):
+        return False, "bad_key"
+    if r.status_code == 404:
+        return False, "bad_url"
+    if r.status_code != 200:
+        return False, "http_error"
+    try:
+        ids = [m.get("id") for m in r.json().get("data", [])]
+    except (ValueError, AttributeError):
+        return False, "bad_url"
+    if st.evon_model not in ids:
+        return False, "model_missing"
+    return True, "ok"
