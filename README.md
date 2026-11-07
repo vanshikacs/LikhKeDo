@@ -67,6 +67,9 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 | Codemix output | English finance words stay Latin ("FD", "returns guaranteed", "premium"); small numbers come back as words ("बारह percent", "पाँच साल") |
 | Prisma v3.0 streaming | `language_code` must be **one** locale (`hi-IN`); `hi-IN,en-IN` returns an error and closes with 1008. Connected 0.4 s, `speech_start` 0.7 s, transcript 0.3 s after `commit` (server latency ~225 ms) |
 | Timbre v3.0, Tarika, `hi-IN`, speed 0.9, 24 kHz | HTTP 200 on the first combination; 136 chars → 11.0 s audio in 2.8 s. WAV header sizes are `0xFFFFFFFF` (streaming style); we patch them |
+| Timbre v3.0, Tarika, Hindi / Tamil / Marathi pitches (~900 chars each, 2 chunks) | All HTTP 200 on the first combination: 57.0 s / 51.3 s / 54.5 s of audio in 9.1 / 9.5 / 8.7 s (`scripts/make_pitch_audio.py`) |
+| Round trip: Timbre pitch audio → Prisma REST (3 chunks ≤ 30 s each) | Detected `hi-IN` / `ta-IN` / `mr-IN`; transcript vs. source text similarity 93 / 92 / 95 % (rapidfuzz ratio). So Tarika is intelligible in Tamil and Marathi |
+| Browser stream through our proxy (11 s clip) | 1024-byte frames paced at 32 ms, 0 Prisma errors; the saved debug WAV transcribed over REST matches the live caption word for word |
 | Does an open stream block Timbre? | **No**: Timbre returned 200 in 0.94 s while a stream was open, so streams don't hold GnaniGate (`STREAM_HOLDS_LOCK=false`) |
 | Request ids | Gnani echoes our `X-API-Request-ID` as `request_id`, so the ids in **Under the hood** match Gnani's logs |
 | Credits per Prisma call / per Timbre call | _check the balance on app.gnani.ai before and after a call_ |
@@ -87,7 +90,16 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 - Code-mixed speech recognition can mishear numbers ("baarah" vs "barah"); the grounding check prefers *Not in writing — ask* over a wrong red card, so errors fall on the cautious side.
 - The answer key is small (18 promises); it shows the pipeline works, not production accuracy.
 - Hindi, Marathi and Tamil UI strings were drafted by us and need native review.
+- The demo CIS is in English, so the *document* quote on each card stays in English even in a Hindi, Marathi or Tamil report (it must be the exact words of the document). Everything else on the card is in the buyer's language; the model's English paraphrase sits behind a "Show English" toggle.
+- Some server error messages (rare paths such as "file too large") are still English only.
 - Live Listen mode records nothing to disk, but everyone present should still know the conversation is being noted.
+
+## Recording the demo
+
+1. Backend with `DEBUG_SAVE_AUDIO=true` (dev only), frontend `npm run dev`, Evon up (`/api/health` shows `"evon":"ok"`).
+2. Open `http://localhost:5173/?record=1`: a phone-width column with larger type, and cards that highlight as they appear.
+3. Live pitch: a second person reads `demo/pitches/hi_hinglish.txt` into the mic. Or, on `/dev/listen`, use **Start + play pitch audio**, which plays the Timbre pitch from the speakers with echo cancellation off (otherwise the browser cancels the very audio it is meant to capture).
+4. Record mic audio, not system audio. `?record=0` turns recording mode off.
 
 ## Prior art and how we differ
 
