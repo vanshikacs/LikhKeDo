@@ -1,13 +1,14 @@
+
 services:
   - type: web
     name: likhkedo-api
     runtime: docker
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
-      # Values are set in the Render dashboard, never in this file.
       - key: GNANI_API_KEY
         sync: false
       - key: EVON_BASE_URL
@@ -15,9 +16,9 @@ services:
       - key: EVON_API_KEY
         sync: false
       - key: EVON_MODEL
-        sync: false          # gnani/gnani-evon-v3.3-30B-A3B on vLLM, or "evon" for the llama.cpp GGUF
+        sync: false
       - key: EVON_PROVIDER
-        sync: false          # vllm | llamacpp | none (EVON_FREE.md)
+        sync: false
       - key: EVON_QUANT
         sync: false
       - key: EVON_TIMEOUT
