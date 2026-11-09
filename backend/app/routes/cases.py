@@ -12,13 +12,13 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingRes
 from pydantic import ValidationError
 from sqlmodel import func, select
 
-from .. import db, gnani, localtext, pipeline
+from .. import db, gnani, localtext, pipeline, ratelimit
 from ..config import get_settings
 from ..evon import EvonClient
 from ..ingest import IngestError, parse_pdf
 from ..langs import get_lang
 from ..report import build_report, render_slip
-from ..schemas import CaseCreate, DemoDoc, SpeakRequest
+from ..schemas import CaseCreate, DemoDoc, SpeakRequest, TextSegment
 from .health import evon_status
 
 log = logging.getLogger("likhkedo.api")
@@ -83,6 +83,8 @@ async def create_case(request: Request) -> dict:
 @router.post("/{case_id}/recall")
 async def recall(case_id: str, request: Request) -> dict:
     case = _case(case_id)
+    if not ratelimit.allow("recall", request.client.host if request.client else "?", get_settings().recalls_per_hour):
+        raise _err(429, "RECALL_LIMIT", "Limit reached for recordings this hour. Please type the words instead.")
     audio = await _body(request, MAX_AUDIO_BYTES)
     try:
         pcm = gnani.to_pcm16k(audio)
@@ -96,7 +98,6 @@ async def recall(case_id: str, request: Request) -> dict:
     lang = get_lang(case.lang)
     with db.session() as s:
         prev = list(s.exec(select(db.Segment.text).where(db.Segment.case_id == case_id).order_by(db.Segment.idx)))
-        n = s.exec(select(func.count()).select_from(db.Segment).where(db.Segment.case_id == case_id)).one()
     try:
         tr = await gnani.get_client().transcribe_rest(
             gnani.pcm_to_wav(pcm), "recall.wav", lang.prisma, keyterms=gnani.FINANCE_TERMS,
@@ -107,12 +108,40 @@ async def recall(case_id: str, request: Request) -> dict:
     if not tr.text.strip():
         raise _err(400, "NO_WORDS", "We couldn't hear any words. Please try again, a little louder.")
     with db.session() as s:
-        seg = db.Segment(case_id=case_id, idx=n, text=tr.text, detected_lang=tr.detected_language_code,
+        # next free index (a count would reuse an index after a deleted segment)
+        last = s.exec(select(func.max(db.Segment.idx)).where(db.Segment.case_id == case_id)).one()
+        seg = db.Segment(case_id=case_id, idx=(last + 1) if last is not None else 0, text=tr.text,
+                         detected_lang=tr.detected_language_code,
                          source="rest", prisma_request_id=(tr.request_ids or [None])[0])
         s.add(seg)
         s.commit()
     return {"segment": {"idx": seg.idx, "text": seg.text, "lang": seg.detected_lang},
             "request_ids": tr.request_ids, "latency_ms": tr.latency_ms, "cached": tr.cached}
+
+
+MAX_SEGMENTS = 30
+
+
+@router.post("/{case_id}/text")
+async def add_text(case_id: str, request: Request) -> dict:
+    """Typed (or pasted, or corrected) words of the pitch, for buyers without a microphone. No Gnani call."""
+    _case(case_id)
+    try:
+        body = TextSegment.model_validate(await request.json())
+    except (ValidationError, ValueError):
+        raise _err(422, "BAD_TEXT", "Type between 2 and 4000 characters.") from None
+    text = " ".join(body.text.split())
+    if len(text) < 2:
+        raise _err(422, "BAD_TEXT", "Type between 2 and 4000 characters.")
+    with db.session() as s:
+        n = s.exec(select(func.count()).select_from(db.Segment).where(db.Segment.case_id == case_id)).one()
+        if n >= MAX_SEGMENTS:
+            raise _err(400, "TOO_MANY_SEGMENTS", "This case already has too many parts.")
+        last = s.exec(select(func.max(db.Segment.idx)).where(db.Segment.case_id == case_id)).one()
+        seg = db.Segment(case_id=case_id, idx=(last + 1) if last is not None else 0, text=text, source="text")
+        s.add(seg)
+        s.commit()
+    return {"segment": {"idx": seg.idx, "text": seg.text, "lang": None}}
 
 
 @router.delete("/{case_id}/segments/{idx}")
@@ -176,14 +205,9 @@ async def analyze(case_id: str, request: Request, engine: str = "evon"):
     case = _case(case_id)
     st = get_settings()
     use_rules = engine == "rules" or st.evon_provider == "none"
-    if not use_rules:
-        up, reason = (False, "demo_only") if st.demo_only else await evon_status()
-        if not up:
-            return JSONResponse(status_code=503, content={"detail": {
-                "code": "LIVE_UNAVAILABLE", "reason": reason, "message": DEMO_HINT, "demo": "/api/demo/",
-                "rules_available": True}})
     if case.status == "analyzing":
         return {"status": "analyzing", "engine": "rules" if use_rules else "evon"}
+    # missing input first: "add the document" is more useful than "the model is down"
     with db.session() as s:
         nseg = s.exec(select(func.count()).select_from(db.Segment).where(db.Segment.case_id == case_id)).one()
         ncl = s.exec(select(func.count()).select_from(db.ClauseRow).where(db.ClauseRow.case_id == case_id)).one()
@@ -191,6 +215,12 @@ async def analyze(case_id: str, request: Request, engine: str = "evon"):
         raise _err(400, "NOTHING_TO_CHECK", "Nothing to check yet: record or listen to the pitch first.")
     if not ncl:
         raise _err(400, "NO_DOCUMENT", "Add the policy document first.")
+    if not use_rules:
+        up, reason = (False, "demo_only") if st.demo_only else await evon_status()
+        if not up:
+            return JSONResponse(status_code=503, content={"detail": {
+                "code": "LIVE_UNAVAILABLE", "reason": reason, "message": DEMO_HINT, "demo": "/api/demo/",
+                "rules_available": True}})
     if not _rate_ok(request.client.host if request.client else "?"):
         raise _err(429, "CHECK_LIMIT", "Limit reached: 3 checks per hour. Please try the demo case.")
     with db.session() as s:

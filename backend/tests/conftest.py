@@ -26,5 +26,7 @@ get_settings.cache_clear()
 
 @pytest.fixture(autouse=True)
 def fresh_db():
+    from app import ratelimit
+    ratelimit.reset()
     db.init_db("sqlite://")
     yield

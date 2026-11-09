@@ -17,13 +17,18 @@ SLUG = re.compile(r"^[a-z0-9_]{1,40}$")
 AUDIO = re.compile(r"^[a-z0-9_-]{1,40}\.wav$")
 
 
+# Saved cases kept in the repo for transparency but not served in the public showcase. The Marathi run has two
+# wrong "Different on paper" cards (README, "Demo cases"); showing it as an example would mislead.
+HELD_BACK = {"mr_marathi"}
+
+
 def is_live(rep: dict) -> bool:
     meta = rep.get("demo") or {}
     return meta.get("source") == "live" and bool(meta.get("live_run_at"))
 
 
 def _load(slug: str) -> tuple:
-    if not SLUG.match(slug):
+    if not SLUG.match(slug) or slug in HELD_BACK:
         raise HTTPException(404, "Demo case not found.")
     d = get_settings().demo_dir / "cache" / slug
     f = d / "report.json"
@@ -44,6 +49,8 @@ def list_demos() -> list[dict]:
     root = get_settings().demo_dir / "cache"
     out = []
     for p in sorted(root.glob("*/report.json")) if root.exists() else []:
+        if p.parent.name in HELD_BACK:
+            continue
         rep = json.loads(p.read_text(encoding="utf-8"))
         if not is_live(rep):
             continue

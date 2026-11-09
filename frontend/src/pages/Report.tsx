@@ -19,6 +19,12 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
   const [deleted, setDeleted] = useState(false)
   const [err, setErr] = useState('')
   const [trace, setTrace] = useState(r.trace)
+  // standard sentences (not model text) for explanation, question and summary: 4-bit GGUF engine and rules check.
+  // Saved cases from before the flag existed: infer it from the engine that produced them.
+  const rules = r.engine?.mode === 'B'
+  const fixedText = r.trace.fixed_text ?? (rules || r.engine?.provider === 'llamacpp')
+  const fixedNote = fixedText ? t(lang, rules ? 'fixedCardRules' : 'fixedCardEvon') : undefined
+  const fixedSummary = fixedText || r.trace.summary_source === 'fixed'
   // live cases: after Timbre speaks, refresh the trace so "Under the hood" shows the new call
   const speak = async (target: string) => {
     const blob = await api.speak(r.id, target)
@@ -62,6 +68,7 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
       <section className="space-y-3 rounded-2xl bg-slate-900 p-5 text-white">
         <h2 className="text-base font-semibold uppercase tracking-wide text-slate-300">{t(lang, 'summaryTitle')}</h2>
         {r.summary && <p className="text-xl leading-relaxed">{stripTags(r.summary)}</p>}
+        {r.summary && fixedSummary && <p className="text-sm text-slate-400">{t(lang, 'fixedSummary')}</p>}
         <p className="text-base text-slate-300">
           {t(lang, 'counts', { w: r.counts.WRITTEN, c: r.counts.CONTRADICTED, n: r.counts.NOT_IN_WRITING })}
         </p>
@@ -82,6 +89,7 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
           delayMs={i * 500}
           claim={c}
           lang={lang}
+          fixedNote={fixedNote}
           audioSrc={demo && r.audio?.[c.id] ? demoAudioUrl(demo.slug, r.audio[c.id]) : undefined}
           loadAudio={demo ? undefined : () => speak(c.id)}
         />
@@ -126,7 +134,6 @@ export function ReportPage(props: { report: Report; onHome: () => void }) {
       {err && <ErrorBox message={err} />}
 
       <UnderTheHood report={{ ...r, trace }} lang={lang} />
-      <p className="text-sm text-slate-600">{t(lang, 'footer')}</p>
     </div>
   )
 }

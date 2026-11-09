@@ -67,6 +67,7 @@ def build_report(case_id: str) -> dict | None:
             "evon_calls": trace.get("evon_calls", []),
             "pipeline_ms": trace.get("pipeline_ms"),
             "summary_source": trace.get("summary_source"),
+            "fixed_text": trace.get("fixed_text"),
             "timbre": trace.get("timbre", []),
             "calls": [{"service": a.service, "request_id": a.request_id, "status": a.status,
                        "error_code": a.error_code, "latency_ms": a.latency_ms} for a in calls],

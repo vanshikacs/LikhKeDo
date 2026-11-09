@@ -31,9 +31,11 @@ export default function App() {
     localStorage.setItem('lkd-lang', l)
     document.documentElement.lang = l
   }
+  // the page language follows what is on screen: a Tamil report opened from a Hindi home page is lang="ta"
+  const pageLang = screen.name === 'report' ? screen.report.lang : lang
   useEffect(() => {
-    document.documentElement.lang = lang
-  }, [lang])
+    document.documentElement.lang = pageLang
+  }, [pageLang])
   useEffect(() => {
     // braces matter: newer Chrome returns a Promise from scrollTo, which React would treat as a cleanup
     window.scrollTo(0, 0)
@@ -44,9 +46,8 @@ export default function App() {
 
   if (window.location.pathname === '/dev/listen') return <DevListen lang={lang} />
 
-  const reportLang = screen.name === 'report' ? screen.report.lang : lang
   return (
-    <Shell lang={reportLang} onHome={home}>
+    <Shell lang={pageLang} onHome={home}>
       {screen.name === 'home' && (
         <Home
           lang={lang}

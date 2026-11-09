@@ -61,6 +61,7 @@ export interface Report {
     evon_calls: { model?: string; thinking: boolean; latency_ms: number; tokens: number; request_id?: string | null }[]
     pipeline_ms: number | null
     summary_source?: 'evon' | 'fixed' | null
+    fixed_text?: boolean | null
     timbre: { target: string; model: string; voice: string; request_ids: string[]; cached: boolean; latency_ms?: number }[]
     calls: TraceCall[]
   }
@@ -146,6 +147,8 @@ export const api = {
       `/api/cases/${id}/recall`,
       { method: 'POST', headers: { 'Content-Type': 'audio/wav' }, body: wav },
     ),
+  addText: (id: string, text: string) =>
+    call<{ segment: { idx: number; text: string } }>(`/api/cases/${id}/text`, json({ text })),
   deleteSegment: (id: string, idx: number) => call<{ deleted: number }>(`/api/cases/${id}/segments/${idx}`, { method: 'DELETE' }),
   demoDocument: (id: string) =>
     call<{ clauses: number; pages: number }>(`/api/cases/${id}/document`, json({ demo_doc: 'suraksha_plus' })),

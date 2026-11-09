@@ -5,7 +5,7 @@ import { AudioButton } from './AudioButton'
 import { VERDICT_STYLE, VerdictBadge } from './ui'
 
 const FALLBACK: Record<Verdict, Key> = { WRITTEN: 'fbWritten', CONTRADICTED: 'fbContradicted', NOT_IN_WRITING: 'fbNotInWriting' }
-const REASONS = ['quote_not_in_transcript', 'clause_quote_not_found', 'number_missing', 'invalid_model_output']
+const REASONS = ['quote_not_in_transcript', 'clause_quote_not_found', 'clause_off_topic', 'number_missing', 'invalid_model_output']
 
 export function VerdictCard(props: {
   claim: Claim
@@ -14,6 +14,8 @@ export function VerdictCard(props: {
   loadAudio?: () => Promise<Blob>
   highlight?: boolean
   delayMs?: number
+  /** set when the explanation and question are standard sentences, not model text */
+  fixedNote?: string
 }) {
   const { claim: c, lang } = props
   const [english, setEnglish] = useState(false)
@@ -49,6 +51,7 @@ export function VerdictCard(props: {
         )}
       </section>
       <p className="text-lg text-slate-800">{explain}</p>
+      {props.fixedNote && <p className="text-sm text-slate-500">{props.fixedNote}</p>}
       {!c.grounded && reason && (
         <p className="text-sm text-slate-600">
           {t(lang, 'notChecked')}: {reason}

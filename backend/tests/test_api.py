@@ -105,9 +105,17 @@ def test_analyze_503_when_evon_down(client, monkeypatch):
 
     monkeypatch.setattr(cases, "evon_status", down)
     cid = new_case(client)
+    # missing input is reported first, even while Evon is down
+    assert client.post(f"/api/cases/{cid}/analyze").json()["detail"]["code"] == "NOTHING_TO_CHECK"
+    client.post(f"/api/cases/{cid}/text", json={"text": PITCH})
+    assert client.post(f"/api/cases/{cid}/analyze").json()["detail"]["code"] == "NO_DOCUMENT"
+    client.post(f"/api/cases/{cid}/document", json={"demo_doc": "suraksha_plus"})
     r = client.post(f"/api/cases/{cid}/analyze")
     d = r.json()["detail"]
+    # a failed live AI request never turns into a successful-looking result
     assert r.status_code == 503 and d["demo"].startswith("/api/demo/") and d["reason"] == "unreachable"
+    assert d["rules_available"] is True
+    assert client.get(f"/api/cases/{cid}/report").json()["status"] == "new"
 
 
 def test_rate_limit(client, monkeypatch):
@@ -198,3 +206,44 @@ def test_purge_removes_old_caches(client, tmp_path):
         assert s.get(db.PrismaCache, "old") is None and s.get(db.PrismaCache, "new") is not None
         assert not list(s.exec(db.select(db.TtsCache).where(db.TtsCache.hash == "t-old")))
     assert not wav.exists()
+
+
+def test_typed_pitch_full_journey(client):
+    """No microphone: the buyer types the pitch; no Prisma call is made or claimed."""
+    cid = new_case(client)
+    r = client.post(f"/api/cases/{cid}/text", json={"text": "  " + PITCH + "  "})
+    assert r.status_code == 200 and r.json()["segment"]["idx"] == 0
+    assert client.post(f"/api/cases/{cid}/document", json={"demo_doc": "suraksha_plus"}).status_code == 200
+    assert client.post(f"/api/cases/{cid}/analyze").status_code == 200
+    with client.stream("GET", f"/api/cases/{cid}/progress") as s:
+        events = [json.loads(line[6:]) for line in s.iter_lines() if line.startswith("data: ")]
+    assert events[-1]["stage"] == "done"
+    rep = client.get(f"/api/cases/{cid}/report").json()
+    assert len(rep["claims"]) == 6 and rep["transcript"][0]["source"] == "text"
+    assert rep["trace"]["prisma"] == []                       # typed: Under the hood shows Prisma as not used
+    assert rep["trace"]["fixed_text"] is False                 # vLLM engine: model text
+
+
+def test_typed_pitch_validation_and_indexes(client):
+    cid = new_case(client)
+    for bad in ({"text": "x"}, {"text": " " * 10}, {"text": "a" * 4001}, {}, {"text": 5}):
+        r = client.post(f"/api/cases/{cid}/text", json=bad)
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "BAD_TEXT", bad
+    assert client.post(f"/api/cases/{cid}/text", content=b"not json").status_code == 422
+    assert client.post("/api/cases/nope/text", json={"text": "hello there"}).status_code == 404
+    a = client.post(f"/api/cases/{cid}/text", json={"text": "first part"}).json()["segment"]["idx"]
+    b = client.post(f"/api/cases/{cid}/text", json={"text": "second part"}).json()["segment"]["idx"]
+    client.delete(f"/api/cases/{cid}/segments/{a}")
+    # after a delete the next index never collides with an existing one (recall used a count before)
+    r = client.post(f"/api/cases/{cid}/recall", content=wav_bytes(2.0), headers={"content-type": "audio/wav"})
+    assert r.json()["segment"]["idx"] == b + 1
+
+
+def test_recall_limit_per_visitor(client, monkeypatch):
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "recalls_per_hour", 2)
+    cid = new_case(client)
+    codes = [client.post(f"/api/cases/{cid}/recall", content=wav_bytes(2.0),
+                         headers={"content-type": "audio/wav"}).status_code for _ in range(3)]
+    assert codes == [200, 200, 429]
+    assert client.post(f"/api/cases/{cid}/text", json={"text": "typing still works"}).status_code == 200

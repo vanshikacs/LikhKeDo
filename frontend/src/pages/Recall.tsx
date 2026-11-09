@@ -14,6 +14,8 @@ export function Recall(props: { lang: Lang; caseId: string; onNext: () => void }
   const [clip, setClip] = useState<{ blob: Blob; url: string; secs: number } | null>(null)
   const [heard, setHeard] = useState<{ idx: number; text: string }[]>([])
   const [busy, setBusy] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
   const mic = useRef<Mic | null>(null)
   const chunks = useRef<ArrayBuffer[]>([])
@@ -83,6 +85,22 @@ export function Recall(props: { lang: Lang; caseId: string; onNext: () => void }
     }
   }
 
+  async function addTyped() {
+    const text = typed.trim()
+    if (text.length < 2 || busy || saving) return
+    setSaving(true)
+    setErr('')
+    try {
+      const r = await api.addText(caseId, text)
+      setHeard((h) => [...h, r.segment])
+      setTyped('') // cleared only after the server kept it, so a failure never loses the words
+    } catch (e) {
+      setErr(errText(lang, e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function remove(idx: number) {
     try {
       await api.deleteSegment(caseId, idx)
@@ -149,9 +167,29 @@ export function Recall(props: { lang: Lang; caseId: string; onNext: () => void }
           </Button>
         </section>
       )}
+      {!clip && !recording && (
+        <section className="space-y-2 rounded-2xl bg-white p-4 shadow-sm">
+          <label htmlFor="lkd-typed" className="block text-base font-semibold">
+            {t(lang, 'typeOr')}
+          </label>
+          <p className="text-sm text-slate-600">{t(lang, 'typeHint')}</p>
+          <textarea
+            id="lkd-typed"
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            maxLength={4000}
+            rows={4}
+            className="w-full rounded-xl border-2 border-slate-400 p-3 text-lg focus:border-blue-700 focus:outline-none"
+          />
+          <Button kind="secondary" onClick={addTyped} disabled={busy || saving || typed.trim().length < 2}>
+            {t(lang, 'typeAdd')}
+          </Button>
+        </section>
+      )}
       {busy && <Spinner label={t(lang, 'transcribing')} />}
+      {saving && <Spinner label={t(lang, 'loading')} />}
       {err && <ErrorBox message={err} />}
-      {heard.length > 0 && !clip && !recording && !busy && <Button onClick={props.onNext}>{t(lang, 'next')} →</Button>}
+      {heard.length > 0 && !clip && !recording && !busy && !saving && <Button onClick={props.onNext}>{t(lang, 'next')} →</Button>}
     </div>
   )
 }

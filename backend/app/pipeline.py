@@ -244,7 +244,7 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
     summary, summary_source = await _summary(evon, results, lang, case_id)
     trace = {"engine": {**engine_info(), "mode": "A"}, "evon_model": evon.model, "evon_calls": list(evon.calls),
              "pipeline_ms": int((time.perf_counter() - t_start) * 1000), "claims": n,
-             "summary_source": summary_source}
+             "summary_source": summary_source, "fixed_text": evon.provider in FIXED_TEXT_PROVIDERS}
     return PipelineResult(claims=results, summary=summary, trace=trace)
 
 

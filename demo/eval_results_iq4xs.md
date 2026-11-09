@@ -21,3 +21,15 @@ Run: 2026-11-09 14:39. fictional CIS. Engine: Evon v3.3 · community 4-bit GGUF 
 | WRITTEN | 1.0 | 0.6 |
 | CONTRADICTED | 0.818 | 0.818 |
 | NOT_IN_WRITING | 0.5 | 0.556 |
+
+## Rescored from the same JSON (`scripts/eval_answer_key.py --rescore demo/eval_results_iq4xs.json`)
+
+| Language | Correct |
+| --- | --- |
+| hi | 3/6 |
+| ta | 4/6 |
+| mr | 3/6 |
+| hi (held-out) | 4/6 |
+| en (held-out) | 6/6 |
+
+Cited clause = answer key's clause, for correct *Written* / *Different on paper* verdicts: **13/15** (other clause: hi_hinglish hi-2: cited p4-s1, key p1-s5; ta_tamil_english ta-2: cited p4-s1, key p1-s5).

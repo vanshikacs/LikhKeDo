@@ -180,6 +180,16 @@ def test_listen_requires_consent(fake):
     assert m["code"] == "NO_CONSENT"
 
 
+def test_listen_limit_per_visitor(fake, monkeypatch):
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "listens_per_hour", 0)
+    cid = make_case()
+    with TestClient(app) as client:
+        with client.websocket_connect(f"/api/cases/{cid}/listen") as ws:
+            m = json.loads(ws.receive_text())
+    assert m["code"] == "LISTEN_LIMIT"
+
+
 def test_frames_are_paced_at_32ms(fake):
     """A burst of 25 frames from the browser must reach Prisma no faster than real time."""
     cid = make_case()

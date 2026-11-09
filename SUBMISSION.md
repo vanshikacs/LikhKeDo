@@ -26,10 +26,26 @@ Insurance mis-selling happens in spoken words. An agent says "returns guaranteed
 
 ## Project explanation (250 words)
 
-LikhKeDo, "put it in writing", is a buyer-side check for sales pitches. The buyer picks a language on their phone. In Listen mode, the pitch streams to Prisma v3.0, live captions appear, and phrases like "guaranteed" or "FD jaisa" light up as red flags. In Recall mode, the buyer says afterwards what was promised; the seller is never recorded.
+LikhKeDo, "put it in writing", is a buyer-side check for insurance sales pitches. The buyer picks a language. In Listen mode the pitch streams to Prisma v3.0: live captions appear and phrases like "guaranteed" or "FD jaisa" light up. In Recall mode the buyer says afterwards what was promised, or types it; the seller is never recorded.
 
-The buyer then adds the policy's Customer Information Sheet. We split it into clauses with page numbers. Evon v3.3, on our self-hosted server, extracts every promise with its exact words, retrieves the most relevant clauses, and decides for each promise: Written, Contradicted, or Not in writing. Code then checks Evon's work: the quoted promise must appear in the transcript, the quoted clause in the document, and every number of a "Written" verdict in that clause. Any failure turns the card into "Not in writing — ask", so errors fall on the cautious side.
+The buyer adds the policy's Customer Information Sheet, which we split into numbered clauses with page numbers. Evon v3.3, self-hosted, extracts each promise in its exact words and decides: Written, Different on paper, or Not in writing, citing the exact clause. Code then checks Evon: the promise must appear in what was said, the quote must appear in the cited clause, that clause must be on the same topic, and every number of a Written verdict must be in it. Any failure becomes "Not in writing — ask", so mistakes fall on the cautious side.
 
-The report shows both quotes, the page, and a polite question to ask. Timbre v3.0 reads a slow summary aloud in Hindi, Marathi, Tamil or English. A printable "Likh Ke Do" slip lists the unwritten promises for the seller to sign, and buyers who already bought see the 30-day free-look steps.
+Each card shows both quotes and the page. Timbre v3.0 reads a slow summary aloud. A printable "Likh Ke Do" slip lists the promises to get in writing, and buyers who already signed see the 30-day free-look steps.
 
-"Under the hood" shows every Gnani request id and latency, and a badge says what produced each report: live Evon, a rules check without AI, or a saved live run. The demo uses a fictional insurer and synthetic voices; nothing is stored beyond 24 hours. Not financial or legal advice.
+On a ₹0 budget we ran Evon as a community 4-bit build on free Kaggle GPUs. On our 30-promise answer key it scored 20/30, with no wrong "Written". Its free text garbled some Hindi, so explanations are standard sentences, labelled as such. "Under the hood" shows every Gnani request id. Fictional insurer, synthetic voices, data deleted after 24 hours. Not financial or legal advice.
+
+## Evaluation (real numbers)
+
+- 30 labelled promises in 5 pitches (Hindi, Tamil, Marathi, plus held-out Hindi and English written before any model run). Evon v3.3 community 4-bit GGUF (IQ4_XS): **20/30 correct**; *Written* precision **1.0** (no wrong *Written*), recall 0.6; *Different on paper* precision and recall 0.82; cited clause matches the answer key in 13/15 correct verdicts.
+- By pitch: Hindi 3/6, Tamil 4/6, Marathi 3/6, held-out Hindi 4/6, held-out English 6/6. Files: `demo/eval_results_iq4xs.md` (rescore offline with `scripts/eval_answer_key.py --rescore`).
+- Prisma v3.0 kept 93–95% of the pitch words from clean audio down to 5 dB babble noise and telephone-band audio (synthetic voice and noise).
+
+## Limitations
+
+- Evon ran only as a community 4-bit quantisation; Gnani's full BF16 model was not run (no GPU budget). Results vary between runs.
+- Marathi's live run had two wrong *Different on paper* cards; it is documented but not shown as a showcase case.
+- One fictional policy document; English CIS only; no OCR for scanned PDFs. Hindi/Marathi/Tamil UI text not yet reviewed by native speakers.
+
+## Next
+
+Run Gnani's BF16 Evon (or a Gnani-hosted endpoint) and re-run the same answer key; a larger, native-reviewed test set with real CIS layouts; OCR; a share-with-family link for the slip.

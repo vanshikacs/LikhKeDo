@@ -24,7 +24,7 @@ import websockets
 from fastapi import WebSocket, WebSocketDisconnect
 from sqlmodel import select
 
-from . import db, gnani
+from . import db, gnani, ratelimit
 from .config import get_settings
 from .langs import LANGS, stream_locale
 from .redflags import find_redflags
@@ -102,6 +102,11 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
         return
     if case.mode == "listen" and not case.consent:
         await _send(ws, {"type": "error", "code": "NO_CONSENT", "message": "Consent is required to listen."})
+        await ws.close(code=1008)
+        return
+    if not ratelimit.allow("listen", ws.client.host if ws.client else "?", get_settings().listens_per_hour):
+        await _send(ws, {"type": "error", "code": "LISTEN_LIMIT",
+                         "message": "Limit reached for live listening this hour. Please try the demo case."})
         await ws.close(code=1008)
         return
 

@@ -39,6 +39,22 @@ export function Home(props: {
         <p className="mt-2 text-lg text-slate-700">{t(lang, 'taglineSub')}</p>
       </section>
 
+      <section aria-labelledby="lkd-how" className="rounded-2xl bg-white p-4 shadow-sm">
+        <h2 id="lkd-how" className="text-base font-semibold">
+          {t(lang, 'howTitle')}
+        </h2>
+        <ol className="mt-2 space-y-2">
+          {(['how1', 'how2', 'how3'] as const).map((k, i) => (
+            <li key={k} className="flex gap-3 text-base text-slate-800">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-700 text-sm font-bold text-white">
+                {i + 1}
+              </span>
+              <span>{t(lang, k)}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <LiveBanner lang={lang} onDemo={props.onDemo} />
 
       <fieldset>
@@ -58,6 +74,7 @@ export function Home(props: {
             </button>
           ))}
         </div>
+        {lang === 'mr' && <p className="mt-2 rounded-xl bg-amber-50 p-3 text-base text-amber-950">{t(lang, 'mrNote')}</p>}
       </fieldset>
 
       <section className="space-y-3 rounded-2xl bg-white p-4 shadow-sm">

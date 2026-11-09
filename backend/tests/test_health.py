@@ -110,3 +110,20 @@ def test_dev_pitch_only_in_debug(monkeypatch, tmp_path):
     monkeypatch.setattr(st, "debug_save_audio", True)
     assert c.get("/api/dev/pitch/hi_hinglish").status_code == 200
     assert c.get("/api/dev/pitch/ta_tamil_english").status_code == 404
+
+
+def test_held_back_case_not_served(monkeypatch, tmp_path):
+    """Marathi was saved from a live run but has known wrong cards: kept in the repo, not in the showcase."""
+    monkeypatch.setattr(get_settings(), "demo_dir", tmp_path)
+    for slug in ("hi_hinglish", "mr_marathi"):
+        d = tmp_path / "cache" / slug
+        d.mkdir(parents=True)
+        meta = {"source": "live", "lang": slug[:2], "slug": slug, "live_run_at": "2026-11-09T09:27+00:00"}
+        (d / "report.json").write_text(json.dumps({"id": "x", "lang": slug[:2], "claims": [], "demo": meta}), encoding="utf-8")
+        (d / "summary.wav").write_bytes(b"RIFF0000WAVE")
+    c = TestClient(app)
+    assert [d["slug"] for d in c.get("/api/demo").json()] == ["hi_hinglish"]
+    for path in ("", "/slip", "/audio/summary.wav"):
+        assert c.get(f"/api/demo/mr_marathi{path}").status_code == 404
+    assert c.get("/api/demo/hi_hinglish/audio/summary.wav").status_code == 200
+    assert c.get("/api/demo/hi_hinglish/audio/..%2Freport.json").status_code == 404   # no path traversal

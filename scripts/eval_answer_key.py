@@ -48,12 +48,63 @@ def match(expected: list[dict], predicted: list) -> list[tuple[dict, object | No
     return pairs
 
 
+class _Saved:
+    """A saved claim (dict from the results JSON) with attribute access, so match() can re-pair it."""
+    def __init__(self, d: dict):
+        self.__dict__.update(d)
+
+
+def extra_metrics(key: dict, report: dict) -> tuple[dict, list[str]]:
+    """Per-language accuracy, and for correct WRITTEN/CONTRADICTED verdicts whether the cited clause is the
+    answer key's clause. Recomputed from the saved claims, so it is reproducible without the model."""
+    by_slug = {p["slug"]: p for p in key["pitches"]}
+    langs: dict[str, list[int]] = {}
+    clause_ok = clause_n = 0
+    wrong_clause = []
+    for rp in report["pitches"]:
+        kp = by_slug[rp["slug"]]
+        pairs = match(kp["promises"], [_Saved(c) for c in rp["claims"]])
+        lang = kp["lang"] + (" (held-out)" if kp.get("eval_only") else "")
+        got = langs.setdefault(lang, [0, 0])
+        for e, c in pairs:
+            ok = c is not None and c.verdict == e["expected_verdict"]
+            got[0] += ok
+            got[1] += 1
+            if ok and c.verdict in ("WRITTEN", "CONTRADICTED") and e.get("expected_clause_id"):
+                clause_n += 1
+                if c.clause_id == e["expected_clause_id"]:
+                    clause_ok += 1
+                else:
+                    wrong_clause.append(f"{rp['slug']} {e['id']}: cited {c.clause_id}, key {e['expected_clause_id']}")
+    m = {"by_language": {k: {"correct": v[0], "total": v[1]} for k, v in langs.items()},
+         "clause_match": {"correct": clause_ok, "total": clause_n, "mismatches": wrong_clause}}
+    md = ["", "| Language | Correct |", "| --- | --- |"]
+    md += [f"| {k} | {v[0]}/{v[1]} |" for k, v in langs.items()]
+    md += ["", f"Cited clause = answer key's clause, for correct *Written* / *Different on paper* verdicts: "
+           f"**{clause_ok}/{clause_n}**" + (f" (other clause: {'; '.join(wrong_clause)})" if wrong_clause else "") + "."]
+    return m, md
+
+
+def rescore(path: Path) -> None:
+    key = json.loads((ROOT / "demo/answer_key.json").read_text(encoding="utf-8"))
+    report = json.loads(path.read_text(encoding="utf-8"))
+    m, md = extra_metrics(key, report)
+    total = sum(v["total"] for v in m["by_language"].values())
+    correct = sum(v["correct"] for v in m["by_language"].values())
+    print(f"{path.name}: {correct}/{total} correct")
+    print("\n".join(md))
+
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only")
     ap.add_argument("--rules", action="store_true")
     ap.add_argument("--from-audio", action="store_true")
+    ap.add_argument("--rescore", type=Path, help="recompute the language/clause tables from a saved results JSON")
     a = ap.parse_args()
+    if a.rescore:
+        rescore(a.rescore)
+        return
     engine = RULES_LABEL if a.rules else engine_info()["label"]
     out_name = ("eval_rules" if a.rules else "eval_results") + ("_stt" if a.from_audio else "")
     db.init_db()
@@ -120,7 +171,8 @@ async def main() -> None:
         print(f"\n[{d['pitch']} {d['id']}] expected {d['expected']} got {d['got']}\n  said: {d['quote_got']}\n"
               f"  clause {d['clause_got']}: {d['clause_quote']}\n  reason: {d['reason']}")
 
-    report.update(engine=engine, confusion=confusion, metrics=metrics, disagreements=disagreements)
+    extra, extra_md = extra_metrics(key, report)
+    report.update(engine=engine, confusion=confusion, metrics=metrics, disagreements=disagreements, **extra)
     (ROOT / f"demo/{out_name}.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     md = ["# Answer-key evaluation", "", f"Run: {report['created']}. "
           f"fictional CIS. Engine: {engine}. Input: "
@@ -133,6 +185,7 @@ async def main() -> None:
     md += [f"| {e} | " + " | ".join(str(confusion[e][c]) for c in VERDICTS + ["MISSED"]) + " |" for e in VERDICTS]
     md += ["", "| Verdict | Precision | Recall |", "| --- | --- | --- |"]
     md += [f"| {v} | {metrics[v]['precision']} | {metrics[v]['recall']} |" for v in VERDICTS]
+    md += extra_md
     (ROOT / f"demo/{out_name}.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print(f"\nwrote demo/{out_name}.json and demo/{out_name}.md")
 

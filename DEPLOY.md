@@ -1,7 +1,12 @@
 # Deploying LikhKeDo
 
-Backend: Render (Docker web service). Frontend: Vercel (static Vite build). Evon: your rented GPU (see the
-build playbook, Phase 2). Keys go only into the Render dashboard, never into the repo.
+Backend: Render (Docker web service). Frontend: Vercel (static Vite build). Evon: optional (Kaggle 4-bit GGUF,
+see EVON_FREE.md); the public site works without it by serving the saved cases. Keys go only into the Render
+dashboard, never into the repo.
+
+**Status (9 Nov): not deployed yet.** No production URL exists; the URLs below are placeholders. The Docker image
+has not been built locally (Docker is not installed on the build machine), so the first Render build is also the
+first Docker build.
 
 ## 1. Backend on Render
 
@@ -15,13 +20,14 @@ build playbook, Phase 2). Keys go only into the Render dashboard, never into the
    | Key | Value |
    | --- | --- |
    | `GNANI_API_KEY` | from app.gnani.ai |
-   | `EVON_BASE_URL` | `https://<gpu-host>:8000/v1` (or leave unset while the GPU is off) |
-   | `EVON_API_KEY` | the key you passed to `vllm serve --api-key` |
+   | `EVON_BASE_URL` | the tunnel URL ending in `/v1` while Evon runs; leave unset when it is off |
+   | `EVON_API_KEY` | the same value as the Kaggle secret `EVON_API_KEY` (or `vllm serve --api-key`) |
    | `EVON_MODEL` | `gnani/gnani-evon-v3.3-30B-A3B` (preset) |
    | `EVON_PROVIDER` | `vllm` (BF16 on a GPU), `llamacpp` (free Kaggle 4-bit GGUF, set `EVON_MODEL=evon`, see EVON_FREE.md) or `none` |
-   | `EVON_QUANT` / `EVON_LABEL` | optional: `Q4_K_M`; label override shown on reports |
-   | `FRONTEND_ORIGIN` | your Vercel URL, e.g. `https://likhkedo.vercel.app` (comma-separate several) |
-   | `DEMO_ONLY` | `true` when the GPU is off, `false` when Evon is running |
+   | `EVON_QUANT` / `EVON_LABEL` | optional: e.g. `IQ4_XS`; label override shown on reports |
+   | `FRONTEND_ORIGIN` | your exact Vercel production URL, `https://<your-project>.vercel.app` (comma-separate several) |
+   | `DEMO_ONLY` | `true` for the public site (saved cases; live checks answer 503 with a link to them), `false` while Evon is running |
+   | `ANALYSES_PER_HOUR` / `RECALLS_PER_HOUR` / `LISTENS_PER_HOUR` | optional, defaults 3 / 20 / 6 per visitor |
    | `ADMIN_SECRET` | `python -c "import secrets;print(secrets.token_urlsafe(24))"` |
    | `DATA_DIR` | `/tmp/likhkedo` (preset) |
 
@@ -47,8 +53,8 @@ Notes
 | # | Check | Expected |
 | --- | --- | --- |
 | 1 | `GET /api/health` | `{"ok":true, "gnani":"ok", "evon":"ok" or "down", "queue":0, "demo_only":…}` |
-| 2 | Site → **See a demo** → Hindi | report with 6 cards; banner says live run (or preview) |
-| 3 | Recall: hold the button, say one promise, submit | transcript appears (spends 1 Prisma call) |
+| 2 | Site → **See a demo** | Hindi and Tamil only (Marathi is held back); report opens with the badge *Saved from a live check*; summary audio plays; slip opens |
+| 3 | Recall: hold the button, say one promise, submit; then type a line in *Or type what was said* | transcript appears (1 Prisma call); typed line is added |
 | 4 | Document → sample Bharosa Life → Check | progress "Checking promise i of n", then the report (needs Evon; with `DEMO_ONLY=true` you get the demo message instead) |
 | 5 | Listen: tick consent, Start, speak, Stop | captions within 1–2 s of each pause; "guaranteed" lights a chip |
 | 6 | Report → **Play summary** | Tarika voice plays (spends Timbre credits once; cached after) |
@@ -59,4 +65,10 @@ Notes
 ## 4. When the GPU is off
 
 Set `DEMO_ONLY=true` on Render. `/analyze` then returns 503 with a pointer to the demo case, and the UI
-offers **Open the demo case**. Turn it back to `false` when Evon is up again.
+offers **Open the demo case** and the clearly labelled *Rules check — no AI model*. A failed live check never
+turns into a result that looks like a live one. Turn it back to `false` when Evon is up again.
+
+## 5. After deploying: verify the real URLs
+
+Open both in a private window: `https://<service>.onrender.com/api/health` and the Vercel URL. Check the saved
+cases, audio and slip, and the browser console for CORS or mixed-content errors. Only then call it deployed.

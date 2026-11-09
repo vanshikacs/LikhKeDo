@@ -182,5 +182,5 @@ def run_rules(transcript: str, clauses: list[Clause], lang_code: str) -> Pipelin
     summary = localtext.fallback_summary(lang.code, [(r.verdict, r.category) for r in results])
     trace = {"engine": {"provider": "none", "label": LABEL, "quant": None, "model": None, "mode": "B"},
              "evon_model": None, "evon_calls": [], "pipeline_ms": int((time.perf_counter() - t0) * 1000),
-             "claims": len(results)}
+             "claims": len(results), "summary_source": "fixed", "fixed_text": True}
     return PipelineResult(claims=results, summary=summary, trace=trace)

@@ -47,6 +47,8 @@ class Settings(BaseSettings):
     # Seeded demo cases (demo/cache/<slug>/report.json) and the demo CIS PDF.
     demo_dir: Path = REPO_ROOT / "demo"
     analyses_per_hour: int = 3
+    recalls_per_hour: int = 20         # recall clips per visitor (each is one Prisma call)
+    listens_per_hour: int = 6          # live listening sessions per visitor (Prisma streaming)
 
     @property
     def evon_display_label(self) -> str:

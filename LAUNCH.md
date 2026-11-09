@@ -22,23 +22,28 @@ Honesty rule for the video (from the project doc): if a verdict is wrong in the 
 
 Before recording: open `http://localhost:5173/?record=1` once (phone-width column, cards highlight as they appear). Speak into the laptop mic from ~30 cm. If you play the pitch from speakers instead, use `/dev/listen` → *Start + play pitch audio* (echo cancellation off).
 
-## 2. The 2–3 minute demo (matches the app as built)
+## 2. The 2–3 minute demo (only verified scenarios)
 
-Pitch: `demo/pitches/hi_hinglish.txt`, read live by the teammate playing the RM. The fictional insurer is Bharosa Life.
+Everything below was checked against the saved data in `demo/cache/hi_hinglish/report.json` and
+`demo/cache/ta_tamil_english/report.json`. The reveal uses the **saved** cases (badge *Saved from a live check*), so
+it works without Kaggle; say that aloud. Open `http://localhost:5173/?record=1`.
 
-| Time | Scene | On screen / audio | What it proves |
+| Time | Scene | On screen / what to say | What it proves |
 |---|---|---|---|
-| 0:00–0:15 | Hook | Text over a bank-desk shot: "Papa went to renew an FD. He came back with a 10-year insurance plan." Then: 26,667 mis-selling complaints last year (IRDAI FY25) | the problem |
-| 0:15–0:30 | Setup | Papa opens LikhKeDo, picks हिंदी, ticks consent, taps **Start**. Tarika (Timbre) says in Hindi that the conversation is being noted | consent · Timbre v3.0 |
-| 0:30–1:15 | The pitch, live | RM reads the pitch. Hindi captions appear line by line; chips light up: **guaranteed**, **pakka**, **sirf N saal** | Prisma v3.0 streaming, codemix keeps "returns guaranteed", "premium" readable |
-| 1:15–1:30 | Check | Tap **Next → sample Bharosa Life document → Check**. Progress: "Checking all 6 promises…" | the pipeline runs |
-| 1:30–2:05 | The reveal | Badge **A · Live check · Evon v3.3 …** (say the engine label aloud). Cards: **Different on paper** "returns guaranteed, 12%" vs "Returns are not guaranteed…4% and 8%"; **Different on paper** "only 5 years premium" vs "Premium paying term: 10 years"; **Written** ₹10 lakh cover; **Written** 30-day return (free look); **Not in writing — ask** "loan at 0% interest" and "better than FD" — say: *it refuses to guess* | both quotes side by side, grounded |
-| 2:05–2:20 | Voice | Tap **सुनिए**: Tarika reads the summary slowly in Hindi | Timbre v3.0 `<slow>` `<pauses>` |
-| 2:20–2:35 | Action | **Likh Ke Do slip** (unwritten promises, signature line), then **Already bought? 30-day free look** | a concrete next step |
-| 2:35–2:50 | Proof | Open **Under the hood**: Prisma request ids + detected language, Evon calls (model, thinking off, seconds), Timbre voice + latency. Overlay: "6 promises checked in __ s" (**real number from this take**) | genuine Gnani use |
-| 2:50–3:00 | Close | Quick flash of the Tamil saved case (badge C). "Jo bola, kya woh likha hai? LikhKeDo." | regional language |
+| 0:00–0:15 | Hook | "Papa went to renew an FD. He came back with a 10-year insurance plan." 26,667 mis-selling complaints in FY25 (IRDAI) | the problem |
+| 0:15–0:45 | Live captions | Home → हिंदी → consent → **Start listening**. A teammate reads `demo/pitches/hi_hinglish.txt`. Hindi captions appear; *guaranteed*, *pakka* light up | Prisma v3.0 streaming, code-mixed (needs only Gnani) |
+| 0:45–0:55 | No mic? | Show **Recall → Or type what was said** for two seconds | works for anyone |
+| 0:55–1:45 | The result | Home → **See a demo** → Hindi. Say: "This was saved from a live check with Evon v3.3, a community 4-bit build." Cards: **Different on paper** — "returns guaranteed… बारह percent" vs "Returns are not guaranteed. The illustrated rates of 4% and 8%…" (page 2). **Different on paper** — "सिर्फ पाँच साल premium" vs "…premium paying term of 10 years" (page 1). **Written** — "दस लाख का life cover" vs "Sum assured on death: Rs 10,00,000" (page 1). **Not in writing** — "शून्य percent interest" loan: "the document has no loan clause, so it says *ask*, it doesn't guess." | grounded verdicts with both quotes |
+| 1:45–1:55 | Honest label | Point at the grey line under a card: "The verdict and clause are Evon's; this sentence is a standard one, because the 4-bit build garbled Hindi." | transparency |
+| 1:55–2:10 | Voice | Tap **सुनिए**: Tarika reads the summary | Timbre v3.0 |
+| 2:10–2:25 | Action | **Likh Ke Do slip** (print view), then **30-day free look** | a concrete next step |
+| 2:25–2:40 | Proof | **Under the hood**: Prisma request ids, Evon calls (⚡ thinking off), Timbre. "6 promises checked in 17 s" (Hindi case `pipeline_ms` = 17,023) | real Gnani calls |
+| 2:40–3:00 | Tamil + close | **See a demo** → Tamil: **Written** "முப்பது நாளுக்குள்ளே… திருப்பி கொடுக்கலாம்" vs "Free-look period… within 30 days" (page 3), and ₹10 lakh **Written**. "On a 30-promise test it scored 20/30 and never wrongly said Written. Jo bola, kya woh likha hai? LikhKeDo." | regional language, honest score |
 
-Say once, plainly: "Evon here is a community 4-bit build of Gnani's Evon v3.3, running on free GPUs" (if that's what ran). Don't claim money saved.
+Do **not** scroll onto these Hindi cards as successes: "पहले कुछ नहीं देना" (rejected by the grounding check: you may show it as
+the safety net) and "returns कर सकते हैं" (the free-look promise, extracted badly). Do not show Marathi.
+
+If you run a **live** Evon check on camera instead, keep whatever comes out (verdicts vary run to run) and say so.
 
 ## 3. The 60-second cut (Demo Day Drop)
 
@@ -97,7 +102,21 @@ If the full BF16 Evon ran instead, replace the dash clause with nothing. If no E
 >
 > Built on @[Gnani's X handle] Prisma + Evon + Timbre 👇 #GnaniAI #GreatIndianAIInternshipChallenge
 
-## 6. Submission checklist (10 Nov, by 18:00 IST)
+## 6. Judge questions and truthful answers
+
+| Question | Answer |
+|---|---|
+| Is this really Evon? | Yes: Gnani's Evon v3.3 30B-A3B weights, as a community 4-bit GGUF (IQ4_XS) on llama.cpp on two free Kaggle T4s. Every report names the engine. We did not run Gnani's BF16 build (no GPU budget). |
+| Why are the explanations standard sentences? | The 4-bit file dropped tokens in Hindi even at temperature 0, so its free text was garbled or unsupported by the clause. Evon still picks each promise, verdict and clause; the sentence is labelled as standard on screen. With BF16 on vLLM the code uses the model's explanations. |
+| How accurate is it? | 20/30 on our answer key (written before any model run, unchanged), no wrong *Written*, cited clause right in 13/15 correct verdicts. Small, synthetic test set: it shows the pipeline works, not production accuracy. |
+| What stops hallucinated clauses? | Code checks every verdict: the promise must be in the transcript, the clause quote in the cited clause (fuzzy ≥ 90), the clause on the same topic (BM25), and every number of a *Written* verdict in the clause. Failures become *Not in writing — ask*. |
+| Isn't "not in writing" the same as "false"? | No. It means the document doesn't say it, so ask for it in writing. We never say the seller lied. |
+| Why Marathi isn't shown? | Its live run had two wrong *Different on paper* cards. It is documented in the README and the app warns when Marathi is selected. |
+| What about privacy? | No accounts or personal IDs; raw audio is never written to disk; case data, cached transcripts and audio are deleted after 24 h or on *Delete my data*; logs carry request ids, not text. |
+| Why a saved case in the demo? | The free GPU session is not always on. Saved cases are real live runs, labelled with their date and engine; a live check never silently turns into a saved one. |
+| What would you do next? | Run BF16 Evon on the same answer key, grow a native-reviewed test set with real CIS layouts, add OCR. |
+
+## 7. Submission checklist (10 Nov, by 18:00 IST)
 
 - [ ] LinkedIn post live by 12:00 IST 9 Nov, tagging Gnani AI's page, both hashtags, video attached
 - [ ] X post live, tagging Gnani's handle, both hashtags
