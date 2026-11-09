@@ -27,7 +27,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="LikhKeDo", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in settings.frontend_origin.split(",") if o.strip()],
+    # browsers send the origin without a trailing slash; tolerate "https://x.vercel.app/" in the setting
+    allow_origins=[o.strip().rstrip("/") for o in settings.frontend_origin.split(",") if o.strip()],
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type"],
     expose_headers=["X-Timbre-Model", "X-Cached"],

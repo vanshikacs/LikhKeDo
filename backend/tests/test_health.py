@@ -127,3 +127,23 @@ def test_held_back_case_not_served(monkeypatch, tmp_path):
         assert c.get(f"/api/demo/mr_marathi{path}").status_code == 404
     assert c.get("/api/demo/hi_hinglish/audio/summary.wav").status_code == 200
     assert c.get("/api/demo/hi_hinglish/audio/..%2Freport.json").status_code == 404   # no path traversal
+
+
+def test_cors_origin_with_trailing_slash():
+    """Seen on the first Render deploy: FRONTEND_ORIGIN="https://x.vercel.app/" blocked every browser call."""
+    import importlib
+    import os
+    from app import main
+    os.environ["FRONTEND_ORIGIN"] = "https://likh-ke-do.vercel.app/ , http://localhost:5173"
+    get_settings.cache_clear()
+    try:
+        m = importlib.reload(main)
+        c = TestClient(m.app)
+        ok = c.get("/api/health", headers={"Origin": "https://likh-ke-do.vercel.app"})
+        assert ok.headers.get("access-control-allow-origin") == "https://likh-ke-do.vercel.app"
+        bad = c.get("/api/health", headers={"Origin": "https://evil.example"})
+        assert "access-control-allow-origin" not in bad.headers
+    finally:
+        os.environ.pop("FRONTEND_ORIGIN", None)
+        get_settings.cache_clear()
+        importlib.reload(main)
