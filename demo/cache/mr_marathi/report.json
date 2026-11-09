@@ -1,0 +1,366 @@
+{
+  "id": "bef66e36f5764876885993203ed61299",
+  "lang": "mr",
+  "mode": "recall",
+  "status": "done",
+  "error": null,
+  "product_label": "Bharosa Life · Suraksha Plus Guaranteed Wealth Plan",
+  "created_at": "2026-11-09T09:27:37.071394+00:00",
+  "expires_at": "2026-11-10T09:27:37.071394+00:00",
+  "summary": "<slow> 5 पैकी 5 गोष्टी कागदावर वेगळ्या आहेत किंवा लिहिलेल्या नाहीत। <pauses> सर्वात महत्त्वाचे: परताव्याचे आश्वासन। <pauses> सही करण्यापूर्वी हे लेखी मागा।",
+  "engine": {
+    "provider": "llamacpp",
+    "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+    "quant": "IQ4_XS",
+    "model": "evon",
+    "mode": "A"
+  },
+  "counts": {
+    "WRITTEN": 0,
+    "CONTRADICTED": 4,
+    "NOT_IN_WRITING": 1
+  },
+  "clauses": 19,
+  "transcript": [
+    {
+      "idx": 0,
+      "text": "नमस्कार काका, मी Bharosa Life मधून आलो आहे, याच branch मध्ये असतो. तुमची FD पुढच्या आठवड्यात mature होतेय ना, म्हणून तुम्हाला एक छान plan सांगतो: Suraksha Plus. Guaranteed wealth plan. यात returns guaranteed आहेत. दरवर्षी minimum बारा percent मिळणार. तुम्हाला फक्त पाच वर्ष premium भरायचा आहे. त्यानंतर काहीच भरायचं नाही, शिवाय दहा लाखांचं life cover पण मिळतं. घरच्यांसाठी पूर्ण security, पैशांची गरज लागली तर कधीही loan घेऊ शकता, तेही शून्य percent interestवर. खरं सांगतो काका, हे FD पेक्षा नक्कीच better आहे आणि policy मिळाल्यापासून... तीस दिवसात आवडली नाही तर तुम्ही परत करू शकता. खूप लोकांनी घेतलाय, इथे फक्त sign करा. बाकी सगळं मी बघतो.",
+      "source": "rest",
+      "lang": null
+    }
+  ],
+  "claims": [
+    {
+      "id": "5c7336e86e",
+      "quote": "returns guaranteed आहेत. दरवर्षी minimum बारा percent मिळणार",
+      "claim_en": "Returns are guaranteed with minimum twelve percent every year.",
+      "category": "returns",
+      "numbers": [
+        "12%"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p2-s2",
+      "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a future investment performance.",
+      "clause_page": 2,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+      "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "67c064e27c",
+      "quote": "फक्त पाच वर्ष premium भरायचा आहे",
+      "claim_en": "You have to pay premium for only five years.",
+      "category": "premium_term",
+      "numbers": [
+        "5 years"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p1-s5",
+      "clause_quote": "Premium paying term: 10 years. Premiums are payable every year for the full premium paying term of 10 years.",
+      "clause_page": 1,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+      "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "dd636ce810",
+      "quote": "दहा लाखांचं life cover पण मिळतं",
+      "claim_en": "You also get a life cover of ten lakh.",
+      "category": "cover",
+      "numbers": [
+        "10 lakh"
+      ],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "We could not find this in the document. Ask for it in writing.",
+      "explain_local": "हे दस्तऐवजात सापडले नाही. हे लेखी मागा.",
+      "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "52cf46fabf",
+      "quote": "कधीही loan घेऊ शकता, तेही शून्य percent interestवर",
+      "claim_en": "You can take loan anytime, at zero percent interest.",
+      "category": "liquidity",
+      "numbers": [
+        "0%"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p2-s2",
+      "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+      "clause_page": 2,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+      "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "b718a0d591",
+      "quote": "policy मिळाल्यापासून... तीस दिवसात आवडली नाही तर तुम्ही परत करू शकता",
+      "claim_en": "You can return it within thirty days if you don't like it.",
+      "category": "cover",
+      "numbers": [
+        "30 days"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p3-s3",
+      "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms. The premium is refunded after deducting stamp duty and the cost of cover for the period.",
+      "clause_page": 3,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तऐवजात काहीतरी वेगळे लिहिले आहे.",
+      "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+      "grounded": true,
+      "reason": null
+    }
+  ],
+  "trace": {
+    "prisma_model": "prisma-v3.0",
+    "prisma": [
+      {
+        "request_id": "lkd-194bda527d744a90",
+        "mode": "rest",
+        "status": null,
+        "error_code": null,
+        "latency_ms": null,
+        "cached": true,
+        "lang": null
+      }
+    ],
+    "evon_model": "evon",
+    "evon_calls": [
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 4577,
+        "tokens": 249,
+        "request_id": "chatcmpl-pBzZOyklzivPedTyp3D9j79Qg0u2QE7x"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 9253,
+        "tokens": 594,
+        "request_id": "chatcmpl-bJ1mH00DyXFGi6bm9OJwPzTuJ5LVBv5q"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 8121,
+        "tokens": 582,
+        "request_id": "chatcmpl-nBh1IZ0YT8NVVMIzRBAQL404eVMGkdSU"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 4151,
+        "tokens": 185,
+        "request_id": "chatcmpl-CwWQdYZlwa7xtpxAyukcM7XtEU3OHrhv"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 4298,
+        "tokens": 190,
+        "request_id": "chatcmpl-ERIx1n7KLsbCHSsWzpzaCBjiZb27Xwcy"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 3564,
+        "tokens": 136,
+        "request_id": "chatcmpl-LsXgbEEOBGLfm3zidxQILVzpLBxNcNJz"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 6070,
+        "tokens": 276,
+        "request_id": "chatcmpl-7Iiv2BQIiUrpUYiB8Tqa5gqtO9xPd3U0"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 5374,
+        "tokens": 278,
+        "request_id": "chatcmpl-QpJG32AEKeHaVMOJzYY0uScxgMo7x3qU"
+      }
+    ],
+    "pipeline_ms": 45599,
+    "summary_source": "fixed",
+    "timbre": [
+      {
+        "target": "summary",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-474ef65683b741a8"
+        ],
+        "cached": false,
+        "latency_ms": 4553
+      },
+      {
+        "target": "5c7336e86e",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-8e35ca02d0bb4853"
+        ],
+        "cached": false,
+        "latency_ms": 2191
+      },
+      {
+        "target": "67c064e27c",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 1
+      },
+      {
+        "target": "dd636ce810",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-6c3f8fa4d4bf4ada"
+        ],
+        "cached": false,
+        "latency_ms": 3151
+      },
+      {
+        "target": "52cf46fabf",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 0
+      },
+      {
+        "target": "b718a0d591",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 0
+      }
+    ],
+    "calls": [
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-pBzZOyklzivPedTyp3D9j79Qg0u2QE7x",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4577
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-bJ1mH00DyXFGi6bm9OJwPzTuJ5LVBv5q",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 9253
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-nBh1IZ0YT8NVVMIzRBAQL404eVMGkdSU",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 8121
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-CwWQdYZlwa7xtpxAyukcM7XtEU3OHrhv",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4151
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-ERIx1n7KLsbCHSsWzpzaCBjiZb27Xwcy",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4298
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-LsXgbEEOBGLfm3zidxQILVzpLBxNcNJz",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 3564
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-7Iiv2BQIiUrpUYiB8Tqa5gqtO9xPd3U0",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 6070
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-QpJG32AEKeHaVMOJzYY0uScxgMo7x3qU",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 5374
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-474ef65683b741a8",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4343
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-8e35ca02d0bb4853",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 1975
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-6c3f8fa4d4bf4ada",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 2942
+      }
+    ]
+  },
+  "disclaimer": "हा आर्थिक किंवा कायदेशीर सल्ला नाही.",
+  "audio": {
+    "summary": "summary.wav",
+    "5c7336e86e": "5c7336e86e.wav",
+    "67c064e27c": "67c064e27c.wav",
+    "dd636ce810": "dd636ce810.wav",
+    "52cf46fabf": "52cf46fabf.wav",
+    "b718a0d591": "b718a0d591.wav"
+  },
+  "demo": {
+    "slug": "mr_marathi",
+    "lang": "mr",
+    "title": "Marathi pitch",
+    "source": "live",
+    "live_run_at": "2026-11-09T09:28+00:00",
+    "created": "2026-11-09T09:28+00:00",
+    "evon_model": "evon",
+    "provider": "llamacpp",
+    "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+    "quant": "IQ4_XS",
+    "prisma_request_ids": [
+      "lkd-194bda527d744a90"
+    ]
+  }
+}

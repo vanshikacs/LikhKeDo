@@ -173,6 +173,12 @@ def test_llamacpp_batches_verification_without_thinking(monkeypatch):
     assert all(r["extra_body"]["chat_template_kwargs"]["enable_thinking"] is False for r in fake.requests)
     assert res.trace["engine"]["label"] == "Evon v3.3 · community 4-bit GGUF (llama.cpp)"
     assert res.trace["engine"]["mode"] == "A" and all(c["provider"] == "llamacpp" for c in res.trace["evon_calls"])
+    # 4-bit build: fixed sentences for explanation, question and summary (verdicts and clauses still from Evon)
+    from app import localtext
+    assert all(r.explain_local == localtext.EXPLAIN["hi"][r.verdict] and r.ask_agent == localtext.ASK["hi"]
+               for r in res.claims)
+    assert res.trace["summary_source"] == "fixed" and not any(k.startswith("Write") or k.startswith("You speak")
+                                                              for k in kinds)
 
 
 def test_llamacpp_missing_batch_item_is_not_in_writing(monkeypatch):

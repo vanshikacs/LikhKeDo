@@ -1,0 +1,312 @@
+{
+  "id": "082494b207364e7bbf76a11fedebf2db",
+  "lang": "hi",
+  "mode": "recall",
+  "status": "done",
+  "error": null,
+  "product_label": "Bharosa Life · Suraksha Plus Guaranteed Wealth Plan",
+  "created_at": "2026-11-09T09:26:31.389490+00:00",
+  "expires_at": "2026-11-10T09:26:31.389490+00:00",
+  "summary": "<slow> 6 में से 5 बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: रिटर्न का वादा। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
+  "engine": {
+    "provider": "llamacpp",
+    "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+    "quant": "IQ4_XS",
+    "model": "evon",
+    "mode": "A"
+  },
+  "counts": {
+    "WRITTEN": 1,
+    "CONTRADICTED": 2,
+    "NOT_IN_WRITING": 3
+  },
+  "clauses": 19,
+  "transcript": [
+    {
+      "idx": 0,
+      "text": "नमस्ते sir, कैसे हैं आप? मैं Bharosa Life से हूँ, इसी branch में बैठता हूँ sir। आपकी FD अगले हफ्ते mature हो रही है ना, तो मैंने सोचा आपको एक बहुत अच्छा plan बता दूँ। Suraksha Plus Guaranteed Wealth Plan, देखिए सर इसमें returns guaranteed हैं। हर साल minimum बारह percent मिलेगा, और आपको सिर्फ पाँच साल premium भरना है, उसके बाद कुछ नहीं देना। साथ में दस लाख का life cover भी मिलता है, family के लिए पूरी security रहेगी। अगर कभी पैसों की जरूरत पड़े, तो आप कभी भी loan ले सकते हैं, वो भी शून्य percent interest पर। सच पूछूं तो, sir? यह FD से तो पक्का better है। आजकल FD में मिलता ही क्या है? कोई tension मत लीजिए, policy मिलने के तीस दिन के अंदर पसंद नहीं आई तो आप returns कर सकते हैं। बहुत लोग ले चुके हैं सर, आपके पड़ोसी भी, बस यहाँ साइन कर दीजिए, बाकी formalities मैं देख लूँगा।",
+      "source": "rest",
+      "lang": null
+    }
+  ],
+  "claims": [
+    {
+      "id": "74c968a292",
+      "quote": "इसमें returns guaranteed हैं। हर साल minimum बारह percent मिलेगा",
+      "claim_en": "The plan guarantees minimum returns of twelve percent every year.",
+      "category": "returns",
+      "numbers": [
+        "12%"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p2-s2",
+      "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+      "clause_page": 2,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तावेज़ में कुछ अलग लिखा है।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "566abbf220",
+      "quote": "सिर्फ पाँच साल premium भरना है",
+      "claim_en": "Premium has to be paid for only five years.",
+      "category": "premium_term",
+      "numbers": [
+        "5 years"
+      ],
+      "verdict": "CONTRADICTED",
+      "clause_id": "p1-s5",
+      "clause_quote": "Premiums are payable every year for the full premium paying term of 10 years.",
+      "clause_page": 1,
+      "explain_en": "The document says something different.",
+      "explain_local": "दस्तावेज़ में कुछ अलग लिखा है।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "383949759d",
+      "quote": "पहले कुछ नहीं देना",
+      "claim_en": "After five years, nothing more has to be paid.",
+      "category": "policy_term",
+      "numbers": [
+        "nothing"
+      ],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "We could not find this in the document. Ask for it in writing.",
+      "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": false,
+      "reason": "quote_not_in_transcript"
+    },
+    {
+      "id": "44a2dabcc9",
+      "quote": "दस लाख का life cover भी मिलता है",
+      "claim_en": "Ten lakh life cover is also provided.",
+      "category": "cover",
+      "numbers": [
+        "10 lakh"
+      ],
+      "verdict": "WRITTEN",
+      "clause_id": "p1-s6",
+      "clause_quote": "Sum assured on death: Rs 10,00,000 (Rupees ten lakh).",
+      "clause_page": 1,
+      "explain_en": "The document says the same thing.",
+      "explain_local": "दस्तावेज़ में यही लिखा है।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": true,
+      "reason": null
+    },
+    {
+      "id": "2dfba3bcee",
+      "quote": "loan ले सकते हैं, वो भी शून्य percent interest पर",
+      "claim_en": "Loan can be taken at zero percent interest.",
+      "category": "liquidity",
+      "numbers": [
+        "0%"
+      ],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "We could not find this in the document. Ask for it in writing.",
+      "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": false,
+      "reason": "clause_off_topic"
+    },
+    {
+      "id": "26938110d0",
+      "quote": "returns कर सकते हैं",
+      "claim_en": "Returns can be returned.",
+      "category": "policy_term",
+      "numbers": [
+        "nothing"
+      ],
+      "verdict": "NOT_IN_WRITING",
+      "clause_id": null,
+      "clause_quote": null,
+      "clause_page": null,
+      "explain_en": "We could not find this in the document. Ask for it in writing.",
+      "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+      "ask_agent": "क्या आप यह वादा लिखित में देंगे?",
+      "grounded": true,
+      "reason": null
+    }
+  ],
+  "trace": {
+    "prisma_model": "prisma-v3.0",
+    "prisma": [
+      {
+        "request_id": "lkd-8b5b007d15494e4b",
+        "mode": "rest",
+        "status": null,
+        "error_code": null,
+        "latency_ms": null,
+        "cached": true,
+        "lang": null
+      }
+    ],
+    "evon_model": "evon",
+    "evon_calls": [
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 4483,
+        "tokens": 268,
+        "request_id": "chatcmpl-MZkevGg5xmJnHHOkQ7cmCQY66SEylxyK"
+      },
+      {
+        "model": "evon",
+        "provider": "llamacpp",
+        "thinking": false,
+        "latency_ms": 12120,
+        "tokens": 784,
+        "request_id": "chatcmpl-3v3N1IJMcKFVmvqw8SLqLxfDA7nkJaGV"
+      }
+    ],
+    "pipeline_ms": 17023,
+    "summary_source": "fixed",
+    "timbre": [
+      {
+        "target": "summary",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-943a9fed5ace4c48"
+        ],
+        "cached": false,
+        "latency_ms": 4223
+      },
+      {
+        "target": "74c968a292",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-e112cb1190fe4368"
+        ],
+        "cached": false,
+        "latency_ms": 3265
+      },
+      {
+        "target": "566abbf220",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 2
+      },
+      {
+        "target": "383949759d",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-5d6682531ac84a7f"
+        ],
+        "cached": false,
+        "latency_ms": 2428
+      },
+      {
+        "target": "44a2dabcc9",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [
+          "lkd-b04d81741fc04b03"
+        ],
+        "cached": false,
+        "latency_ms": 1646
+      },
+      {
+        "target": "2dfba3bcee",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 1
+      },
+      {
+        "target": "26938110d0",
+        "model": "timbre-v3.0",
+        "voice": "Tarika",
+        "request_ids": [],
+        "cached": true,
+        "latency_ms": 1
+      }
+    ],
+    "calls": [
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-MZkevGg5xmJnHHOkQ7cmCQY66SEylxyK",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4483
+      },
+      {
+        "service": "evon",
+        "request_id": "chatcmpl-3v3N1IJMcKFVmvqw8SLqLxfDA7nkJaGV",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 12120
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-943a9fed5ace4c48",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 4001
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-e112cb1190fe4368",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 3048
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-5d6682531ac84a7f",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 2213
+      },
+      {
+        "service": "timbre",
+        "request_id": "lkd-b04d81741fc04b03",
+        "status": 200,
+        "error_code": null,
+        "latency_ms": 1411
+      }
+    ]
+  },
+  "disclaimer": "यह वित्तीय या कानूनी सलाह नहीं है।",
+  "audio": {
+    "summary": "summary.wav",
+    "74c968a292": "74c968a292.wav",
+    "566abbf220": "566abbf220.wav",
+    "383949759d": "383949759d.wav",
+    "44a2dabcc9": "44a2dabcc9.wav",
+    "2dfba3bcee": "2dfba3bcee.wav",
+    "26938110d0": "26938110d0.wav"
+  },
+  "demo": {
+    "slug": "hi_hinglish",
+    "lang": "hi",
+    "title": "Hindi / Hinglish pitch",
+    "source": "live",
+    "live_run_at": "2026-11-09T09:27+00:00",
+    "created": "2026-11-09T09:27+00:00",
+    "evon_model": "evon",
+    "provider": "llamacpp",
+    "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+    "quant": "IQ4_XS",
+    "prisma_request_ids": [
+      "lkd-8b5b007d15494e4b"
+    ]
+  }
+}

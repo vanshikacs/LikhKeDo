@@ -83,11 +83,11 @@ Measured on 7 Nov 2026 with `scripts/smoke_timbre.py`, `smoke_prisma.py`, `concu
 | Does an open stream block Timbre? | **No**: Timbre returned 200 in 0.94 s while a stream was open, so streams don't hold GnaniGate (`STREAM_HOLDS_LOCK=false`) |
 | Request ids | Gnani echoes our `X-API-Request-ID` as `request_id`, so the ids in **Under the hood** match Gnani's logs |
 | Credits per Prisma call / per Timbre call | _check the balance on app.gnani.ai before and after a call_ |
-| Evon latency: extraction / one verification | _pending (GPU)_ |
+| Evon latency (community 4-bit GGUF IQ4_XS, 2× Kaggle T4, via Cloudflare tunnel, 9 Nov) | 3–5 s per call; 17–65 s for a whole 6-promise pitch (one batched verification call) |
 
 ## Accuracy
 
-`scripts/eval_answer_key.py` runs the pipeline on three fictional pitches (Hindi/Hinglish, Tamil+English, Marathi; 6 promises each: 2 written, 2 contradicted, 2 not in writing) against the fictional CIS and writes [demo/eval_results.md](demo/eval_results.md). _Not run yet against the live Evon; numbers will be reported as they come out._
+`scripts/eval_answer_key.py` runs the pipeline on three fictional pitches (Hindi/Hinglish, Tamil+English, Marathi; 6 promises each: 2 written, 2 contradicted, 2 not in writing) against the fictional CIS and writes [demo/eval_results.md](demo/eval_results.md).
 
 The answer key now has **30 labelled promises** in 5 pitches. Two of them (`hi_hinglish_2`, `en_english`: 12 promises on lock-in, bonus, charges, premium amount, surrender, claims) were written *after* the rules check, with their expected verdicts fixed before any run, so they are a held-out test.
 
@@ -97,7 +97,9 @@ The answer key now has **30 labelled promises** in 5 pitches. Two of them (`hi_h
 | After one post-hoc safety fix (an illustrated rate is never *Written*) | 18/18 | 2/12, no wrong *Written* or *Different on paper* |
 | On Prisma v3.0 transcripts of the Timbre audio | 15/18 | 1/12 (English numbers come back as words) |
 
-So keyword rules don't generalise: they are a labelled fallback that errs towards "ask for it in writing", not a substitute for Evon. Files: [demo/eval_rules.md](demo/eval_rules.md), [demo/eval_rules_stt.md](demo/eval_rules_stt.md), [demo/eval_rules_heldout_before_fix.md](demo/eval_rules_heldout_before_fix.md). Mode A (Evon) numbers: not run yet (no Evon access).
+So keyword rules don't generalise: they are a labelled fallback that errs towards "ask for it in writing", not a substitute for Evon. Files: [demo/eval_rules.md](demo/eval_rules.md), [demo/eval_rules_stt.md](demo/eval_rules_stt.md), [demo/eval_rules_heldout_before_fix.md](demo/eval_rules_heldout_before_fix.md).
+
+**Mode A, Evon v3.3 · community 4-bit GGUF (IQ4_XS on llama.cpp), 9 Nov, pitch text, all 30 promises:** 19/30 on the first run; **20/30** after the fixes from that run, with **no wrong *Written*** (precision 1.0; recall 0.6), *Different on paper* precision and recall 0.82 ([demo/eval_results_iq4xs.md](demo/eval_results_iq4xs.md)). Results vary between runs (temperature 0.6). This 4-bit file drops tokens in Hindi even at temperature 0, so on this engine the cards show fixed sentences for the explanation, the question and the spoken summary; Evon still extracts the promises and picks each verdict and clause. Gnani's full BF16 Evon was not run (no GPU budget). Details: [EVON_FREE.md](EVON_FREE.md).
 
 ## Noise robustness
 
@@ -112,12 +114,22 @@ v3.0 holds steady from clean audio down to 5 dB babble and telephone-band audio.
 
 Live captions, end to end: `scripts/stream_pitch_test.py` streams each pitch through our WebSocket proxy to Prisma at real time, exactly like the browser. Caption similarity to the script: Hindi 96%, Tamil 92%, Marathi 94%, with the red flags firing. One Tamil run was closed by Prisma with code 1012 (service restart); the proxy now reconnects transparently on 1006/1011/1012/1013.
 
+## Demo cases
+
+Saved on 9 Nov from one live run each (Prisma REST on the Timbre pitch audio → Evon 4-bit GGUF → Timbre), served at `/api/demo` with the badge *Saved from a live check*. Compared with the answer key:
+
+| Case | Right | Wrong or missed |
+| --- | --- | --- |
+| Hindi / Hinglish | returns guaranteed → *Different on paper*; 5-year premium → *Different on paper*; ₹10 lakh cover → *Written*; 0% loan → *Not in writing* | 30-day free look extracted as a fragment ("returns कर सकते हैं") → *Not in writing*; "better than FD" not extracted; one misquoted promise rejected by the grounding check |
+| Tamil + English | returns → *Different on paper*; ₹10 lakh cover → *Written*; 30-day free look → *Written*; loan → *Not in writing* | 5-year premium → *Not in writing* (Evon altered the quote, so the grounding check rejected it); "better than FD" not extracted |
+| Marathi | returns and 5-year premium → *Different on paper* | loan and 30-day free look wrongly *Different on paper* (cited the returns clause / the free-look clause); cover → *Not in writing*; "better than FD" not extracted |
+
 ## Honest limitations
 
 - The demo policy, insurer ("Bharosa Life Insurance Ltd (FICTIONAL)") and recordings are synthetic. Real CIS documents vary; scanned PDFs are rejected (no OCR).
-- Evon runs only while a GPU session is up (free: the community 4-bit GGUF on Kaggle T4s, quality loss unmeasured; paid: BF16 on vLLM). The rest of the time the public site serves cases saved from a live run and says so (`DEMO_ONLY=true`).
+- Evon runs only while a GPU session is up (free: the community 4-bit GGUF on Kaggle T4s; the IQ4_XS file we ran garbles some Hindi words, so its free text is replaced by fixed sentences; paid: BF16 on vLLM, not run). The rest of the time the public site serves cases saved from a live run and says so (`DEMO_ONLY=true`).
 - Code-mixed speech recognition can mishear numbers ("baarah" vs "barah"); the grounding check prefers *Not in writing — ask* over a wrong red card, so errors fall on the cautious side.
-- The answer key is small (18 promises); it shows the pipeline works, not production accuracy.
+- The answer key is small (30 promises); it shows the pipeline works, not production accuracy. The saved demo cases are single live runs and include mistakes (see *Demo cases* below).
 - Hindi, Marathi and Tamil UI strings were drafted by us and need native review.
 - The demo CIS is in English, so the *document* quote on each card stays in English even in a Hindi, Marathi or Tamil report (it must be the exact words of the document). Everything else on the card is in the buyer's language; the model's English paraphrase sits behind a "Show English" toggle.
 - Live Listen mode records nothing to disk, but everyone present should still know the conversation is being noted.

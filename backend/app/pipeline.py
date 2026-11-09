@@ -22,6 +22,9 @@ log = logging.getLogger("likhkedo.pipeline")
 MATCH_MIN = 90
 VERIFY_CONCURRENCY = 4
 SCRIPT_MIN = 0.5
+# Engines whose free text (explanations, questions, summary) is replaced by the fixed localtext sentences.
+# Evon still extracts the promises and picks each verdict and clause. Measured on 9 Nov with the IQ4_XS GGUF.
+FIXED_TEXT_PROVIDERS = {"llamacpp"}
 
 # ---------- progress bus (in memory, per case) ----------
 
@@ -179,7 +182,12 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
                         ask_agent=v.ask_agent if v else "")
         if clause is not None and verdict != "NOT_IN_WRITING":
             r.clause_id, r.clause_quote, r.clause_page = clause.id, v.clause_quote, clause.page
-        if verdict != (v.verdict if v else None):
+        fixed_text = evon.provider in FIXED_TEXT_PROVIDERS
+        if fixed_text:
+            # 4-bit GGUF: its free text was unreliable (garbled words, explanations the clause doesn't support,
+            # "questions" that were statements), so the card shows the fixed sentences next to the two exact quotes
+            r.ask_agent = ""
+        if verdict != (v.verdict if v else None) or fixed_text:
             # never show the model's explanation of a verdict the grounding check overrode
             r.explain_en = localtext.EXPLAIN["en"][verdict]
             r.explain_local = localtext.EXPLAIN[lang.code][verdict]
@@ -257,6 +265,8 @@ async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang,
     """Returns (text, source): source "evon", or "fixed" for the fixed sentence built from the verdicts."""
     if not results:
         return localtext.NO_PROMISES[lang.code], "fixed"
+    if evon.provider in FIXED_TEXT_PROVIDERS:
+        return localtext.fallback_summary(lang.code, [(r.verdict, r.category) for r in results]), "fixed"
     # verdict + category only: the summary must not echo English claim text
     payload = [{"verdict": r.verdict, "category": r.category} for r in results]
     for _ in range(2):

@@ -15,7 +15,7 @@ Insurance mis-selling happens in spoken words. An agent says "returns guaranteed
 ## Models and APIs used
 
 - **Gnani Prisma v3.0** — streaming speech-to-text for live listening and REST for recalled promises; code-mixed output with finance keyterms.
-- **Gnani Evon v3.3 (30B-A3B)** — self-hosted; extracts promises and verifies them against the policy clauses. Gnani's BF16 weights on vLLM (reasoning on for verification), or, on our ₹0 budget, the community 4-bit GGUF on llama.cpp on free Kaggle T4s, labelled "Evon v3.3 · community 4-bit GGUF (llama.cpp)" on every report.
+- **Gnani Evon v3.3 (30B-A3B)** — self-hosted; extracts promises and verifies them against the policy clauses. Gnani's BF16 weights on vLLM (reasoning on for verification), or, on our ₹0 budget, the community 4-bit GGUF on llama.cpp on free Kaggle T4s, labelled "Evon v3.3 · community 4-bit GGUF (llama.cpp)" on every report. With that 4-bit build, which garbles some Hindi words, Evon picks the promises, verdicts and clauses, and the explanation, question and spoken summary are fixed sentences.
 - **Gnani Timbre v3.0** — Tarika voice reads the verdict slowly, with pauses, in the buyer's language.
 - Supporting: FastAPI, SQLite, pdfplumber, BM25, rapidfuzz (grounding check), React + Vite + Tailwind.
 
