@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -49,6 +49,15 @@ class Settings(BaseSettings):
     analyses_per_hour: int = 3
     recalls_per_hour: int = 20         # recall clips per visitor (each is one Prisma call)
     listens_per_hour: int = 6          # live listening sessions per visitor (Prisma streaming)
+
+    @field_validator("gnani_api_key", "evon_api_key", "admin_secret", "evon_base_url", mode="before")
+    @classmethod
+    def _strip(cls, v):
+        """A key pasted into a hosting dashboard often carries a trailing newline or space. In an HTTP header that is
+        illegal, so httpx refuses to send it (LocalProtocolError) and every Gnani call fails."""
+        if isinstance(v, SecretStr):
+            v = v.get_secret_value()
+        return v.strip() if isinstance(v, str) else v
 
     @property
     def evon_display_label(self) -> str:

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 7.x launchers (no adaptive icons): rounded blue square + the same page. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#1D4ED8" android:pathData="M30,12 H78 Q96,12 96,30 V78 Q96,96 78,96 H30 Q12,96 12,78 V30 Q12,12 30,12 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M39,30 H59 L69,40 V72 Q69,76 65,76 H39 Q35,76 35,72 V34 Q35,30 39,30 Z" />
+    <path android:fillColor="#BFDBFE" android:pathData="M59,30 V37 Q59,40 62,40 H69 Z" />
+    <path android:fillColor="#93C5FD" android:pathData="M40,46h20v3h-20z M40,53h24v3h-24z M40,60h13v3h-13z" />
+    <path android:fillColor="#16A34A" android:strokeColor="#FFFFFF" android:strokeWidth="2.5"
+        android:pathData="M55,70 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="2.8"
+        android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M60.5,70.5 l4,4 l7,-8" />
+</vector>

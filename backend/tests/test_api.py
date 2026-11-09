@@ -262,3 +262,13 @@ def test_demo_only_public_site(client, monkeypatch):
     assert r.status_code == 503 and r.json()["detail"]["reason"] == "demo_only"
     assert client.get(f"/api/cases/{cid}/report").json()["status"] == "new"
     assert client.post(f"/api/cases/{cid}/analyze?engine=rules").json()["engine"] == "rules"
+
+
+def test_keys_pasted_with_whitespace_are_stripped(monkeypatch):
+    # Render: a key pasted with a trailing newline made every Gnani call fail with httpx LocalProtocolError.
+    from app.config import Settings
+    monkeypatch.setenv("GNANI_API_KEY", "  abc123\n")
+    monkeypatch.setenv("EVON_BASE_URL", "https://x.trycloudflare.com/v1 \n")
+    s = Settings(_env_file=None)
+    assert s.gnani_api_key.get_secret_value() == "abc123"
+    assert s.evon_base_url == "https://x.trycloudflare.com/v1"

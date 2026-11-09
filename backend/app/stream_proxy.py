@@ -155,7 +155,7 @@ async def proxy(ws: WebSocket, case_id: str) -> None:
                     await _send(ws, {"type": "error", "code": error_code,
                                      "message": gnani.GnaniError(error_code).friendly})
                     return
-                except (OSError, asyncio.TimeoutError) as e:
+                except Exception as e:  # network, timeout, or a malformed header (e.g. a key with a newline)
                     error_code = "CONNECT_FAILED"
                     log.warning("prisma stream connect failed: %s", e.__class__.__name__)
                     await _send(ws, {"type": "error", "code": error_code,

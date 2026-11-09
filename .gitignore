@@ -26,3 +26,7 @@ out_client.wav
 
 demo/noise/*.wav
 frontend/worklet_out_*.wav
+
+# android build output (the signed APK is ../LikhKeDo.apk)
+android/build/
+*.apk.idsig

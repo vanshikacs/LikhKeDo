@@ -4,6 +4,8 @@
 
 Built for the Gnani AI Great Indian AI Internship Challenge on Gnani's stack: Prisma (speech-to-text), Evon (reasoning, self-hosted) and Timbre (text-to-speech). Demo data is fictional. **Not financial or legal advice.**
 
+**Try it:** [likh-ke-do.vercel.app](https://likh-ke-do.vercel.app) · Android app: [LikhKeDo.apk](https://github.com/vanshikacs/LikhKeDo/raw/main/LikhKeDo.apk) ([details](android/README.md))
+
 ## The problem
 
 Mis-selling is the single largest category of life-insurance complaints in India. IRDAI recorded **26,667 "unfair business practice" grievances against life insurers in FY25, up about 14%**, or 22% of all life-insurance complaints ([Outlook Money, reporting the IRDAI annual report](https://www.outlookmoney.com/personal-finance/insurance-claims-mis-selling-account-for-most-insurance-complaints-in-fy25-reveals-irdai-annual-report)). The pattern is familiar: "bilkul FD jaisa", "returns guaranteed", "sirf paanch saal premium". The promise is spoken; the 40-page English document says something else; the buyer, often older, signs anyway.
