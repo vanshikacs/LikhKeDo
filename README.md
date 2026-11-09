@@ -4,6 +4,8 @@
 
 Built for the Gnani AI Great Indian AI Internship Challenge on Gnani's stack: Prisma (speech-to-text), Evon (reasoning, self-hosted) and Timbre (text-to-speech). Demo data is fictional. **Not financial or legal advice.**
 
+**Solution pitch (1 page):** [LikhKeDo_Solution_Pitch.pdf](LikhKeDo_Solution_Pitch.pdf) · **Demo video:** [Google Drive](https://drive.google.com/file/d/1Vqq8F3QxL4IrpMzwWsv_9mKK5YpC1n4Q/view)
+
 **Try it:** [likh-ke-do.vercel.app](https://likh-ke-do.vercel.app) · Android app: [LikhKeDo.apk](https://github.com/vanshikacs/LikhKeDo/raw/main/LikhKeDo.apk) ([details](android/README.md))
 
 ## The problem
