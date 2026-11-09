@@ -1,0 +1,1053 @@
+{
+  "pitches": [
+    {
+      "slug": "hi_hinglish",
+      "correct": 3,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 31.4,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "इसमें returns guaranteed हैं, हर साल minimum 12 percent मिलेगा",
+          "claim_en": "The plan guarantees minimum returns of 12% every year.",
+          "category": "returns",
+          "numbers": [
+            "12%"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+          "clause_page": 2,
+          "explain_en": "The document states returns are not guaranteed, but the spoken promise says guaranteed minimum returns of 12% every year.",
+          "explain_local": "यहाँ दस्तावेज़ में कहा गया है कि रिटर्न गारंटीड नहीं हैं, लेकिन बोली में कहा गया है कि हर साल 12% की गारंटीड न्यूनतम रिटर्न मिलेंगी।",
+          "ask_agent": "क्या आप इस बात को लिखित में दे सकते हैं कि रिटर्न हर साल 12% गारंटीड रहेंगे?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 1,
+          "quote": "सिर्फ़ 5 साल premium भरना है, उसके बाद कुछ नहीं देना",
+          "claim_en": "Premium has to be paid for only 5 years, after which nothing is due.",
+          "category": "premium_term",
+          "numbers": [
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p4-s1",
+          "clause_quote": "Charge Amount Premium allocation charge 5% of premium in years 1 to 3 Policy administration charge Rs 600 per year Mortality charge As per the age of the life assured, deducted monthly Fund management charge 1.35% p.a. of fund value",
+          "clause_page": 4,
+          "explain_en": "The document states that premium allocation charge is 5% of premium in years 1 to 3, which contradicts the spoken promise that only 5 years premium is to be paid.",
+          "explain_local": "दस्तावेज़ में कहा गया है कि पहले 3 सालों में प्रीमियम एलोकेशन चार्ज 5% है, जो कि 5 साल तक प्रीमियम भरने के वादे से विरोध करता है।",
+          "ask_agent": "क्या आप लिखित रूप में पुष्टि कर सकते हैं कि प्रीमियम केवल 5 साल तक ही देना है, और पहले 3 सालों में 5% एलोकेशन चार्ज नहीं लगेगा?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 2,
+          "quote": "10 लाख का life cover भी मिलता है",
+          "claim_en": "The plan offers a life cover of 10 lakh.",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The promise about 10 lakh life cover is mentioned in the document, but it does not guarantee it; the document says the cover is payable upon death, not a guaranteed return.",
+          "explain_local": "दस्तावेज में 10 लाख का life cover होने का उल्लेख है, लेकिन यह गारंटी नहीं है। यह मृत्यु होने पर ही भुगतान किया जाएगा।",
+          "ask_agent": "क्या आप इस 10 लाख के life cover के बारे में लिखित में बता सकते हैं कि यह गारंटी है या नहीं?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 3,
+          "quote": "loan ले सकते हैं, वो भी 0 percent interest पर",
+          "claim_en": "Loan can be taken at 0% interest.",
+          "category": "liquidity",
+          "numbers": [
+            "0%"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+          "clause_page": 2,
+          "explain_en": "The spoken promise says loan at 0% interest is available, but the document states returns are not guaranteed and depend on investment performance.",
+          "explain_local": "स्पोकन वादा कहता है कि 0% ब्याज पर लोन मिल सकता है, लेकिन दस्तावेज़ में कहा गया है कि रिटर्न्स गारंटीड नहीं हैं और निवेश प्रदर्शन पर निर्भर करते हैं।",
+          "ask_agent": "क्या यह योजना में 0% ब्याज पर लोन की सुविधा है? कृपया लिखित में बताएँ।",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 4,
+          "quote": "30 दिन के अंदर पसंद नहीं आई तो आप return कर सकते हैं",
+          "claim_en": "The policy can be returned within 30 days if not liked.",
+          "category": "other",
+          "numbers": [],
+          "verdict": "WRITTEN",
+          "clause_id": "p3-s3",
+          "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms. The premium is refunded after deducting stamp duty and the cost of cover for the period.",
+          "clause_page": 3,
+          "explain_en": "The document states the policy can be returned within 30 days if not liked, same as the promise.",
+          "explain_local": "दस्तावेज़ में कहा गया है कि पॉलिसी को 30 दिन के अंदर वापसी की जा सकती है यदि शर्तों से असहमत हों, जो कि वादा से मेल खाता है।",
+          "ask_agent": "क्या इस पॉलिसी को 30 दिन के अंदर वापसी की जा सकती है, इसकी लिखित पुष्टि दी जा सकती है?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        }
+      ],
+      "summary": "<slow> 5 में से 4 बातें काग़ज़ पर अलग हैं या लिखी नहीं हैं। <pauses> सबसे ज़रूरी: रिटर्न का वादा। <pauses> साइन करने से पहले इसे लिखित में माँगिए।",
+      "trace": {
+        "engine": {
+          "provider": "llamacpp",
+          "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+          "quant": "IQ4_XS",
+          "model": "evon",
+          "mode": "A"
+        },
+        "evon_model": "evon",
+        "evon_calls": [
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 5009,
+            "tokens": 264,
+            "request_id": "chatcmpl-afhwDXXyYX0evAaZn3RxBpb0y4meO3AY"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4541,
+            "tokens": 196,
+            "request_id": "chatcmpl-jHy2dBxzB1uYXNlplPYBBEQmmah0MBiQ"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 6168,
+            "tokens": 318,
+            "request_id": "chatcmpl-4DeU1IfzcKHe83KC0oxNufZTli8uHNjK"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 2407,
+            "tokens": 152,
+            "request_id": "chatcmpl-HYe9vx1xx5OB7iXy0hyzarwbwbHQaI5b"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4406,
+            "tokens": 207,
+            "request_id": "chatcmpl-1fIPkZ5fvAGjrTjME7EhIcr8ZBDCid36"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4332,
+            "tokens": 189,
+            "request_id": "chatcmpl-OSN0ldFi6hPYRTytiHDlzhwzxvb5HZkK"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 2215,
+            "tokens": 90,
+            "request_id": "chatcmpl-pHGUNMNsMYMBgQjRwJwH2mr0KYT5Y8hK"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1729,
+            "tokens": 82,
+            "request_id": "chatcmpl-6VLCFyjvHv96RAWf3O68WkOyDuzFpy4g"
+          }
+        ],
+        "pipeline_ms": 31400,
+        "claims": 5
+      }
+    },
+    {
+      "slug": "ta_tamil_english",
+      "correct": 4,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 33.6,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "returns guaranteed மேடம், ஒவ்வொரு வருஷமும் minimum 12 percent கிடைக்கும்",
+          "claim_en": "The plan guarantees minimum 12% returns every year.",
+          "category": "returns",
+          "numbers": [
+            "12%"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+          "clause_page": 2,
+          "explain_en": "The document clearly states returns are not guaranteed, contradicting the promise of guaranteed minimum 12% returns every year.",
+          "explain_local": "வருடத்திற்கு குறைந்தது 12% வருமானம் கிடைக்கும் என்று வாக்குறுதி அளிக்கிறது. ஆனால் ஆவணம் வருமானம் உத்தரவாதம் இல்லை என்று தெளிவாக கூறுகிறது.",
+          "ask_agent": "வருடத்திற்கு குறைந்தது 12% வருமானம் உத்தரவாதம் உள்ளதா என்று எழுத்துப்பூர்வமாக கொடுங்கள்.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 1,
+          "quote": "5 வருஷம் மட்டும் premium கட்டினா போதும், அதுக்கு அப்புறம் எதுவும் கட்ட வேண்டாம்",
+          "claim_en": "You have to pay premium only for 5 years, after that no more payments.",
+          "category": "premium_term",
+          "numbers": [
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p4-s1",
+          "clause_quote": "Charge Amount Premium allocation charge 5% of premium in years 1 to 3 Policy administration charge Rs 600 per year Mortality charge As per the age of the life assured, deducted monthly Fund management charge 1.35% p.a. of fund value",
+          "clause_page": 4,
+          "explain_en": "The document lists charges deducted from the fund, not a fixed 5-year premium payment guarantee. The promise of paying premium only for 5 years is not mentioned; instead, the premium paying term is 10 years.",
+          "explain_local": "ஆவணத்தில் 5 ஆண்டுகளுக்கு மட்டும் பிரீமியம் கட்ட வேண்டும் என்று கூறவில்லை. அதற்கு பதிலாக பிரீமியம் செலுத்தும் காலம் 10 ஆண்டுகள் என குறிப்பிடப்பட்டுள்ளது. மேலும், பிரீமியத்தில் இருந்து பிடித்தம் செய்யப்படும் கட்டணங்கள் பற்றி குறிப்பிடப்பட்டுள்ளது.",
+          "ask_agent": "இந்த பாலிசியில் பிரீமியம் கட்ட வேண்டிய காலம் எவ்வளவு ஆண்டுகள் என்று எழுத்துப்பூர்வமாக தெளிவுபடுத்துங்கள்.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 2,
+          "quote": "10 லட்சம் life cover இருக்கு, family-க்கு முழு safety",
+          "claim_en": "There is a life cover of 10 lakh, giving full safety to family.",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "இது ஆவணத்தில் கிடைக்கவில்லை. இதை எழுத்தில் கேளுங்கள்.",
+          "ask_agent": "நீங்கள் 10 லட்சம் உயிர் காப்பீடு உறுதி என்று கூறியதை ஆவணத்தில் எங்கே குறிப்பிடப்பட்டுள்ளது என்று காட்ட முடியுமா? அதை எழுத்துப்பூர்வமாக தர முடியுமா?",
+          "grounded": false,
+          "reason": "clause_off_topic",
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 3,
+          "quote": "0 percent interest-ல",
+          "claim_en": "Loan can be taken at 0% interest.",
+          "category": "liquidity",
+          "numbers": [
+            "0%"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The promise of 0% interest loan is not mentioned in the document. The document discusses surrender charges, lock-in period, and other terms but does not address loan interest rates.",
+          "explain_local": "ஆவணத்தில் 0% வட்டி கடன் பற்றி குறிப்பிடப்படவில்லை. சரண்டர் கட்டணங்கள், லாக்-இன் காலம் போன்றவை பற்றி உள்ளது.",
+          "ask_agent": "உங்களுக்கு 0% வட்டி கடன் பற்றிய விவரங்கள் ஏதேனும் உள்ளதா? அதை எழுத்துப்பூர்வமாக கொடுங்கள்.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 4,
+          "quote": "Policy கிடைச்சு 30 நாளுக்குள்ள பிடிக்கலைன்னா நீங்க திருப்பிக் கொடுக்கலாம்",
+          "claim_en": "If you don't like it within 30 days of getting the policy, you can return it.",
+          "category": "other",
+          "numbers": [
+            "30 days"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p3-s3",
+          "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms. The premium is refunded after deducting stamp duty and the cost of cover for the period.",
+          "clause_page": 3,
+          "explain_en": "The document explicitly allows returning the policy within 30 days if you disagree with its terms, with premium refund after deductions, matching the spoken promise.",
+          "explain_local": "ஆவணத்தில் 30 நாளுக்குள் பிடிக்கலைன்னா திருப்பிக் கொடுக்கலாம் என்று தெளிவாக சொல்லப்பட்டிருக்கிறது.",
+          "ask_agent": "நீங்கள் 30 நாளுக்குள் பிடிக்கலைன்னா திருப்பிக் கொடுக்கலாம் என்று ஆவணத்தில் இருக்கிறதா, அதில் என்னென்ன கழித்து பணம் திருப்பித் தரப்படும் என்று எழுத்துப்பூர்வமாக கொடுங்கள்.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        }
+      ],
+      "summary": "<slow> 5 வாக்குறுதிகளில் 4 ஆவணத்தில் வேறாக உள்ளன அல்லது எழுதப்படவில்லை. <pauses> முக்கியமானது: வருமானம் பற்றிய வாக்குறுதி. <pauses> கையெழுத்திடும் முன் இதை எழுத்தில் கேளுங்கள்.",
+      "trace": {
+        "engine": {
+          "provider": "llamacpp",
+          "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+          "quant": "IQ4_XS",
+          "model": "evon",
+          "mode": "A"
+        },
+        "evon_model": "evon",
+        "evon_calls": [
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4673,
+            "tokens": 279,
+            "request_id": "chatcmpl-SB8zUK1KXmNB0WahxCv96Q0H4wj4DFf1"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 5328,
+            "tokens": 180,
+            "request_id": "chatcmpl-IzmI9l1j4qH36w2KL52yNr0TCdlVHXzD"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 5222,
+            "tokens": 229,
+            "request_id": "chatcmpl-3f6GCPCKiDSZtzz98t4cwcrKufdSvvN1"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4607,
+            "tokens": 214,
+            "request_id": "chatcmpl-apveEeGMFCclVZfaJXxVkyLhcVP1LHyv"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 3370,
+            "tokens": 128,
+            "request_id": "chatcmpl-RTvxJDQoJUy2KndKx3CnEd5KmgCmW76C"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4228,
+            "tokens": 184,
+            "request_id": "chatcmpl-JDVyKBWBLCDBnjrkPONA1hp4kQoPoQ6p"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 2075,
+            "tokens": 110,
+            "request_id": "chatcmpl-JBXjeOF7nhWix7rZ0p1MsFgMJUAi2Z4P"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 2024,
+            "tokens": 114,
+            "request_id": "chatcmpl-HTqDnIyshI30OArOw5djuPqzQQWIJmB9"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1825,
+            "tokens": 104,
+            "request_id": "chatcmpl-gTHcy7Fbx5I7AQ20rnBo0hb2Fxn5MZIx"
+          }
+        ],
+        "pipeline_ms": 33553,
+        "claims": 5
+      }
+    },
+    {
+      "slug": "mr_marathi",
+      "correct": 3,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 32.1,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "returns guaranteed आहेत, दर वर्षी minimum 12 percent मिळणार",
+          "claim_en": "Returns are guaranteed with a minimum of 12 percent every year.",
+          "category": "returns",
+          "numbers": [
+            "12%"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+          "clause_page": 2,
+          "explain_en": "The document says returns are not guaranteed, but the promise claims guaranteed minimum 12% every year.",
+          "explain_local": "या पॉलिसीवर परतावा निश्चित नाही. चित्रित 4% आणि 8% दर हे वरचे किंवा खालचे मर्यादेत नाहीत.",
+          "ask_agent": "तुमचा वार्षिक परतावा 12% निश्चित आहे का, हे लेखी द्या.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 1,
+          "quote": "5 वर्षं premium भरायचा आहे, त्यानंतर काहीच भरायचं नाही",
+          "claim_en": "You have to pay premium for only 5 years, then nothing.",
+          "category": "premium_term",
+          "numbers": [
+            "5 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p1-s5",
+          "clause_quote": "Premium paying term: 10 years. Premiums are payable every year for the full premium paying term of 10 years.",
+          "clause_page": 1,
+          "explain_en": "The document states premiums must be paid for 10 years, but the promise claims only 5 years.",
+          "explain_local": "हा कागदपत्र १० वर्षं प्रीमियम भरणं सांगतो, पण वचन ५ वर्षं सांगतो.",
+          "ask_agent": "कृपया कागदपत्रात ५ वर्षं प्रीमियम भरण्याचं स्पष्ट विधान लिहून द्या.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 2,
+          "quote": "10 लाखांचं life cover पण मिळतं",
+          "claim_en": "Life cover of 10 lakh also gets.",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The promise of 10 lakh cover is mentioned in the document, but it does not state that the cover is guaranteed or assured; instead it says the sum assured is Rs 10,00,000 and is payable if death occurs, which is a standard feature, not a special promise. The document does not explicitly say the cover is guaranteed, so the promise is not contradicted but also not directly confirmed as a guarantee.",
+          "explain_local": "दस्तऐवजात 10 लाखांचं कव्हर म्हटलं आहे, पण ते गारंटी आहे असं स्पष्ट नाही. फक्त मृत्यू झाल्यास नॉमिनीला 10,00,000 रुपये मिळतील असं आहे. हे सामान्य फीचर आहे, विशेष गारंटी नाही.",
+          "ask_agent": "तुम्ही लेखीमध्ये 10 लाखांचं कव्हर निश्चित किंवा गारंटी आहे का ते स्पष्ट करू शकाल?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 3,
+          "quote": "loan घेऊ शकता, तेही 0 percent interest वर",
+          "claim_en": "Loan can be taken at 0 percent interest.",
+          "category": "liquidity",
+          "numbers": [
+            "0%"
+          ],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The spoken promise of 0% interest loan is not addressed in the document; the document only discusses surrender charges, lock-in, returns, and charges.",
+          "explain_local": "हा दस्तऐवज 0% व्याजाचे कर्ज देण्याबाबत उल्लेख करत नाही; त्यात फक्त सरेंडर शुल्क, लॉक-इन कालावधी आणि शुल्कांची माहिती आहे.",
+          "ask_agent": "कृपया लेखी स्वरूपात 0% व्याजाचे कर्ज देण्याबाबतचे आश्वासन स्पष्ट करा.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 4,
+          "quote": "policy मिळाल्यापासून 30 दिवसांत आवडली नाही तर तुम्ही परत करू शकता",
+          "claim_en": "Policy can be returned within 30 days if not liked.",
+          "category": "other",
+          "numbers": [
+            "30 days"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p3-s3",
+          "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms. The premium is refunded after deducting stamp duty and the cost of cover for the period.",
+          "clause_page": 3,
+          "explain_en": "The spoken promise says return within 30 days if not liked, but the document's free-look clause allows return only if disagreeing with terms, not just not liking, and deducts costs.",
+          "explain_local": "स्पोकन वचनात ३० दिवसांत परत करणे सांगितले आहे जर आवडले नाही, पण दस्तऐवजात फक्त अटींशी असहमती असली तरच परत करण्याची परवानगी आहे.",
+          "ask_agent": "हे आश्वासन तुम्ही लेखी द्याल का?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        }
+      ],
+      "summary": "<slow> 5 पैकी 5 गोष्टी कागदावर वेगळ्या आहेत किंवा लिहिलेल्या नाहीत। <pauses> सर्वात महत्त्वाचे: परताव्याचे आश्वासन। <pauses> सही करण्यापूर्वी हे लेखी मागा।",
+      "trace": {
+        "engine": {
+          "provider": "llamacpp",
+          "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+          "quant": "IQ4_XS",
+          "model": "evon",
+          "mode": "A"
+        },
+        "evon_model": "evon",
+        "evon_calls": [
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4365,
+            "tokens": 257,
+            "request_id": "chatcmpl-FfH0WRcvBfClRBGcAtNgXoMArV4q6pWd"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4238,
+            "tokens": 168,
+            "request_id": "chatcmpl-Vzh9eR1DGuSBmLFiANNTFjfHPyAHOlQA"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4378,
+            "tokens": 178,
+            "request_id": "chatcmpl-YxONqXNIprkRMHkgG2HvulCvs8qp9RKj"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4536,
+            "tokens": 220,
+            "request_id": "chatcmpl-khKkpZyNUhlu654N4JNHRtFTc30HxdF8"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 3304,
+            "tokens": 128,
+            "request_id": "chatcmpl-k5MDeWRPILXWUqlvzs2drxMkauYwZ9Hc"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 5073,
+            "tokens": 265,
+            "request_id": "chatcmpl-bdhSH688eTVUc9FA32jaKHouTjTZZSyG"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 855,
+            "tokens": 21,
+            "request_id": "chatcmpl-S08jt9ctBU0FjoBKgQ53Yfr7LAsJiMPy"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 2543,
+            "tokens": 145,
+            "request_id": "chatcmpl-kHASEgoNZD4aDM7AK0BmTGKCRVYh3AXg"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1165,
+            "tokens": 61,
+            "request_id": "chatcmpl-0kg19hR9YyaxxhLf00rU9ULVZvw5PrC3"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1380,
+            "tokens": 63,
+            "request_id": "chatcmpl-Ql80Fw23jmojtKixLr99rTdXuEHDU6Sb"
+          }
+        ],
+        "pipeline_ms": 32108,
+        "claims": 5
+      }
+    },
+    {
+      "slug": "hi_hinglish_2",
+      "correct": 4,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 17.3,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "कोई lock-in नहीं है",
+          "claim_en": "There is no lock-in period.",
+          "category": "liquidity",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The document does not mention any lock-in period, so the spoken claim of no lock-in cannot be confirmed or denied.",
+          "explain_local": "डॉक्यूमेंट में लॉक-इन अवधि का कोई ज़िक्र नहीं है, तो बिना लॉक-इन का दावा नहीं देखा जा सकता।",
+          "ask_agent": "क्या आप बिना लॉक-इन की लिखित जानकारी दे सकते हैं?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 1,
+          "quote": "Policy सिर्फ़ 15 साल की है",
+          "claim_en": "The policy term is 15 years.",
+          "category": "policy_term",
+          "numbers": [
+            "15 years"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s4",
+          "clause_quote": "Policy term: 15 years from the date of commencement of the policy.",
+          "clause_page": 1,
+          "explain_en": "The document clearly states the policy term is 15 years.",
+          "explain_local": "दस्तावेज़ में पॉलिसी अवधि 15 साल बताई गई है।",
+          "ask_agent": "क्या आप 15 साल की पॉलिसी अवधि की लिखित जानकारी दे सकते हैं?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        },
+        {
+          "idx": 2,
+          "quote": "हर साल अच्छा bonus भी मिलेगा",
+          "claim_en": "Bonus will also be added every year.",
+          "category": "premium_term",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप लिखित में बोनस की गारंटी दे सकते हैं?",
+          "grounded": false,
+          "reason": "clause_off_topic",
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 3,
+          "quote": "Maturity पर जो भी पैसा मिलेगा, वो पूरा tax-free है",
+          "claim_en": "The maturity amount will be completely tax-free.",
+          "category": "tax",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "We could not find this in the document. Ask for it in writing.",
+          "explain_local": "यह दस्तावेज़ में नहीं मिला। इसे लिखित में माँगिए।",
+          "ask_agent": "क्या आप लिखित में परिपक्वता राशि टैक्स-फ्री होने की जानकारी दे सकते हैं?",
+          "grounded": false,
+          "reason": "clause_quote_not_found",
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 4,
+          "quote": "Premium बस 1 लाख रुपये साल का है",
+          "claim_en": "Premium is only 1 lakh rupees per year.",
+          "category": "premium_term",
+          "numbers": [
+            "1 lakh rupees"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s7",
+          "clause_quote": "Annualised premium: Rs 1,00,000 per year for the illustrated case of a 40-year-old life assured.",
+          "clause_page": 1,
+          "explain_en": "The document states the annual premium is Rs 1 lakh per year.",
+          "explain_local": "दस्तावेज़ में सालाना प्रीमियम 1 लाख रुपये बताया गया है।",
+          "ask_agent": "क्या आप सालाना प्रीमियम 1 लाख रुपये होने की लिखित जानकारी दे सकते हैं?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        },
+        {
+          "idx": 5,
+          "quote": "पहले साल से कोई charges नहीं कटेंगे",
+          "claim_en": "No charges will be deducted from the first year.",
+          "category": "charges",
+          "numbers": [],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p4-s1",
+          "clause_quote": "Charge Amount Premium allocation charge 5% of premium in years 1 to 3 Policy administration charge Rs 600 per year Mortality charge As per the age of the life assured, deducted monthly Fund management charge 1.35% p.a. of fund value",
+          "clause_page": 4,
+          "explain_en": "The document lists charges deducted from the fund from the first year, so no charges will not be deducted.",
+          "explain_local": "दस्तावेज़ में पहले साल से फंड से चार्ज कटने का ज़िक्र है, तो बिना चार्ज कटने का दावा गलत है।",
+          "ask_agent": "क्या आप लिखित में पहले साल से कोई चार्ज नहीं कटने की जानकारी दे सकते हैं?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        }
+      ],
+      "summary": "1 - शुल्क\nपैसे निकालने या loan का वादा; टैक्स का वादा\n<slow>पॉलिसी की अवधि; premium कितने साल भरना है",
+      "trace": {
+        "engine": {
+          "provider": "llamacpp",
+          "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+          "quant": "IQ4_XS",
+          "model": "evon",
+          "mode": "A"
+        },
+        "evon_model": "evon",
+        "evon_calls": [
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4203,
+            "tokens": 264,
+            "request_id": "chatcmpl-XdheDCN7MqK4fGMmlKv9FZu584j04jCB"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 11677,
+            "tokens": 782,
+            "request_id": "chatcmpl-GQKM9Yikoc04MG9g1CV9PR1svPhR1Yky"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1325,
+            "tokens": 41,
+            "request_id": "chatcmpl-8t0RTROuBNuhVqUtx2PZ6J3IjUX4WGaU"
+          }
+        ],
+        "pipeline_ms": 17253,
+        "claims": 6
+      }
+    },
+    {
+      "slug": "en_english",
+      "correct": 6,
+      "total": 6,
+      "extra_claims": 0,
+      "seconds": 23.5,
+      "claims": [
+        {
+          "idx": 0,
+          "quote": "Your returns are fixed at 8 percent every year, so you know exactly what you will get",
+          "claim_en": "Returns are fixed at 8% every year, so you know exactly what you will get.",
+          "category": "returns",
+          "numbers": [
+            "8%"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p2-s2",
+          "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+          "clause_page": 2,
+          "explain_en": "The document says returns are not guaranteed, but the spoken promise says returns are fixed at 8% every year.",
+          "explain_local": "ದಾಖಲೆಯಲ್ಲಿ 8% ಪ್ರತಿ ವರ್ಷಕ್ಕೆ ನಿಗದಿತ ಆದಾಯವನ್ನು ಹೇಳುವುದಿಲ್ಲ; ಆದಾಯಗಳು ಖಾತರಿಯಿಲ್ಲ ಎಂದು ಹೇಳುತ್ತದೆ.",
+          "ask_agent": "Can you provide a written guarantee that returns will be 8% every year?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 1,
+          "quote": "The sum assured is 10 lakh rupees, paid to your nominee",
+          "claim_en": "The sum assured is 10 lakh rupees, paid to your nominee.",
+          "category": "cover",
+          "numbers": [
+            "10 lakh"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s6",
+          "clause_quote": "Sum assured on death: Rs 10,00,000 (Rupees ten lakh). This amount is payable to the nominee if the life assured dies during the policy term while the policy is in force.",
+          "clause_page": 1,
+          "explain_en": "The document states the sum assured is 10 lakh rupees, paid to nominee.",
+          "explain_local": "ದಾಖಲೆಯಲ್ಲಿ 10 ಲಕ್ಷ ರೂ. ಮೊತ್ತವನ್ನು ನಾಮನಿರ್ದೇಶಿತರಿಗೆ ನೀಡುವುದಾಗಿ ಹೇಳುತ್ತದೆ.",
+          "ask_agent": "Can you confirm in writing that the sum assured is exactly 10 lakh rupees?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        },
+        {
+          "idx": 2,
+          "quote": "You can surrender anytime after 2 years without any penalty",
+          "claim_en": "You can surrender anytime after 2 years without any penalty.",
+          "category": "liquidity",
+          "numbers": [
+            "2 years"
+          ],
+          "verdict": "CONTRADICTED",
+          "clause_id": "p3-s1",
+          "clause_quote": "Lock-in period: 5 years. No surrender or partial withdrawal is allowed during the first 5 policy years.",
+          "clause_page": 3,
+          "explain_en": "The document says surrender is not allowed in the first 5 years, with surrender charges later, so surrender after 2 years without penalty is not possible.",
+          "explain_local": "ದಾಖಲೆಯಲ್ಲಿ ಮೊದಲ 5 ವರ್ಷಗಳಲ್ಲಿ ಯಾವುದೇ ರೀತಿಯ ಸರಂಡರ್ ಇಲ್ಲ ಎಂದು ಹೇಳುತ್ತದೆ, ಆದ್ದರಿಂದ 2 ವರ್ಷಗಳ ನಂತರ ಯಾವುದೇ ದಂಡವಿಲ್ಲ ಎಂಬ ಭರವಸೆ ವಿರೋಧಿಸುತ್ತದೆ.",
+          "ask_agent": "Can you provide a written confirmation that surrender is allowed after 2 years without penalty?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "CONTRADICTED"
+        },
+        {
+          "idx": 3,
+          "quote": "The policy term is 15 years, nothing hidden",
+          "claim_en": "The policy term is 15 years.",
+          "category": "policy_term",
+          "numbers": [
+            "15 years"
+          ],
+          "verdict": "WRITTEN",
+          "clause_id": "p1-s4",
+          "clause_quote": "Policy term: 15 years from the date of commencement of the policy.",
+          "clause_page": 1,
+          "explain_en": "The document states the policy term is 15 years.",
+          "explain_local": "ದಾಖಲೆಯಲ್ಲಿ ನೀತಿ ಅವಧಿಯನ್ನು 15 ವರ್ಷಗಳು ಎಂದು ಹೇಳುತ್ತದೆ.",
+          "ask_agent": "Can you provide a written confirmation that the policy term is exactly 15 years?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "WRITTEN"
+        },
+        {
+          "idx": 4,
+          "quote": "Our company has never rejected a single claim",
+          "claim_en": "The company has never rejected a single claim.",
+          "category": "cover",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The document does not mention the company's claim rejection history; only exclusions and grievance process are listed.",
+          "explain_local": "ದಾಖಲೆಯಲ್ಲಿ ಕಂಪನಿಯ ಯಾವುದೇ ಕ್ಲೈಮ್ ತಿರಸ್ಕಾರ ಇತಿಹಾಸವನ್ನು ಹೇಳುವುದಿಲ್ಲ.",
+          "ask_agent": "Can you provide a written statement that the company has never rejected a single claim?",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        },
+        {
+          "idx": 5,
+          "quote": "You will also get a free health check-up every year with this policy",
+          "claim_en": "You will get a free health check-up every year with this policy.",
+          "category": "cover",
+          "numbers": [],
+          "verdict": "NOT_IN_WRITING",
+          "clause_id": null,
+          "clause_quote": null,
+          "clause_page": null,
+          "explain_en": "The promise of a free annual health check-up is not mentioned in the document; only return, maturity, and surrender details are discussed.",
+          "explain_local": "文件中未提及每年免费健康检查，仅提及退回、到期和退保情况。",
+          "ask_agent": "Please provide in writing whether the policy includes a free annual health check-up.",
+          "grounded": true,
+          "reason": null,
+          "model_verdict": "NOT_IN_WRITING"
+        }
+      ],
+      "summary": "2 promises are different in the. The most important one is the about returns. Ask for it in writing before signing.",
+      "trace": {
+        "engine": {
+          "provider": "llamacpp",
+          "label": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+          "quant": "IQ4_XS",
+          "model": "evon",
+          "mode": "A"
+        },
+        "evon_model": "evon",
+        "evon_calls": [
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4735,
+            "tokens": 312,
+            "request_id": "chatcmpl-JqgSCLwvYnUUGGN7pm1FJGfrcMDBe8TO"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 13334,
+            "tokens": 874,
+            "request_id": "chatcmpl-fBZLA286HUoBLFQg7Xl8raPz3lvK1QJW"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 4229,
+            "tokens": 110,
+            "request_id": "chatcmpl-pm6zn5Hl2u8G4JMPQfE45TfMWutPhcwa"
+          },
+          {
+            "model": "evon",
+            "provider": "llamacpp",
+            "thinking": false,
+            "latency_ms": 1097,
+            "tokens": 29,
+            "request_id": "chatcmpl-i9Vce6ymZCXrMG3EeqsYsYNUSVitrPoN"
+          }
+        ],
+        "pipeline_ms": 23523,
+        "claims": 6
+      }
+    }
+  ],
+  "created": "2026-11-09 14:39",
+  "engine": "Evon v3.3 · community 4-bit GGUF (llama.cpp)",
+  "confusion": {
+    "WRITTEN": {
+      "WRITTEN": 6,
+      "CONTRADICTED": 1,
+      "NOT_IN_WRITING": 3,
+      "MISSED": 0
+    },
+    "CONTRADICTED": {
+      "WRITTEN": 0,
+      "CONTRADICTED": 9,
+      "NOT_IN_WRITING": 2,
+      "MISSED": 0
+    },
+    "NOT_IN_WRITING": {
+      "WRITTEN": 0,
+      "CONTRADICTED": 1,
+      "NOT_IN_WRITING": 5,
+      "MISSED": 3
+    }
+  },
+  "metrics": {
+    "WRITTEN": {
+      "precision": 1.0,
+      "recall": 0.6
+    },
+    "CONTRADICTED": {
+      "precision": 0.818,
+      "recall": 0.818
+    },
+    "NOT_IN_WRITING": {
+      "precision": 0.5,
+      "recall": 0.556
+    }
+  },
+  "disagreements": [
+    {
+      "pitch": "hi_hinglish",
+      "id": "hi-3",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "10 लाख का life cover",
+      "quote_got": "10 लाख का life cover भी मिलता है",
+      "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish",
+      "id": "hi-4",
+      "expected": "NOT_IN_WRITING",
+      "got": "CONTRADICTED",
+      "quote_expected": "कभी भी loan ले सकते हैं, वो भी 0 percent interest पर",
+      "quote_got": "loan ले सकते हैं, वो भी 0 percent interest पर",
+      "clause_expected": null,
+      "clause_got": "p2-s2",
+      "clause_quote": "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits of what you might get back, as the value of your policy depends on a number of factors including future investment performance.",
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish",
+      "id": "hi-5",
+      "expected": "NOT_IN_WRITING",
+      "got": "MISSED",
+      "quote_expected": "ये FD से तो पक्का better है",
+      "quote_got": null,
+      "clause_expected": null,
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "ta_tamil_english",
+      "id": "ta-3",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "10 லட்சம் life cover இருக்கு",
+      "quote_got": "10 லட்சம் life cover இருக்கு, family-க்கு முழு safety",
+      "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": "clause_off_topic"
+    },
+    {
+      "pitch": "ta_tamil_english",
+      "id": "ta-5",
+      "expected": "NOT_IN_WRITING",
+      "got": "MISSED",
+      "quote_expected": "இது FD-ஐ விட கண்டிப்பா better",
+      "quote_got": null,
+      "clause_expected": null,
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "mr_marathi",
+      "id": "mr-3",
+      "expected": "WRITTEN",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "10 लाखांचं life cover",
+      "quote_got": "10 लाखांचं life cover पण मिळतं",
+      "clause_expected": "p1-s6",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "mr_marathi",
+      "id": "mr-5",
+      "expected": "NOT_IN_WRITING",
+      "got": "MISSED",
+      "quote_expected": "हे FD पेक्षा नक्कीच better आहे",
+      "quote_got": null,
+      "clause_expected": null,
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "mr_marathi",
+      "id": "mr-6",
+      "expected": "WRITTEN",
+      "got": "CONTRADICTED",
+      "quote_expected": "30 दिवसांत आवडली नाही तर तुम्ही परत करू शकता",
+      "quote_got": "policy मिळाल्यापासून 30 दिवसांत आवडली नाही तर तुम्ही परत करू शकता",
+      "clause_expected": "p3-s3",
+      "clause_got": "p3-s3",
+      "clause_quote": "Free-look period: you may return the policy within 30 days from the date of receipt of the policy document if you disagree with any of its terms. The premium is refunded after deducting stamp duty and the cost of cover for the period.",
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-1",
+      "expected": "CONTRADICTED",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "इसमें कोई lock-in नहीं है, जब चाहे पैसा निकाल लीजिए",
+      "quote_got": "कोई lock-in नहीं है",
+      "clause_expected": "p3-s1",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": null
+    },
+    {
+      "pitch": "hi_hinglish_2",
+      "id": "h2-3",
+      "expected": "CONTRADICTED",
+      "got": "NOT_IN_WRITING",
+      "quote_expected": "हर साल अच्छा bonus भी मिलेगा",
+      "quote_got": "हर साल अच्छा bonus भी मिलेगा",
+      "clause_expected": "p2-s4",
+      "clause_got": null,
+      "clause_quote": null,
+      "reason": "clause_off_topic"
+    }
+  ]
+}

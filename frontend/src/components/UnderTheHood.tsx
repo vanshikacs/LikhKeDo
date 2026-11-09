@@ -86,6 +86,7 @@ export function UnderTheHood({ report, lang }: { report: Report; lang: Lang }) {
           )}
         </section>
 
+        {tr.summary_source === 'fixed' && <p className="text-slate-600">{t(lang, 'uthSummaryFixed')}</p>}
         {tr.pipeline_ms != null && <p className="text-slate-600">{t(lang, 'uthTotal', { s: (tr.pipeline_ms / 1000).toFixed(1) })}</p>}
       </div>
     </details>

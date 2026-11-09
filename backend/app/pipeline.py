@@ -13,7 +13,7 @@ from sqlmodel import select
 
 from . import db, localtext, prompts
 from .evon import EvonClient, EvonJSONError, EvonUnavailable, engine_info
-from .ingest import Clause, ClauseIndex, full_text, normalise
+from .ingest import Clause, ClauseIndex, full_text, normalise, tokenize
 from .langs import Lang, get_lang, script_ratio
 from .schemas import Extraction, ExtractedClaim, LocalText, Verification, VerificationBatch
 
@@ -96,6 +96,18 @@ class ClaimResult:
     model_verdict: str | None = None
 
 
+def on_topic(claim: ExtractedClaim, clause: Clause, clauses: list[Clause]) -> bool:
+    """The cited clause must be in the more relevant half of the document for the claim (BM25 on the English
+    claim + category). Catches real, exactly-quoted clauses about something else, seen with the 4-bit GGUF:
+    "never rejected a claim" -> WRITTEN citing the sample-document notice; "0% loan" -> CONTRADICTED citing the
+    premium term. Skipped for short documents and when there is no English claim (rules check)."""
+    query = f"{claim.claim_en} {claim.category.replace('_', ' ')}"
+    if len(clauses) < 6 or not tokenize(claim.claim_en):
+        return True
+    top = ClauseIndex(clauses).search(query, k=(len(clauses) + 1) // 2)
+    return any(c.id == clause.id for c in top)
+
+
 def ground_check(claim: ExtractedClaim, v: Verification | None, transcript: str,
                  clauses: list[Clause]) -> tuple[str, bool, str | None, Clause | None]:
     """Return (verdict, grounded, reason, clause). Failing checks downgrade to NOT_IN_WRITING."""
@@ -115,6 +127,8 @@ def ground_check(claim: ExtractedClaim, v: Verification | None, transcript: str,
         if best is None or fuzzy_in(v.clause_quote, best.text) < MATCH_MIN:
             return "NOT_IN_WRITING", False, "clause_quote_not_found", None
         clause = best
+    if not on_topic(claim, clause, clauses):
+        return "NOT_IN_WRITING", False, "clause_off_topic", clause
     if v.verdict == "WRITTEN" and claim.numbers:
         ok, why = numbers_in_clause(claim.numbers, clause.text)
         if not ok:
@@ -186,6 +200,14 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
         progress({"stage": "checking", "i": done, "n": n})
         return r
 
+    async def verify_one(c: ExtractedClaim) -> Verification | None:
+        top = index.search(c.claim_en, k=5) or index.search(c.quote, k=5)
+        try:
+            return await evon.chat_json(prompts.verify_messages(c.quote, c.claim_en, c.numbers, cis, top, lang),
+                                        True, 4096, Verification, case_id)
+        except EvonJSONError:
+            return None
+
     if evon.provider == "llamacpp" and claims:
         # one call for all claims: fits the tunnel's 100 s limit and llama-server's single slot
         progress({"stage": "checking", "i": 0, "n": n})
@@ -195,33 +217,46 @@ async def run_pipeline(transcript: str, clauses: list[Clause], lang_code: str, e
             by_id = {b.id: b for b in batch.results}
         except EvonJSONError:
             by_id = {}
-        results = [await finish(i, c, by_id.get(i)) for i, c in enumerate(claims)]
+        results = []
+        for i, c in enumerate(claims):
+            # a claim the batch left out or got wrong (invalid item) is re-checked alone once
+            v = by_id[i] if i in by_id else await verify_one(c)
+            results.append(await finish(i, c, v))
     else:
         sem = asyncio.Semaphore(VERIFY_CONCURRENCY)
 
         async def check(i: int, c: ExtractedClaim) -> ClaimResult:
             async with sem:
-                top = index.search(c.claim_en, k=5) or index.search(c.quote, k=5)
-                try:
-                    v = await evon.chat_json(prompts.verify_messages(c.quote, c.claim_en, c.numbers, cis, top, lang),
-                                             True, 4096, Verification, case_id)
-                except EvonJSONError:
-                    v = None
-                return await finish(i, c, v)
+                return await finish(i, c, await verify_one(c))
 
         results = list(await asyncio.gather(*(check(i, c) for i, c in enumerate(claims))))
     results.sort(key=lambda r: r.idx)
 
     progress({"stage": "summarizing"})
-    summary = await _summary(evon, results, lang, case_id)
+    summary, summary_source = await _summary(evon, results, lang, case_id)
     trace = {"engine": {**engine_info(), "mode": "A"}, "evon_model": evon.model, "evon_calls": list(evon.calls),
-             "pipeline_ms": int((time.perf_counter() - t_start) * 1000), "claims": n}
+             "pipeline_ms": int((time.perf_counter() - t_start) * 1000), "claims": n,
+             "summary_source": summary_source}
     return PipelineResult(claims=results, summary=summary, trace=trace)
 
 
-async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang, case_id: str | None) -> str:
+_ECHO = re.compile(r"[A-Z]{3,}_[A-Z]|\b[a-z]+_[a-z]+\b|sentences?\b|in the document:|Promises checked", re.I)
+
+
+def summary_ok(text: str, lang: Lang) -> bool:
+    """Reject summaries that repeat the prompt or the input (seen with the 4-bit build: verdict labels, topic
+    lists on separate lines) or are in the wrong script."""
+    plain = text.replace("<pauses>", " ").replace("<slow>", " ").strip()
+    if not plain or _ECHO.search(plain) or "\n" in plain or ";" in plain or " - " in plain:
+        return False
+    return lang.code == "en" or script_ratio(plain, lang) >= SCRIPT_MIN
+
+
+async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang,
+                   case_id: str | None) -> tuple[str, str]:
+    """Returns (text, source): source "evon", or "fixed" for the fixed sentence built from the verdicts."""
     if not results:
-        return localtext.NO_PROMISES[lang.code]
+        return localtext.NO_PROMISES[lang.code], "fixed"
     # verdict + category only: the summary must not echo English claim text
     payload = [{"verdict": r.verdict, "category": r.category} for r in results]
     for _ in range(2):
@@ -229,9 +264,9 @@ async def _summary(evon: EvonClient, results: list[ClaimResult], lang: Lang, cas
             out = await evon.chat_json(prompts.summary_messages(payload, lang), False, 512, LocalText, case_id)
         except (EvonJSONError, EvonUnavailable):
             break
-        if lang.code == "en" or script_ratio(out.text.replace("<pauses>", "").replace("<slow>", ""), lang) >= SCRIPT_MIN:
-            return out.text
-    return localtext.fallback_summary(lang.code, [(r.verdict, r.category) for r in results])
+        if summary_ok(out.text, lang):
+            return out.text.strip(), "evon"
+    return localtext.fallback_summary(lang.code, [(r.verdict, r.category) for r in results]), "fixed"
 
 
 # ---------- case-level wrapper ----------

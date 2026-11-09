@@ -61,8 +61,23 @@ class BatchVerification(Verification):
 
 
 class VerificationBatch(BaseModel):
-    """llamacpp mode: all claims verified in one call."""
+    """llamacpp mode: all claims verified in one call. An item that fails validation (e.g. a cut-off verdict like
+    "WRIT" from the 4-bit build) is dropped on its own instead of failing the whole batch; the pipeline re-checks
+    that claim alone."""
     results: list[BatchVerification] = Field(default_factory=list)
+
+    @field_validator("results", mode="before")
+    @classmethod
+    def _keep_valid(cls, v):
+        if not isinstance(v, list):
+            return v
+        keep = []
+        for item in v:
+            try:
+                keep.append(BatchVerification.model_validate(item))
+            except ValueError:
+                continue
+        return keep
 
 
 class LocalText(BaseModel):

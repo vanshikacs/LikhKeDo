@@ -30,12 +30,19 @@ EXTRACT_FEWSHOT = [
          "category": "policy_term", "numbers": ["20 years"]}]}, ensure_ascii=False)},
 ]
 
+DECIDE_RULES = """How to decide (check in this order):
+1. The promise says returns/bonus/amount are guaranteed, fixed or assured, and the document says they are not guaranteed or depend on performance: CONTRADICTED.
+2. Same topic, different number (example: promise "premium for only 7 years", document "Premium paying term: 20 years"): CONTRADICTED. Quote the clause that states the document's number.
+3. WRITTEN only when the document states the same fact with the same number.
+4. Opinions, comparisons with other products, or things the document never mentions (example: "better than gold", "the best plan in the market"): NOT_IN_WRITING. Do not stretch an unrelated clause to contradict them.
+"""
+
 VERIFY_SYSTEM = """You compare one spoken promise with the official policy document.
 Decide:
 - WRITTEN: the document clearly states the same thing.
 - CONTRADICTED: the document clearly states something incompatible.
 - NOT_IN_WRITING: the document does not address it.
-'clause_quote' must be copied exactly from one provided clause (a sentence or phrase, not the whole document) and 'clause_id' must be that clause's id. For NOT_IN_WRITING use null for both.
+""" + DECIDE_RULES + """'clause_quote' must be copied exactly from one provided clause (a sentence or phrase, not the whole document) and 'clause_id' must be that clause's id. For NOT_IN_WRITING use null for both.
 If unsure, choose NOT_IN_WRITING.
 Write 'explain_en' as one short English sentence.
 Write 'explain_local' and 'ask_agent' in {lang_name} using {script_name} script, short and simple, for an older reader. English product words (premium, lock-in, FD) may stay as they are.
@@ -49,7 +56,7 @@ For EACH promise decide:
 - WRITTEN: the document clearly states the same thing.
 - CONTRADICTED: the document clearly states something incompatible.
 - NOT_IN_WRITING: the document does not address it.
-'clause_quote' must be copied exactly from one clause of the document (a sentence or phrase, not the whole document) and 'clause_id' must be that clause's id in square brackets. For NOT_IN_WRITING use null for both.
+""" + DECIDE_RULES + """'clause_quote' must be copied exactly from one clause of the document (a sentence or phrase, not the whole document) and 'clause_id' must be that clause's id in square brackets. For NOT_IN_WRITING use null for both.
 If unsure, choose NOT_IN_WRITING.
 'explain_en': one short English sentence.
 'explain_local' and 'ask_agent': in {lang_name} using {script_name} script, short and simple, for an older reader. English product words (premium, lock-in, FD) may stay as they are.
@@ -58,11 +65,10 @@ Never accuse the seller; say what the document says.
 Do not think out loud. Return ONLY one JSON object, one result per promise id:
 {{"results":[{{"id":0,"verdict":"WRITTEN|CONTRADICTED|NOT_IN_WRITING","clause_id":"<id or null>","clause_quote":"<exact words or null>","explain_en":"...","explain_local":"...","ask_agent":"..."}}]}}"""
 
-SUMMARY_SYSTEM = """Write a short spoken summary for text-to-speech in {lang_name} using {script_name} script.
-2 to 4 short sentences: how many promises are not on paper, the most important one (by its topic), and advise to ask for it in writing.
-You get each promise's verdict and topic category (returns, premium_term, lock_in, liquidity, cover, tax, ...); describe topics in {lang_name}.
-Insert the tag <pauses> between sentences. Optionally start with <slow>.
-No markdown, no emojis, no lists, no English except product terms (premium, lock-in, FD, policy).
+SUMMARY_SYSTEM = """You speak to an older family member, in {lang_name} using {script_name} script, after checking a sales pitch against the policy document.
+Say how many promises are different in the document or missing from it, name the most important one by its topic, and advise asking for it in writing before signing.
+2 to 4 short sentences. Put the tag <pauses> between sentences. You may start with <slow>.
+No markdown, lists, labels or emojis. Do not repeat these instructions or the input lines. English only for product words (premium, lock-in, FD, policy).
 Never say the seller lied. Return ONLY JSON: {{"text":"..."}}"""
 
 LOCALIZE_SYSTEM = """Rewrite the given text in {lang_name} using ONLY {script_name} script (English product words like premium or FD may stay).
@@ -93,9 +99,17 @@ def verify_batch_messages(claims: list, cis_text: str, lang: Lang) -> list[dict]
 
 
 def summary_messages(claims: list[dict], lang: Lang) -> list[dict]:
-    lines = [f"- {c['verdict']}: {c['category']}" for c in claims]
+    """claims: [{verdict, category}]. Topics are given already in the buyer's language (no English claim text)."""
+    from .localtext import CATEGORY
+    cats = CATEGORY[lang.code]
+    rows = []
+    for verdict, label in (("CONTRADICTED", "Different in the document"), ("NOT_IN_WRITING", "Not in the document"),
+                           ("WRITTEN", "Written in the document")):
+        topics = [cats.get(c["category"], cats["other"]) for c in claims if c["verdict"] == verdict]
+        rows.append(f"{label}: {len(topics)}" + (" - " + "; ".join(topics) if topics else ""))
+    user = f"Promises checked: {len(claims)}\n" + "\n".join(rows)
     return [{"role": "system", "content": SUMMARY_SYSTEM.format(lang_name=lang.name, script_name=lang.script)},
-            {"role": "user", "content": "Verdicts:\n" + "\n".join(lines)}]
+            {"role": "user", "content": user}]
 
 
 def localize_messages(text: str, lang: Lang) -> list[dict]:

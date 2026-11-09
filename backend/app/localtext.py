@@ -67,7 +67,7 @@ DISCLAIMER = {"hi": "यह वित्तीय या कानूनी स�
               "ta": "இது நிதி அல்லது சட்ட ஆலோசனை அல்ல.", "en": "Not financial or legal advice."}
 
 # Reason codes set by the grounding check (localized in the frontend i18n map as rsn_<code>).
-REASONS = ("quote_not_in_transcript", "clause_quote_not_found", "number_missing", "invalid_model_output")
+REASONS = ("quote_not_in_transcript", "clause_quote_not_found", "clause_off_topic", "number_missing", "invalid_model_output")
 
 
 def fallback_summary(lang: str, verdicts: list[tuple[str, str]]) -> str:

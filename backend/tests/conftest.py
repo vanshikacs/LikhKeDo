@@ -7,6 +7,12 @@ os.environ["DATA_DIR"] = _tmp
 os.environ["GNANI_API_KEY"] = "test-key"
 os.environ["EVON_BASE_URL"] = "http://evon.test/v1"
 os.environ["EVON_API_KEY"] = "test-evon-key"
+# pin the Evon engine so a developer's .env (e.g. EVON_PROVIDER=llamacpp) doesn't change test behaviour
+os.environ["EVON_PROVIDER"] = "vllm"
+os.environ["EVON_MODEL"] = "gnani/gnani-evon-v3.3-30B-A3B"
+os.environ["EVON_QUANT"] = ""
+os.environ["EVON_LABEL"] = ""
+os.environ["EVON_TIMEOUT"] = "90"
 os.environ["DEMO_ONLY"] = "false"
 os.environ["ADMIN_SECRET"] = "test-admin"
 

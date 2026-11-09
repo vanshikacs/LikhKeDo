@@ -60,6 +60,7 @@ export interface Report {
     evon_model: string | null
     evon_calls: { model?: string; thinking: boolean; latency_ms: number; tokens: number; request_id?: string | null }[]
     pipeline_ms: number | null
+    summary_source?: 'evon' | 'fixed' | null
     timbre: { target: string; model: string; voice: string; request_ids: string[]; cached: boolean; latency_ms?: number }[]
     calls: TraceCall[]
   }

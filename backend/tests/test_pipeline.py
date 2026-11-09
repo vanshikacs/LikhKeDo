@@ -16,8 +16,8 @@ PITCH = (ROOT / "demo/pitches/hi_hinglish.txt").read_text(encoding="utf-8")
 RETURNS = "Returns are not guaranteed. The illustrated rates of 4% and 8% p.a. are not upper or lower limits"
 
 
-def claim(quote, en="x", numbers=()):
-    return ExtractedClaim(quote=quote, claim_en=en, category="other", numbers=list(numbers))
+def claim(quote, en="x", numbers=(), category="other"):
+    return ExtractedClaim(quote=quote, claim_en=en, category=category, numbers=list(numbers))
 
 
 # ---------- ground_check edge cases ----------
@@ -54,6 +54,23 @@ def test_written_with_missing_number_downgraded():
     v = Verification(verdict="WRITTEN", clause_id="p1-s5", clause_quote="Premium paying term: 10 years")
     verdict, grounded, reason, _ = ground_check(c, v, PITCH, CLAUSES)
     assert verdict == "NOT_IN_WRITING" and reason == "number_missing"
+
+
+def test_off_topic_clause_downgraded():
+    """Seen live (4-bit GGUF): a real, exactly-quoted clause about something else must not back a verdict."""
+    said = "Our company has never rejected a single claim"
+    c = claim(said, "The company has never rejected a single claim.")
+    v = Verification(verdict="WRITTEN", clause_id="p1-s2", clause_quote="This document is a sample created for a software demonstration")
+    assert ground_check(c, v, said, CLAUSES)[:3] == ("NOT_IN_WRITING", False, "clause_off_topic")
+    said = "जो भी पैसा मिलेगा, वो पूरा tax-free है"
+    c = claim(said, "The money received at maturity will be completely tax-free.", category="tax")
+    v = Verification(verdict="CONTRADICTED", clause_id="p2-s2", clause_quote="Returns are not guaranteed.")
+    assert ground_check(c, v, said, CLAUSES)[2] == "clause_off_topic"
+    # on topic: kept
+    said = "सिर्फ़ 5 साल premium भरना है"
+    c = claim(said, "Premium has to be paid for only 5 years.", ["5 years"], category="premium_term")
+    v = Verification(verdict="CONTRADICTED", clause_id="p1-s5", clause_quote="Premium paying term: 10 years.")
+    assert ground_check(c, v, said, CLAUSES)[:2] == ("CONTRADICTED", True)
 
 
 def test_numbers_with_lakh_and_percent():
@@ -172,6 +189,47 @@ def test_llamacpp_missing_batch_item_is_not_in_writing(monkeypatch):
     assert res.claims[0].verdict == "CONTRADICTED"
     # invented clause quotes never survive the grounding check
     assert all(r.verdict == "NOT_IN_WRITING" and not r.grounded for r in res.claims[1:])
+
+
+def test_llamacpp_invalid_batch_item_is_rechecked_alone(monkeypatch):
+    """Seen live with the 4-bit GGUF: one item came back as "verdict":"WRIT". Only that claim is re-checked."""
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "evon_provider", "llamacpp")
+    fake = FakeOpenAI(EXTRACT, verify)
+    real = fake.verify
+    calls = {"batch": 0}
+
+    def cut_off(promise):
+        out = real(promise)
+        if "10 lakh" in promise and calls["batch"] == 0:
+            calls["batch"] = 1
+            return {**out, "verdict": "WRIT"}
+        return out
+
+    fake.verify = cut_off
+    res = asyncio.run(run_pipeline(PITCH, CLAUSES, "hi", EvonClient(fake)))
+    assert [r.verdict for r in res.claims] == ["CONTRADICTED", "CONTRADICTED", "WRITTEN", "NOT_IN_WRITING",
+                                                "NOT_IN_WRITING", "WRITTEN"]
+    kinds = [r["messages"][0]["content"][:20] for r in fake.requests]
+    assert sum(k.startswith("You compare several") for k in kinds) == 1      # no whole-batch repair
+    assert sum(k.startswith("You compare one") for k in kinds) == 1          # just the bad item
+
+
+def test_summary_that_echoes_the_prompt_falls_back():
+    fake = FakeOpenAI(EXTRACT, verify, summary="2 to 4 short sentences: NOT_IN_WRITING: returns <pauses> premium_term")
+    res = asyncio.run(run_pipeline(PITCH, CLAUSES, "hi", EvonClient(fake)))
+    assert "NOT_IN_WRITING" not in res.summary and "premium_term" not in res.summary
+    assert res.summary.startswith("<slow>")  # the fixed Hindi sentence from localtext
+    assert res.trace["summary_source"] == "fixed"
+
+
+def test_summary_checks():
+    from app.langs import get_lang
+    from app.pipeline import summary_ok
+    hi = get_lang("hi")
+    assert summary_ok("<slow> दो बातें काग़ज़ पर नहीं हैं। <pauses> लिखित में माँगिए।", hi)
+    assert not summary_ok("1 - शुल्क\nपैसे निकालने या loan का वादा; टैक्स का वादा", hi)   # input echoed line by line
+    assert not summary_ok("Two promises are not written.", hi)                             # wrong script
 
 
 def test_think_tags_are_stripped(monkeypatch):
