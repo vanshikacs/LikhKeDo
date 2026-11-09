@@ -56,7 +56,7 @@ Mode B is never called Evon or AI. It never invents an English paraphrase, and i
 | Mode B on the pitch text (the rules were written with these pitches in view, so this is not a fair accuracy test) | 18/18 — [demo/eval_rules.md](demo/eval_rules.md) |
 | Mode B on real Prisma v3.0 transcripts of the Timbre pitch audio | 15/18; no wrong WRITTEN or CONTRADICTED (precision 1.0 for both), misses fall to NOT_IN_WRITING or MISSED — [demo/eval_rules_stt.md](demo/eval_rules_stt.md) |
 | Mode B on 12 held-out promises (2 new pitches written after the rules) | 2/12; after one post-hoc safety fix, no wrong WRITTEN or CONTRADICTED |
-| Mode A, GGUF **IQ4_XS** on 2× T4 (9 Nov) | speed fine: 3–5 s per call, 17–34 s per pitch. Quality not good enough: at temperature 0 it could not copy a Hindi sentence exactly (dropped tokens, "लिखित पुष्टि दीजिए" → "लिख लिखित पुष्टि दीज"). 20/30 on the answer key after the fixes below, no wrong WRITTEN — [demo/eval_results_iq4xs.md](demo/eval_results_iq4xs.md). **Use Q4_K_M.** |
+| Mode A, GGUF **IQ4_XS** on 2× T4 (9 Nov) | speed fine: 3–5 s per call, 17–34 s per pitch. Quality not good enough: at temperature 0 it could not copy a Hindi sentence exactly (dropped tokens, "लिखित पुष्टि दीजिए" → "लिख लिखित पुष्टि दीज"). 20/30 and 18/30 on the answer key in two runs after the fixes below, no wrong WRITTEN in either — [run 1](demo/eval_results_iq4xs.md), [run 2](demo/eval_results_iq4xs_run2.md). **Use Q4_K_M.** |
 | Mode A, GGUF Q4_K_M | not run yet |
 | Mode A with BF16 on vLLM | not run — no GPU |
 

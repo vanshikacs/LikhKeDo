@@ -38,7 +38,7 @@ it works without Kaggle; say that aloud. Open `http://localhost:5173/?record=1`.
 | 1:55–2:10 | Voice | Tap **सुनिए**: Tarika reads the summary | Timbre v3.0 |
 | 2:10–2:25 | Action | **Likh Ke Do slip** (print view), then **30-day free look** | a concrete next step |
 | 2:25–2:40 | Proof | **Under the hood**: Prisma request ids, Evon calls (⚡ thinking off), Timbre. "6 promises checked in 17 s" (Hindi case `pipeline_ms` = 17,023) | real Gnani calls |
-| 2:40–3:00 | Tamil + close | **See a demo** → Tamil: **Written** "முப்பது நாளுக்குள்ளே… திருப்பி கொடுக்கலாம்" vs "Free-look period… within 30 days" (page 3), and ₹10 lakh **Written**. "On a 30-promise test it scored 20/30 and never wrongly said Written. Jo bola, kya woh likha hai? LikhKeDo." | regional language, honest score |
+| 2:40–3:00 | Tamil + close | **See a demo** → Tamil: **Written** "முப்பது நாளுக்குள்ளே… திருப்பி கொடுக்கலாம்" vs "Free-look period… within 30 days" (page 3), and ₹10 lakh **Written**. "On a 30-promise test it scored 18 to 20 out of 30 and never wrongly said Written. Jo bola, kya woh likha hai? LikhKeDo." | regional language, honest score |
 
 Do **not** scroll onto these Hindi cards as successes: "पहले कुछ नहीं देना" (rejected by the grounding check: you may show it as
 the safety net) and "returns कर सकते हैं" (the free-look promise, extracted badly). Do not show Marathi.
@@ -108,7 +108,7 @@ If the full BF16 Evon ran instead, replace the dash clause with nothing. If no E
 |---|---|
 | Is this really Evon? | Yes: Gnani's Evon v3.3 30B-A3B weights, as a community 4-bit GGUF (IQ4_XS) on llama.cpp on two free Kaggle T4s. Every report names the engine. We did not run Gnani's BF16 build (no GPU budget). |
 | Why are the explanations standard sentences? | The 4-bit file dropped tokens in Hindi even at temperature 0, so its free text was garbled or unsupported by the clause. Evon still picks each promise, verdict and clause; the sentence is labelled as standard on screen. With BF16 on vLLM the code uses the model's explanations. |
-| How accurate is it? | 20/30 on our answer key (written before any model run, unchanged), no wrong *Written*, cited clause right in 13/15 correct verdicts. Small, synthetic test set: it shows the pipeline works, not production accuracy. |
+| How accurate is it? | 20/30 and 18/30 in two runs on our answer key (written before any model run, unchanged); never a wrong *Written*. *Different on paper* is the weak spot: sometimes it compares with a related but wrong clause (premium amount vs premium term), which is why every card shows both quotes for the buyer to see. Small, synthetic test set: it shows the pipeline works, not production accuracy. |
 | What stops hallucinated clauses? | Code checks every verdict: the promise must be in the transcript, the clause quote in the cited clause (fuzzy ≥ 90), the clause on the same topic (BM25), and every number of a *Written* verdict in the clause. Failures become *Not in writing — ask*. |
 | Isn't "not in writing" the same as "false"? | No. It means the document doesn't say it, so ask for it in writing. We never say the seller lied. |
 | Why Marathi isn't shown? | Its live run had two wrong *Different on paper* cards. It is documented in the README and the app warns when Marathi is selected. |

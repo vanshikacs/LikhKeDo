@@ -247,3 +247,18 @@ def test_recall_limit_per_visitor(client, monkeypatch):
                          headers={"content-type": "audio/wav"}).status_code for _ in range(3)]
     assert codes == [200, 200, 429]
     assert client.post(f"/api/cases/{cid}/text", json={"text": "typing still works"}).status_code == 200
+
+
+def test_demo_only_public_site(client, monkeypatch):
+    """DEMO_ONLY=true (the public deployment): live checks answer 503 with reason demo_only and a pointer to the
+    saved cases, never a result that looks live; the labelled rules check still works when chosen."""
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "demo_only", True)
+    assert client.get("/api/health").json()["demo_only"] is True
+    cid = new_case(client)
+    client.post(f"/api/cases/{cid}/text", json={"text": PITCH})
+    client.post(f"/api/cases/{cid}/document", json={"demo_doc": "suraksha_plus"})
+    r = client.post(f"/api/cases/{cid}/analyze")
+    assert r.status_code == 503 and r.json()["detail"]["reason"] == "demo_only"
+    assert client.get(f"/api/cases/{cid}/report").json()["status"] == "new"
+    assert client.post(f"/api/cases/{cid}/analyze?engine=rules").json()["engine"] == "rules"

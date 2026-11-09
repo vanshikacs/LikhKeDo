@@ -26,18 +26,18 @@ Insurance mis-selling happens in spoken words. An agent says "returns guaranteed
 
 ## Project explanation (250 words)
 
-LikhKeDo, "put it in writing", is a buyer-side check for insurance sales pitches. The buyer picks a language. In Listen mode the pitch streams to Prisma v3.0: live captions appear and phrases like "guaranteed" or "FD jaisa" light up. In Recall mode the buyer says afterwards what was promised, or types it; the seller is never recorded.
+LikhKeDo, "put it in writing", is a buyer-side check for insurance sales pitches. In Listen mode the pitch streams to Prisma v3.0: live captions appear and phrases like "guaranteed" or "FD jaisa" light up. In Recall mode the buyer says afterwards what was promised, or types it; the seller is never recorded.
 
-The buyer adds the policy's Customer Information Sheet, which we split into numbered clauses with page numbers. Evon v3.3, self-hosted, extracts each promise in its exact words and decides: Written, Different on paper, or Not in writing, citing the exact clause. Code then checks Evon: the promise must appear in what was said, the quote must appear in the cited clause, that clause must be on the same topic, and every number of a Written verdict must be in it. Any failure becomes "Not in writing — ask", so mistakes fall on the cautious side.
+The buyer adds the policy's Customer Information Sheet, which we split into numbered clauses. Evon v3.3, self-hosted, extracts each promise in its exact words and decides: Written, Different on paper, or Not in writing, citing the exact clause. Code then checks Evon: the promise must appear in what was said, the quote must appear in the cited clause, that clause must be on the same topic, and every number of a Written verdict must be in it. Any failure becomes "Not in writing — ask", so mistakes fall on the cautious side.
 
 Each card shows both quotes and the page. Timbre v3.0 reads a slow summary aloud. A printable "Likh Ke Do" slip lists the promises to get in writing, and buyers who already signed see the 30-day free-look steps.
 
-On a ₹0 budget we ran Evon as a community 4-bit build on free Kaggle GPUs. On our 30-promise answer key it scored 20/30, with no wrong "Written". Its free text garbled some Hindi, so explanations are standard sentences, labelled as such. "Under the hood" shows every Gnani request id. Fictional insurer, synthetic voices, data deleted after 24 hours. Not financial or legal advice.
+On a ₹0 budget we ran Evon as a community 4-bit build on free Kaggle GPUs. On our 30-promise answer key it scored 20/30 and 18/30 in two runs, never wrongly saying "Written". Its free text garbled some Hindi, so explanations are standard sentences, labelled as such. "Under the hood" shows every Gnani request id. Fictional insurer, synthetic voices, data deleted after 24 hours. Not financial or legal advice.
 
 ## Evaluation (real numbers)
 
-- 30 labelled promises in 5 pitches (Hindi, Tamil, Marathi, plus held-out Hindi and English written before any model run). Evon v3.3 community 4-bit GGUF (IQ4_XS): **20/30 correct**; *Written* precision **1.0** (no wrong *Written*), recall 0.6; *Different on paper* precision and recall 0.82; cited clause matches the answer key in 13/15 correct verdicts.
-- By pitch: Hindi 3/6, Tamil 4/6, Marathi 3/6, held-out Hindi 4/6, held-out English 6/6. Files: `demo/eval_results_iq4xs.md` (rescore offline with `scripts/eval_answer_key.py --rescore`).
+- 30 labelled promises in 5 pitches (Hindi, Tamil, Marathi, plus held-out Hindi and English written before any model run). Evon v3.3 community 4-bit GGUF (IQ4_XS): **20/30 and 18/30** in two runs of the same code; *Written* precision **1.0** in both (no wrong *Written*); *Different on paper* precision 0.82 and 0.53 (it sometimes compares with a related but wrong clause); cited clause matches the answer key in 13/15 and 12/13 correct verdicts. An extra unseen pitch: 4/6, one wrong *Different on paper*.
+- By pitch (run 1 / run 2): Hindi 3 · 5, Tamil 4 · 2, Marathi 3 · 3, held-out Hindi 4 · 2, held-out English 6 · 6 (of 6). Files: `demo/eval_results_iq4xs.md`, `demo/eval_results_iq4xs_run2.md` (rescore offline with `scripts/eval_answer_key.py --rescore`).
 - Prisma v3.0 kept 93–95% of the pitch words from clean audio down to 5 dB babble noise and telephone-band audio (synthetic voice and noise).
 
 ## Limitations
